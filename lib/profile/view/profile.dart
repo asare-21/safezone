@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/cubit/notification_settings_cubit.dart';
+import 'package:safe_zone/profile/cubit/profile_settings_cubit.dart';
 import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
+import 'package:safe_zone/profile/repository/profile_settings_repository.dart';
 import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
@@ -20,8 +23,15 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ProfileCubit()..loadSettings(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ProfileCubit()..loadSettings(),
+        ),
+        BlocProvider(
+          create: (_) => NotificationSettingsCubit(),
+        ),
+      ],
       child: const _ProfileView(),
     );
   }
@@ -96,7 +106,7 @@ class _ProfileViewState extends State<_ProfileView> {
                       onChanged: cubit.toggleProximityAlerts,
                     ),
                     const Divider(height: 1),
-                    _buildAlertRadiusItem(theme, state.alertRadius, cubit),
+                    _buildAlertRadiusItem(theme),
                     const Divider(height: 1),
                     _buildToggleItem(
                       theme,
@@ -116,17 +126,12 @@ class _ProfileViewState extends State<_ProfileView> {
             // Privacy & Safety Section
             _buildSectionHeader(theme, 'PRIVACY & SAFETY'),
 
-            BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
-              builder: (context, state) {
-                final cubit = context.read<NotificationSettingsCubit>();
-                return _buildSettingsCard(
-                  theme,
-                  children: [
-                 
+            _buildSettingsCard(
+              theme,
+              children: [
                 BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
                   builder: (context, state) {
                     return _buildToggleItemWithSubtitle(
-
                       theme,
                       icon: LineIcons.userSecret,
                       iconColor: Theme.of(context).colorScheme.primary,
@@ -144,33 +149,21 @@ class _ProfileViewState extends State<_ProfileView> {
                   },
                 ),
                 const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  children: [
-                    _buildToggleItemWithSubtitle(
-                      theme,
-                      icon: LineIcons.userSecret,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      iconBgColor: _lightBlueBackground,
-                      title: 'Anonymous Reporting',
-                      subtitle:
-                          'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
-                      value: state.anonymousReporting,
-                      onChanged: cubit.updateAnonymousReporting,
-                    ),
-                    const Divider(height: 1),
-                    _buildToggleItem(
+                BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
+                  builder: (context, state) {
+                    final cubit = context.read<NotificationSettingsCubit>();
+                    return _buildToggleItem(
                       theme,
                       icon: LineIcons.share,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
                       title: 'Share Location with Contacts',
                       value: state.shareLocationWithContacts,
-                      onChanged: cubit.updateShareLocationWithContacts,
-                    ),
-                  ],
-                );
-              },
+                      onChanged: cubit.toggleShareLocationWithContacts,
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
 
