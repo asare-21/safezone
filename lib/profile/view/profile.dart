@@ -36,9 +36,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _initPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() {});
+      setState(() {
+        _prefs = prefs;
+      });
     }
   }
 
