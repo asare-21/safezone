@@ -130,18 +130,7 @@ class Alert {
     }
   }
 
-  Color get severityColor {
-    switch (severity) {
-      case AlertSeverity.high:
-        return const Color(0xFFFF4C4C);
-      case AlertSeverity.medium:
-        return const Color(0xFFFF9500);
-      case AlertSeverity.low:
-        return const Color(0xFF5856D6);
-      case AlertSeverity.info:
-        return const Color(0xFF8E8E93);
-    }
-  }
+  Color get severityColor => severity.color;
 
   bool isWithinTimeFilter(AlertTimeFilter filter) {
     if (filter.duration == null) return true;

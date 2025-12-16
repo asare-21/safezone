@@ -5,6 +5,25 @@ import 'package:safe_zone/alerts/models/alert_model.dart';
 import 'package:safe_zone/alerts/view/alert_details_screen.dart';
 import 'package:safe_zone/home/home.dart';
 
+/// Default filter values for alerts screen
+class AlertFilterDefaults {
+  const AlertFilterDefaults._();
+
+  static const Set<AlertSeverity> severities = {
+    AlertSeverity.high,
+    AlertSeverity.medium,
+    AlertSeverity.low,
+    AlertSeverity.info,
+  };
+  static const Set<AlertType> types = {
+    AlertType.highRisk,
+    AlertType.theft,
+    AlertType.eventCrowd,
+    AlertType.trafficCleared,
+  };
+  static const AlertTimeFilter timeFilter = AlertTimeFilter.all;
+}
+
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
 
@@ -13,25 +32,11 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class _AlertsScreenState extends State<AlertsScreen> {
-  // Default filter values
-  static const Set<AlertSeverity> _defaultSeverities = {
-    AlertSeverity.high,
-    AlertSeverity.medium,
-    AlertSeverity.low,
-    AlertSeverity.info,
-  };
-  static const Set<AlertType> _defaultTypes = {
-    AlertType.highRisk,
-    AlertType.theft,
-    AlertType.eventCrowd,
-    AlertType.trafficCleared,
-  };
-  static const AlertTimeFilter _defaultTimeFilter = AlertTimeFilter.all;
-
   // Filter state
-  Set<AlertSeverity> _selectedSeverities = Set.from(_defaultSeverities);
-  Set<AlertType> _selectedTypes = Set.from(_defaultTypes);
-  AlertTimeFilter _selectedTimeFilter = _defaultTimeFilter;
+  Set<AlertSeverity> _selectedSeverities =
+      Set.from(AlertFilterDefaults.severities);
+  Set<AlertType> _selectedTypes = Set.from(AlertFilterDefaults.types);
+  AlertTimeFilter _selectedTimeFilter = AlertFilterDefaults.timeFilter;
 
   // Mock data for demonstration
   final List<Alert> _mockAlerts = [
@@ -517,9 +522,9 @@ class _FilterDialogState extends State<_FilterDialog> {
 
   void _clearFilters() {
     setState(() {
-      _tempSeverities = Set.from(_AlertsScreenState._defaultSeverities);
-      _tempTypes = Set.from(_AlertsScreenState._defaultTypes);
-      _tempTimeFilter = _AlertsScreenState._defaultTimeFilter;
+      _tempSeverities = Set.from(AlertFilterDefaults.severities);
+      _tempTypes = Set.from(AlertFilterDefaults.types);
+      _tempTimeFilter = AlertFilterDefaults.timeFilter;
     });
   }
 
