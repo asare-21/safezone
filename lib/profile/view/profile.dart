@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
 import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
+import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -15,26 +16,23 @@ const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({
-    super.key,
-    ProximityAlertsSettingsRepository? repository,
-  }) : _repository = repository;
-
-  final ProximityAlertsSettingsRepository? _repository;
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ProximityAlertsSettingsCubit(
-        repository: _repository ?? ProximityAlertsSettingsRepository(),
-      ),
-      child: const _ProfileScreenView(),
+      create: (context) => NotificationSettingsCubit(),
+      child: const _ProfileView(),
     );
   }
 }
 
-class _ProfileScreenView extends StatelessWidget {
-  const _ProfileScreenView();
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _pushNotifications = true;
+  bool _proximityAlerts = true;
+  bool _soundVibration = false;
+  bool _shareLocationWithContacts = false;
+  double _alertRadius = 2.5;
 
   @override
   Widget build(BuildContext context) {
@@ -66,10 +64,9 @@ class _ProfileScreenView extends StatelessWidget {
 
             // Alerts & Notifications Section
             _buildSectionHeader(theme, 'ALERTS & NOTIFICATIONS'),
-            BlocBuilder<ProximityAlertsSettingsCubit,
-                ProximityAlertsSettingsState>(
+            BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
               builder: (context, state) {
-                final cubit = context.read<ProximityAlertsSettingsCubit>();
+                final cubit = context.read<NotificationSettingsCubit>();
                 return _buildSettingsCard(
                   theme,
                   children: [
@@ -80,7 +77,7 @@ class _ProfileScreenView extends StatelessWidget {
                       iconBgColor: _lightBlueBackground,
                       title: 'Push Notifications',
                       value: state.pushNotifications,
-                      onChanged: cubit.updatePushNotifications,
+                      onChanged: cubit.togglePushNotifications,
                     ),
                     const Divider(height: 1),
                     _buildToggleItem(
@@ -90,10 +87,10 @@ class _ProfileScreenView extends StatelessWidget {
                       iconBgColor: _lightBlueBackground,
                       title: 'Proximity Alerts',
                       value: state.proximityAlerts,
-                      onChanged: cubit.updateProximityAlerts,
+                      onChanged: cubit.toggleProximityAlerts,
                     ),
                     const Divider(height: 1),
-                    _buildAlertRadiusItem(theme, state, cubit),
+                    _buildAlertRadiusItem(theme, state.alertRadius, cubit),
                     const Divider(height: 1),
                     _buildToggleItem(
                       theme,
@@ -102,7 +99,7 @@ class _ProfileScreenView extends StatelessWidget {
                       iconBgColor: _lightBlueBackground,
                       title: 'Sound & Vibration',
                       value: state.soundVibration,
-                      onChanged: cubit.updateSoundVibration,
+                      onChanged: cubit.toggleSoundVibration,
                     ),
                   ],
                 );
@@ -112,11 +109,36 @@ class _ProfileScreenView extends StatelessWidget {
 
             // Privacy & Safety Section
             _buildSectionHeader(theme, 'PRIVACY & SAFETY'),
-            BlocBuilder<ProximityAlertsSettingsCubit,
-                ProximityAlertsSettingsState>(
+
+            BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
               builder: (context, state) {
-                final cubit = context.read<ProximityAlertsSettingsCubit>();
+                final cubit = context.read<NotificationSettingsCubit>();
                 return _buildSettingsCard(
+                  theme,
+                  children: [
+                 
+                BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
+                  builder: (context, state) {
+                    return _buildToggleItemWithSubtitle(
+
+                      theme,
+                      icon: LineIcons.userSecret,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Anonymous Reporting',
+                      subtitle:
+                          'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
+                      value: state.anonymousReporting,
+                      onChanged: (value) {
+                        context
+                            .read<ProfileSettingsCubit>()
+                            .setAnonymousReporting(value);
+                      },
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                _buildToggleItem(
                   theme,
                   children: [
                     _buildToggleItemWithSubtitle(
@@ -540,8 +562,8 @@ class _ProfileScreenView extends StatelessWidget {
 
   Widget _buildAlertRadiusItem(
     ThemeData theme,
-    ProximityAlertsSettingsState state,
-    ProximityAlertsSettingsCubit cubit,
+    double alertRadius,
+    NotificationSettingsCubit cubit,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -573,7 +595,7 @@ class _ProfileScreenView extends StatelessWidget {
                 ),
               ),
               Text(
-                '${state.alertRadius.toStringAsFixed(1)} km',
+                '${alertRadius.toStringAsFixed(1)} km',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -606,7 +628,7 @@ class _ProfileScreenView extends StatelessWidget {
                     ),
                   ),
                   child: Slider(
-                    value: state.alertRadius,
+                    value: alertRadius,
                     min: 0.5,
                     max: 10,
                     divisions: 19,
