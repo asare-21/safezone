@@ -1,5 +1,6 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AuthenticationScreen extends StatefulWidget {
@@ -124,6 +125,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                       onPressed: isLastPage
                           ? () {
                               // Navigate to auth
+                              context.go('/');
+                              // TODO(joasare019): Change to cubit/bloc that will manage authentication
                             }
                           : () {
                               pageController.nextPage(
