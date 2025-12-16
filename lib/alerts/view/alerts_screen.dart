@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/models/alert_model.dart';
+import 'package:safe_zone/home/home.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -172,7 +174,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       // Map View FAB
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO(joasare019): Navigate to map view
+          context.read<BottomNavigationCubit>().navigateToMap();
         },
         backgroundColor: theme.colorScheme.primary,
         icon: const Icon(Icons.map, color: Colors.white),
