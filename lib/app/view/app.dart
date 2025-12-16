@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_zone/l10n/l10n.dart';
+import 'package:safe_zone/utils/router_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class App extends StatelessWidget {
@@ -11,6 +12,7 @@ class App extends StatelessWidget {
       title: 'Safe Zone',
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: routerConfig,
       theme: ShadThemeData(
         colorScheme: const ShadBlueColorScheme.light(),
       ),
