@@ -7,6 +7,7 @@ class ProximityAlertsSettingsRepository {
   }) : _sharedPreferences = sharedPreferences;
 
   final SharedPreferences? _sharedPreferences;
+  SharedPreferences? _cachedPrefs;
 
   // Keys for stored values
   static const String _pushNotificationsKey = 'push_notifications';
@@ -18,7 +19,11 @@ class ProximityAlertsSettingsRepository {
 
   /// Get shared preferences instance
   Future<SharedPreferences> get _prefs async {
-    return _sharedPreferences ?? await SharedPreferences.getInstance();
+    if (_sharedPreferences != null) {
+      return _sharedPreferences!;
+    }
+    _cachedPrefs ??= await SharedPreferences.getInstance();
+    return _cachedPrefs!;
   }
 
   /// Load push notifications setting
