@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 
+// Color constants for profile screen
+const Color _primaryBlue = Color(0xFF3B82F6);
+const Color _lightBlueBackground = Color(0xFFEFF6FF);
+const Color _avatarBackground = Color(0xFFFFE4CC);
+const Color _avatarIconColor = Color(0xFF8B7355);
+
+// Trust score constants
+const int _currentTrustScore = 450;
+const int _maxTrustScore = 600;
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -52,8 +62,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildToggleItem(
                   theme,
                   icon: LineIcons.bell,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Push Notifications',
                   value: _pushNotifications,
                   onChanged: (value) {
@@ -66,8 +76,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildToggleItem(
                   theme,
                   icon: LineIcons.mapMarker,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Proximity Alerts',
                   value: _proximityAlerts,
                   onChanged: (value) {
@@ -82,8 +92,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildToggleItem(
                   theme,
                   icon: LineIcons.volumeUp,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Sound & Vibration',
                   value: _soundVibration,
                   onChanged: (value) {
@@ -104,8 +114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildToggleItemWithSubtitle(
                   theme,
                   icon: LineIcons.userSecret,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Anonymous Reporting',
                   subtitle:
                       'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
@@ -120,8 +130,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildToggleItem(
                   theme,
                   icon: LineIcons.shareAlt,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Share Location with Contacts',
                   value: _shareLocationWithContacts,
                   onChanged: (value) {
@@ -134,8 +144,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildNavigationItem(
                   theme,
                   icon: LineIcons.ban,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Manage Blocked Users',
                   onTap: () {
                     // Navigate to blocked users screen
@@ -153,8 +163,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildNavigationItem(
                   theme,
                   icon: LineIcons.history,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'My Incident History',
                   onTap: () {
                     // Navigate to incident history screen
@@ -164,8 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildNavigationItem(
                   theme,
                   icon: LineIcons.key,
-                  iconColor: const Color(0xFF3B82F6),
-                  iconBgColor: const Color(0xFFEFF6FF),
+                  iconColor: _primaryBlue,
+                  iconBgColor: _lightBlueBackground,
                   title: 'Change Password',
                   onTap: () {
                     // Navigate to change password screen
@@ -242,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 64,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFFFE4CC),
+                    color: _avatarBackground,
                     border: Border.all(
                       color: theme.dividerColor.withValues(alpha: 0.2),
                       width: 2,
@@ -251,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Icon(
                     LineIcons.user,
                     size: 32,
-                    color: Color(0xFF8B7355),
+                    color: _avatarIconColor,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -311,15 +321,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
+                    color: _lightBlueBackground,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    '450/600',
+                    '$_currentTrustScore/$_maxTrustScore',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF3B82F6),
+                      color: _primaryBlue,
                     ),
                   ),
                 ),
@@ -330,11 +340,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: 450 / 600,
+                value: _currentTrustScore / _maxTrustScore,
                 minHeight: 8,
                 backgroundColor: theme.dividerColor.withValues(alpha: 0.1),
                 valueColor: const AlwaysStoppedAnimation<Color>(
-                  Color(0xFF3B82F6),
+                  _primaryBlue,
                 ),
               ),
             ),
@@ -424,7 +434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               value: value,
               onChanged: onChanged,
               activeColor: Colors.white,
-              activeTrackColor: const Color(0xFF3B82F6),
+              activeTrackColor: _primaryBlue,
             ),
           ),
         ],
@@ -491,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               value: value,
               onChanged: onChanged,
               activeColor: Colors.white,
-              activeTrackColor: const Color(0xFF3B82F6),
+              activeTrackColor: _primaryBlue,
             ),
           ),
         ],
@@ -557,13 +567,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: _lightBlueBackground,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   LineIcons.bullseye,
                   size: 20,
-                  color: Color(0xFF3B82F6),
+                  color: _primaryBlue,
                 ),
               ),
               const SizedBox(width: 16),
@@ -581,7 +591,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF3B82F6),
+                  color: _primaryBlue,
                 ),
               ),
             ],
@@ -599,10 +609,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: const Color(0xFF3B82F6),
+                    activeTrackColor: _primaryBlue,
                     inactiveTrackColor:
                         theme.dividerColor.withValues(alpha: 0.2),
-                    thumbColor: const Color(0xFF3B82F6),
+                    thumbColor: _primaryBlue,
                     trackHeight: 4,
                     thumbShape:
                         const RoundSliderThumbShape(enabledThumbRadius: 8),
