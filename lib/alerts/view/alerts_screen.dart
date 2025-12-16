@@ -268,23 +268,6 @@ class _AlertsScreenState extends State<AlertsScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          // Map preview placeholder
-          Container(
-            width: 120,
-            height: 100,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.map,
-                size: 40,
-                color: Color(0xFF34C759),
-              ),
-            ),
-          ),
         ],
       ),
     );
