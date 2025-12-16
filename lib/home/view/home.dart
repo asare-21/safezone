@@ -48,7 +48,12 @@ class _HomeViewState extends State<_HomeView> {
   Widget build(BuildContext context) {
     return BlocConsumer<BottomNavigationCubit, BottomNavigationState>(
       listener: (context, state) {
-        _pageController.jumpToPage(state.index);
+        // Only jump to page if it's different from the current page
+        // to avoid infinite loops when swiping
+        if (_pageController.hasClients &&
+            _pageController.page?.round() != state.index) {
+          _pageController.jumpToPage(state.index);
+        }
       },
       builder: (context, state) {
         return Scaffold(
