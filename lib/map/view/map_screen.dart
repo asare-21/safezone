@@ -23,7 +23,7 @@ class _MapScreenState extends State<MapScreen> {
 
   // New York City center coordinates (example location)
   final LatLng _center = const LatLng(40.7128, -74.0060);
-  final RiskLevel _currentRiskLevel = RiskLevel.moderate;
+  RiskLevel _currentRiskLevel = RiskLevel.moderate;
 
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
@@ -111,13 +111,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _showReportIncidentDialog() {
-    // TODO(joasare019): Implement report incident functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Report incident feature coming soon!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    // TODO(joasare019): Implement report incident functionality.
   }
 
   void _centerOnUserLocation() {
@@ -136,6 +130,7 @@ class _MapScreenState extends State<MapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _center,
+              initialZoom: 13,
               minZoom: 10,
               maxZoom: 18,
             ),
