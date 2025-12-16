@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,13 +37,19 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
+        children: const [
+          Center(child: Text('Map Screen')),
+          Center(child: Text('Alerts Screen')),
+          Center(child: Text('Guide Screen')),
+          ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onPageChanged,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(LineIcons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(LineIcons.map), label: 'Map'),
           BottomNavigationBarItem(
             icon: Icon(LineIcons.bell),
             label: 'Alerts',
@@ -53,8 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(LineIcons.alternateUser),
-            label: 'Profile',
+            icon: Icon(LineIcons.cog),
+            label: 'Settings',
           ),
         ],
       ),
