@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
+import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -11,20 +14,22 @@ const Color _avatarIconColor = Color(0xFF8B7355);
 const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ProximityAlertsSettingsCubit(
+        repository: ProximityAlertsSettingsRepository(),
+      ),
+      child: const _ProfileScreenView(),
+    );
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool _pushNotifications = true;
-  bool _proximityAlerts = true;
-  bool _soundVibration = false;
-  bool _anonymousReporting = true;
-  bool _shareLocationWithContacts = false;
-  double _alertRadius = 2.5;
+class _ProfileScreenView extends StatelessWidget {
+  const _ProfileScreenView();
 
   @override
   Widget build(BuildContext context) {
@@ -56,91 +61,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // Alerts & Notifications Section
             _buildSectionHeader(theme, 'ALERTS & NOTIFICATIONS'),
-            _buildSettingsCard(
-              theme,
-              children: [
-                _buildToggleItem(
+            BlocBuilder<ProximityAlertsSettingsCubit,
+                ProximityAlertsSettingsState>(
+              builder: (context, state) {
+                final cubit = context.read<ProximityAlertsSettingsCubit>();
+                return _buildSettingsCard(
                   theme,
-                  icon: LineIcons.bell,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Push Notifications',
-                  value: _pushNotifications,
-                  onChanged: (value) {
-                    setState(() {
-                      _pushNotifications = value;
-                    });
-                  },
-                ),
-                const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  icon: LineIcons.mapMarker,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Proximity Alerts',
-                  value: _proximityAlerts,
-                  onChanged: (value) {
-                    setState(() {
-                      _proximityAlerts = value;
-                    });
-                  },
-                ),
-                const Divider(height: 1),
-                _buildAlertRadiusItem(theme),
-                const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  icon: LineIcons.volumeUp,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Sound & Vibration',
-                  value: _soundVibration,
-                  onChanged: (value) {
-                    setState(() {
-                      _soundVibration = value;
-                    });
-                  },
-                ),
-              ],
+                  children: [
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.bell,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Push Notifications',
+                      value: state.pushNotifications,
+                      onChanged: cubit.updatePushNotifications,
+                    ),
+                    const Divider(height: 1),
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.mapMarker,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Proximity Alerts',
+                      value: state.proximityAlerts,
+                      onChanged: cubit.updateProximityAlerts,
+                    ),
+                    const Divider(height: 1),
+                    _buildAlertRadiusItem(theme, state, cubit),
+                    const Divider(height: 1),
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.volumeUp,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Sound & Vibration',
+                      value: state.soundVibration,
+                      onChanged: cubit.updateSoundVibration,
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 24),
 
             // Privacy & Safety Section
             _buildSectionHeader(theme, 'PRIVACY & SAFETY'),
-            _buildSettingsCard(
-              theme,
-              children: [
-                _buildToggleItemWithSubtitle(
+            BlocBuilder<ProximityAlertsSettingsCubit,
+                ProximityAlertsSettingsState>(
+              builder: (context, state) {
+                final cubit = context.read<ProximityAlertsSettingsCubit>();
+                return _buildSettingsCard(
                   theme,
-                  icon: LineIcons.userSecret,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Anonymous Reporting',
-                  subtitle:
-                      'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
-                  value: _anonymousReporting,
-                  onChanged: (value) {
-                    setState(() {
-                      _anonymousReporting = value;
-                    });
-                  },
-                ),
-                const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  icon: LineIcons.share,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Share Location with Contacts',
-                  value: _shareLocationWithContacts,
-                  onChanged: (value) {
-                    setState(() {
-                      _shareLocationWithContacts = value;
-                    });
-                  },
-                ),
-              ],
+                  children: [
+                    _buildToggleItemWithSubtitle(
+                      theme,
+                      icon: LineIcons.userSecret,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Anonymous Reporting',
+                      subtitle:
+                          'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
+                      value: state.anonymousReporting,
+                      onChanged: cubit.updateAnonymousReporting,
+                    ),
+                    const Divider(height: 1),
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.share,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Share Location with Contacts',
+                      value: state.shareLocationWithContacts,
+                      onChanged: cubit.updateShareLocationWithContacts,
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 24),
 
@@ -536,7 +533,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAlertRadiusItem(ThemeData theme) {
+  Widget _buildAlertRadiusItem(
+    ThemeData theme,
+    ProximityAlertsSettingsState state,
+    ProximityAlertsSettingsCubit cubit,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -567,7 +568,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               Text(
-                '${_alertRadius.toStringAsFixed(1)} km',
+                '${state.alertRadius.toStringAsFixed(1)} km',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -600,15 +601,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   child: Slider(
-                    value: _alertRadius,
+                    value: state.alertRadius,
                     min: 0.5,
                     max: 10,
                     divisions: 19,
-                    onChanged: (value) {
-                      setState(() {
-                        _alertRadius = value;
-                      });
-                    },
+                    onChanged: cubit.updateAlertRadius,
                   ),
                 ),
               ),
