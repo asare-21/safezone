@@ -137,7 +137,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
             _allIncidents.insert(0, newIncident);
             // Update cubit with new incidents list
             context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
-            
+
             Navigator.of(dialogContext).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -162,7 +162,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
     return BlocBuilder<MapFilterCubit, MapFilterState>(
       builder: (context, filterState) {
-        final filteredIncidents = context.read<MapFilterCubit>().getFilteredIncidents();
+        final filteredIncidents = context
+            .read<MapFilterCubit>()
+            .getFilteredIncidents();
 
         return Scaffold(
           body: Stack(
@@ -177,7 +179,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.safezone.app',
                   ),
                   // Incident markers
@@ -220,213 +223,220 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ],
               ),
 
-          // Top overlay with search and filters
-          SafeArea(
-            child: Column(
-              children: [
-                // Avatar and search bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 5,
-                  ),
-                  child: Row(
-                    children: [
-                      // Search bar
-                      Expanded(
-                        child: Container(
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+              // Top overlay with search and filters
+              SafeArea(
+                child: Column(
+                  children: [
+                    // Avatar and search bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 5,
+                      ),
+                      child: Row(
+                        children: [
+                          // Search bar
+                          Expanded(
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Search location or zone',
-                              hintStyle: TextStyle(
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.4,
+                              child: TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Search location or zone',
+                                  hintStyle: TextStyle(
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(
+                                          alpha: 0.4,
+                                        ),
+                                    fontSize: 15,
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(
+                                          alpha: 0.4,
+                                        ),
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
                                 ),
-                                fontSize: 15,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.4,
-                                ),
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-
-                // Time filter segments
-                SegmentedButton<TimeFilter>(
-                  style: SegmentedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    selectedBackgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.primary,
-                    selectedForegroundColor: Colors.white,
-                  ),
-                  onSelectionChanged: (newSelection) {
-                    final selectedFilter = newSelection.first;
-                    context.read<MapFilterCubit>().updateTimeFilter(selectedFilter);
-                  },
-                  segments: const [
-                    ButtonSegment(
-                      value: TimeFilter.twentyFourHours,
-                      label: Text('24h'),
                     ),
-                    ButtonSegment(
-                      value: TimeFilter.sevenDays,
-                      label: Text('7d'),
-                    ),
-                    ButtonSegment(
-                      value: TimeFilter.thirtyDays,
-                      label: Text('30d'),
-                    ),
-                  ],
-                  selected: {filterState.timeFilter},
-                ),
 
-                const SizedBox(height: 12),
-
-                // Category filter chips
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: IncidentCategory.values.map((category) {
-                      final isSelected = filterState.selectedCategories.contains(category);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _buildCategoryFilterChip(
-                          category,
-                          isSelected: isSelected,
-                          onTap: () {
-                            context.read<MapFilterCubit>().toggleCategory(category);
-                          },
+                    // Time filter segments
+                    SegmentedButton<TimeFilter>(
+                      style: SegmentedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        selectedBackgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primary,
+                        selectedForegroundColor: Colors.white,
+                      ),
+                      onSelectionChanged: (newSelection) {
+                        final selectedFilter = newSelection.first;
+                        context.read<MapFilterCubit>().updateTimeFilter(
+                          selectedFilter,
+                        );
+                      },
+                      segments: const [
+                        ButtonSegment(
+                          value: TimeFilter.twentyFourHours,
+                          label: Text('24h'),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                        ButtonSegment(
+                          value: TimeFilter.sevenDays,
+                          label: Text('7d'),
+                        ),
+                        ButtonSegment(
+                          value: TimeFilter.thirtyDays,
+                          label: Text('30d'),
+                        ),
+                      ],
+                      selected: {filterState.timeFilter},
+                    ),
 
-          // Risk level indicator
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 100,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: filterState.riskLevel.backgroundColor,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                    const SizedBox(height: 12),
+
+                    // Category filter chips
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: IncidentCategory.values.map((category) {
+                          final isSelected = filterState.selectedCategories
+                              .contains(category);
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: _buildCategoryFilterChip(
+                              category,
+                              isSelected: isSelected,
+                              onTap: () {
+                                context.read<MapFilterCubit>().toggleCategory(
+                                  category,
+                                );
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.circle,
-                      color: filterState.riskLevel.color,
-                      size: 12,
+              ),
+
+              // Risk level indicator
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 100,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      filterState.riskLevel.displayName,
+                    decoration: BoxDecoration(
+                      color: filterState.riskLevel.backgroundColor,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.circle,
+                          color: filterState.riskLevel.color,
+                          size: 12,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          filterState.riskLevel.displayName,
+                          style: TextStyle(
+                            color: filterState.riskLevel.color,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Report incident button
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 15,
+                child: Center(
+                  child: ElevatedButton.icon(
+                    onPressed: _showReportIncidentDialog,
+                    icon: const Icon(
+                      LineIcons.bullhorn,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    label: const Text(
+                      'Report Incident',
                       style: TextStyle(
-                        color: filterState.riskLevel.color,
-                        fontSize: 14,
+                        color: Colors.white,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ],
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      elevation: 4,
+                      shadowColor: Colors.black.withValues(alpha: 0.2),
+                    ),
+                  ),
                 ),
               ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: _centerOnUserLocation,
+            child: const Icon(
+              LineIcons.crosshairs,
+              size: 24,
             ),
           ),
-
-          // Report incident button
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 15,
-            child: Center(
-              child: ElevatedButton.icon(
-                onPressed: _showReportIncidentDialog,
-                icon: const Icon(
-                  LineIcons.bullhorn,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                label: const Text(
-                  'Report Incident',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  elevation: 4,
-                  shadowColor: Colors.black.withValues(alpha: 0.2),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _centerOnUserLocation,
-        child: const Icon(
-          LineIcons.crosshairs,
-          size: 24,
-        ),
-      ),
-    );
+        );
       },
     );
   }
@@ -888,8 +898,9 @@ class _IncidentDetailsSheet extends StatelessWidget {
                       'Confirmed by ${incident.confirmedBy} ${incident.confirmedBy == 1 ? 'person' : 'people'}',
                       style: TextStyle(
                         fontSize: 13,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                     ),

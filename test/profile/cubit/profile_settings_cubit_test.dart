@@ -51,7 +51,7 @@ void main() {
       },
       seed: () => const ProfileSettingsState(anonymousReporting: false),
       act: (cubit) => cubit.setAnonymousReporting(true),
-      expect: () => [const ProfileSettingsState(anonymousReporting: true)],
+      expect: () => [const ProfileSettingsState()],
       verify: (_) {
         verify(() => repository.setAnonymousReporting(true)).called(1);
       },

@@ -66,7 +66,7 @@ void main() {
       build: () => cubit,
       act: (cubit) => cubit.initializeIncidents(mockIncidents),
       expect: () => [
-        MapFilterState(
+        const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
             IncidentCategory.theft,
@@ -89,7 +89,7 @@ void main() {
       act: (cubit) => cubit.updateTimeFilter(TimeFilter.sevenDays),
       skip: 1, // Skip the initialization emission
       expect: () => [
-        MapFilterState(
+        const MapFilterState(
           timeFilter: TimeFilter.sevenDays,
           selectedCategories: {
             IncidentCategory.theft,
@@ -112,7 +112,7 @@ void main() {
       act: (cubit) => cubit.toggleCategory(IncidentCategory.theft),
       skip: 1, // Skip the initialization emission
       expect: () => [
-        MapFilterState(
+        const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
             IncidentCategory.assault,
@@ -135,7 +135,7 @@ void main() {
       act: (cubit) => cubit.toggleCategory(IncidentCategory.theft),
       skip: 2, // Skip initialization and first toggle
       expect: () => [
-        MapFilterState(
+        const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
             IncidentCategory.assault,
@@ -168,7 +168,7 @@ void main() {
         build: () => cubit,
         act: (cubit) => cubit.initializeIncidents([]),
         expect: () => [
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,
@@ -194,7 +194,7 @@ void main() {
           ),
         ]),
         expect: () => [
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,
@@ -227,7 +227,7 @@ void main() {
           ),
         ]),
         expect: () => [
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,
@@ -253,7 +253,7 @@ void main() {
           ),
         ]),
         expect: () => [
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,
@@ -307,7 +307,7 @@ void main() {
           ),
         ]),
         expect: () => [
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,
@@ -347,7 +347,7 @@ void main() {
           ),
         ]),
         expect: () => [
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,

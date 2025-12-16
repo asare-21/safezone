@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:safe_zone/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppBlocObserver extends BlocObserver {
@@ -22,7 +23,9 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 
-Future<void> bootstrap(FutureOr<Widget> Function(SharedPreferences) builder) async {
+Future<void> bootstrap(
+  FutureOr<Widget> Function(SharedPreferences) builder,
+) async {
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
@@ -32,10 +35,14 @@ Future<void> bootstrap(FutureOr<Widget> Function(SharedPreferences) builder) asy
   // Initialize Firebase
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     log('Firebase initialized successfully');
-  } catch (e) {
-    log('Firebase initialization failed: $e. App will continue without Firebase.');
+  } on FirebaseException catch (e) {
+    log(
+      'Firebase initialization failed: $e. App will continue without Firebase.',
+    );
   }
 
   // Add cross-flavor configuration here

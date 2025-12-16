@@ -20,7 +20,7 @@ class ProximityAlertsSettingsRepository {
   /// Get shared preferences instance
   Future<SharedPreferences> get _prefs async {
     if (_sharedPreferences != null) {
-      return _sharedPreferences!;
+      return _sharedPreferences;
     }
     _cachedPrefs ??= await SharedPreferences.getInstance();
     return _cachedPrefs!;

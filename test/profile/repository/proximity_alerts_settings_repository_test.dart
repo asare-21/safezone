@@ -86,7 +86,7 @@ void main() {
       });
 
       test('returns stored value when available', () async {
-        await repository.setAlertRadius(5.0);
+        await repository.setAlertRadius(5);
         final result = await repository.getAlertRadius();
         expect(result, 5.0);
       });

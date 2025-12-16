@@ -245,7 +245,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify navigateToMap was called
-      verify(() => mockCubit.navigateToMap()).called(1);
+      verify(mockCubit.navigateToMap).called(1);
 
       // Verify we're back on the original screen (screen was popped)
       expect(find.text('Alert Details'), findsNothing);

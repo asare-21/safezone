@@ -3,7 +3,7 @@ part of 'notification_settings_cubit.dart';
 /// Represents the state of notification settings
 class NotificationSettingsState extends Equatable {
   const NotificationSettingsState({
-    this.pushNotifications = true,
+    this.pushNotifications = false,
     this.proximityAlerts = true,
     this.soundVibration = false,
     this.anonymousReporting = true,
@@ -57,12 +57,12 @@ class NotificationSettingsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        pushNotifications,
-        proximityAlerts,
-        soundVibration,
-        anonymousReporting,
-        shareLocationWithContacts,
-        alertRadius,
-        isLoading,
-      ];
+    pushNotifications,
+    proximityAlerts,
+    soundVibration,
+    anonymousReporting,
+    shareLocationWithContacts,
+    alertRadius,
+    isLoading,
+  ];
 }

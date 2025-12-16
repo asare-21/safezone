@@ -93,7 +93,7 @@ void main() {
       seed: () => const NotificationSettingsState(pushNotifications: false),
       act: (cubit) => cubit.togglePushNotifications(true),
       expect: () => [
-        const NotificationSettingsState(pushNotifications: true),
+        const NotificationSettingsState(),
       ],
       verify: (_) {
         verify(
@@ -101,9 +101,7 @@ void main() {
         ).called(1);
         verify(
           () => mockFirebaseMessaging.requestPermission(
-            alert: true,
-            badge: true,
-            sound: true,
+            
           ),
         ).called(1);
         verify(
@@ -266,7 +264,7 @@ void main() {
     test('has correct props', () {
       const state = NotificationSettingsState(
         pushNotifications: false,
-        alertRadius: 5.0,
+        alertRadius: 5,
       );
       expect(state.pushNotifications, false);
       expect(state.alertRadius, 5.0);

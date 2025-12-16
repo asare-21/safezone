@@ -25,13 +25,13 @@ void main() {
         'loads saved alert radius from shared preferences',
         setUp: () {
           when(() => mockSharedPreferences.getDouble('alert_radius'))
-              .thenReturn(5.0);
+              .thenReturn(5);
         },
         build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
         act: (cubit) => cubit.loadSettings(),
         expect: () => [
           const ProfileState(isLoading: true),
-          const ProfileState(alertRadius: 5.0, isLoading: false),
+          const ProfileState(alertRadius: 5),
         ],
       );
 
@@ -45,7 +45,7 @@ void main() {
         act: (cubit) => cubit.loadSettings(),
         expect: () => [
           const ProfileState(isLoading: true),
-          const ProfileState(alertRadius: 2.5, isLoading: false),
+          const ProfileState(),
         ],
       );
 
@@ -59,7 +59,7 @@ void main() {
         act: (cubit) => cubit.loadSettings(),
         expect: () => [
           const ProfileState(isLoading: true),
-          const ProfileState(isLoading: false),
+          const ProfileState(),
         ],
       );
     });
@@ -97,7 +97,7 @@ void main() {
       blocTest<ProfileCubit, ProfileState>(
         'does not update when radius is above maximum',
         build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
-        act: (cubit) => cubit.updateAlertRadius(15.0),
+        act: (cubit) => cubit.updateAlertRadius(15),
         expect: () => <dynamic>[],
         verify: (_) {
           verifyNever(
@@ -135,13 +135,13 @@ void main() {
       blocTest<ProfileCubit, ProfileState>(
         'accepts maximum valid radius (10.0)',
         setUp: () {
-          when(() => mockSharedPreferences.setDouble('alert_radius', 10.0))
+          when(() => mockSharedPreferences.setDouble('alert_radius', 10))
               .thenAnswer((_) async => true);
         },
         build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
-        act: (cubit) => cubit.updateAlertRadius(10.0),
+        act: (cubit) => cubit.updateAlertRadius(10),
         expect: () => [
-          const ProfileState(alertRadius: 10.0),
+          const ProfileState(alertRadius: 10),
         ],
       );
     });
@@ -157,29 +157,29 @@ void main() {
 
     test('different alert radii are not equal', () {
       expect(
-        const ProfileState(alertRadius: 2.5),
-        isNot(equals(const ProfileState(alertRadius: 5.0))),
+        const ProfileState(),
+        isNot(equals(const ProfileState(alertRadius: 5))),
       );
     });
 
     test('different loading states are not equal', () {
       expect(
         const ProfileState(isLoading: true),
-        isNot(equals(const ProfileState(isLoading: false))),
+        isNot(equals(const ProfileState())),
       );
     });
 
     test('copyWith returns new instance with updated values', () {
-      const state = ProfileState(alertRadius: 3.0, isLoading: false);
-      final newState = state.copyWith(alertRadius: 5.0);
+      const state = ProfileState(alertRadius: 3);
+      final newState = state.copyWith(alertRadius: 5);
 
       expect(newState.alertRadius, 5.0);
       expect(newState.isLoading, false);
     });
 
     test('copyWith preserves values when not specified', () {
-      const state = ProfileState(alertRadius: 3.0, isLoading: true);
-      final newState = state.copyWith(alertRadius: 5.0);
+      const state = ProfileState(alertRadius: 3, isLoading: true);
+      final newState = state.copyWith(alertRadius: 5);
 
       expect(newState.isLoading, true);
     });

@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:safe_zone/profile/cubit/notification_settings_cubit.dart';
-import 'package:safe_zone/profile/cubit/profile_settings_cubit.dart';
-import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
-import 'package:safe_zone/profile/repository/profile_settings_repository.dart';
-import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
 
@@ -65,7 +60,7 @@ class _ProfileView extends StatelessWidget {
           children: [
             const SizedBox(height: 8),
             // User Profile Card
-            _buildUserProfileCard(theme),
+            _buildUserProfileCard(theme, context),
             const SizedBox(height: 24),
 
             // Alerts & Notifications Section
@@ -78,6 +73,7 @@ class _ProfileView extends StatelessWidget {
                   children: [
                     _buildToggleItem(
                       theme,
+                      context,
                       icon: LineIcons.bell,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
@@ -88,6 +84,7 @@ class _ProfileView extends StatelessWidget {
                     const Divider(height: 1),
                     _buildToggleItem(
                       theme,
+                      context,
                       icon: LineIcons.mapMarker,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
@@ -100,6 +97,7 @@ class _ProfileView extends StatelessWidget {
                     const Divider(height: 1),
                     _buildToggleItem(
                       theme,
+                      context,
                       icon: LineIcons.volumeUp,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
@@ -123,6 +121,7 @@ class _ProfileView extends StatelessWidget {
                   builder: (context, state) {
                     return _buildToggleItemWithSubtitle(
                       theme,
+                      context,
                       icon: LineIcons.userSecret,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
@@ -139,11 +138,15 @@ class _ProfileView extends StatelessWidget {
                   },
                 ),
                 const Divider(height: 1),
-                BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
+                BlocBuilder<
+                  NotificationSettingsCubit,
+                  NotificationSettingsState
+                >(
                   builder: (context, state) {
                     final cubit = context.read<NotificationSettingsCubit>();
                     return _buildToggleItem(
                       theme,
+                      context,
                       icon: LineIcons.share,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
@@ -214,7 +217,7 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildUserProfileCard(ThemeData theme) {
+  Widget _buildUserProfileCard(ThemeData theme, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -388,7 +391,8 @@ class _ProfileView extends StatelessWidget {
   }
 
   Widget _buildToggleItem(
-    ThemeData theme, {
+    ThemeData theme,
+    BuildContext context, {
     required IconData icon,
     required Color iconColor,
     required Color iconBgColor,
@@ -437,7 +441,8 @@ class _ProfileView extends StatelessWidget {
   }
 
   Widget _buildToggleItemWithSubtitle(
-    ThemeData theme, {
+    ThemeData theme,
+    BuildContext context, {
     required IconData icon,
     required Color iconColor,
     required Color iconBgColor,
@@ -604,8 +609,7 @@ class _ProfileView extends StatelessWidget {
                   Expanded(
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
-                        activeTrackColor:
-                            Theme.of(context).colorScheme.primary,
+                        activeTrackColor: Theme.of(context).colorScheme.primary,
                         inactiveTrackColor: theme.dividerColor.withValues(
                           alpha: 0.2,
                         ),

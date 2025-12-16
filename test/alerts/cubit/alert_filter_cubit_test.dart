@@ -27,7 +27,7 @@ void main() {
         build: AlertFilterCubit.new,
         act: (cubit) => cubit.toggleSeverity(AlertSeverity.high),
         expect: () => [
-          AlertFilterState(
+          const AlertFilterState(
             selectedSeverities: {
               AlertSeverity.medium,
               AlertSeverity.low,

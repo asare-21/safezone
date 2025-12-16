@@ -7,7 +7,7 @@ part 'map_filter_state.dart';
 class MapFilterCubit extends Cubit<MapFilterState> {
   MapFilterCubit()
       : super(
-          MapFilterState(
+          const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
               IncidentCategory.theft,

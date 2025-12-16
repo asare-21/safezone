@@ -63,7 +63,7 @@ void main() {
             soundVibration: true,
             anonymousReporting: false,
             shareLocationWithContacts: true,
-            alertRadius: 5.0,
+            alertRadius: 5,
             isLoading: false,
           ),
         ],
@@ -111,11 +111,6 @@ void main() {
         expect: () => [
           const ProximityAlertsSettingsState(
             pushNotifications: false,
-            proximityAlerts: true,
-            soundVibration: false,
-            anonymousReporting: true,
-            shareLocationWithContacts: false,
-            alertRadius: 2.5,
             isLoading: false,
           ),
         ],
@@ -150,12 +145,7 @@ void main() {
         skip: 1,
         expect: () => [
           const ProximityAlertsSettingsState(
-            pushNotifications: true,
             proximityAlerts: false,
-            soundVibration: false,
-            anonymousReporting: true,
-            shareLocationWithContacts: false,
-            alertRadius: 2.5,
             isLoading: false,
           ),
         ],
@@ -190,12 +180,7 @@ void main() {
         skip: 1,
         expect: () => [
           const ProximityAlertsSettingsState(
-            pushNotifications: true,
-            proximityAlerts: true,
             soundVibration: true,
-            anonymousReporting: true,
-            shareLocationWithContacts: false,
-            alertRadius: 2.5,
             isLoading: false,
           ),
         ],
@@ -230,12 +215,7 @@ void main() {
         skip: 1,
         expect: () => [
           const ProximityAlertsSettingsState(
-            pushNotifications: true,
-            proximityAlerts: true,
-            soundVibration: false,
             anonymousReporting: false,
-            shareLocationWithContacts: false,
-            alertRadius: 2.5,
             isLoading: false,
           ),
         ],
@@ -270,12 +250,7 @@ void main() {
         skip: 1,
         expect: () => [
           const ProximityAlertsSettingsState(
-            pushNotifications: true,
-            proximityAlerts: true,
-            soundVibration: false,
-            anonymousReporting: true,
             shareLocationWithContacts: true,
-            alertRadius: 2.5,
             isLoading: false,
           ),
         ],
@@ -310,11 +285,6 @@ void main() {
         skip: 1,
         expect: () => [
           const ProximityAlertsSettingsState(
-            pushNotifications: true,
-            proximityAlerts: true,
-            soundVibration: false,
-            anonymousReporting: true,
-            shareLocationWithContacts: false,
             alertRadius: 7.5,
             isLoading: false,
           ),
