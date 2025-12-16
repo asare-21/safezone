@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/map/map.dart';
 import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/profile/profile.dart';
@@ -29,7 +30,7 @@ class _HomeViewState extends State<_HomeView> {
   final PageController _pageController = PageController();
 
   final List<Widget> _pages = [
-    const Center(child: Text('Home')),
+    const MapScreen(),
     const AlertsScreen(),
     const GuideScreen(),
     const ProfileScreen(),
