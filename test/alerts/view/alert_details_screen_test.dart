@@ -1,7 +1,14 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
+
+class MockBottomNavigationCubit extends MockCubit<BottomNavigationState>
+    implements BottomNavigationCubit {}
 
 extension AlertDetailsPumpApp on WidgetTester {
   Future<void> pumpAlertDetailsApp(Widget widget) {
@@ -192,6 +199,55 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify we're back on the original screen
+      expect(find.text('Alert Details'), findsNothing);
+      expect(find.text('Open Details'), findsOneWidget);
+    });
+
+    testWidgets('View on Map button navigates to map and pops screen',
+        (tester) async {
+      final mockCubit = MockBottomNavigationCubit();
+      when(() => mockCubit.state).thenReturn(const BottomNavigationState());
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: BlocProvider<BottomNavigationCubit>.value(
+            value: mockCubit,
+            child: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) =>
+                            AlertDetailsScreen(alert: testAlert),
+                      ),
+                    );
+                  },
+                  child: const Text('Open Details'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Open the details screen
+      await tester.tap(find.text('Open Details'));
+      await tester.pumpAndSettle();
+
+      // Verify we're on the details screen
+      expect(find.text('Alert Details'), findsOneWidget);
+
+      // Tap the "View on Map" button
+      await tester.tap(find.text('View on Map'));
+      await tester.pumpAndSettle();
+
+      // Verify navigateToMap was called
+      verify(() => mockCubit.navigateToMap()).called(1);
+
+      // Verify we're back on the original screen (screen was popped)
       expect(find.text('Alert Details'), findsNothing);
       expect(find.text('Open Details'), findsOneWidget);
     });

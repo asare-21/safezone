@@ -1,38 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 
-class MapScreen extends StatefulWidget {
+class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => MapFilterCubit(),
+      child: const _MapScreenView(),
+    );
+  }
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenView extends StatefulWidget {
+  const _MapScreenView();
+
+  @override
+  State<_MapScreenView> createState() => _MapScreenViewState();
+}
+
+class _MapScreenViewState extends State<_MapScreenView> {
   final MapController _mapController = MapController();
-  TimeFilter _selectedTimeFilter = TimeFilter.twentyFourHours;
-  final Set<IncidentCategory> _selectedCategories = {
-    IncidentCategory.theft,
-    IncidentCategory.assault,
-    IncidentCategory.suspicious,
-    IncidentCategory.lighting,
-  };
 
   // New York City center coordinates (example location)
   final LatLng _center = const LatLng(40.7128, -74.0060);
-  final RiskLevel _currentRiskLevel = RiskLevel.moderate;
 
-  Set<String> _selectedTimeFilterLabel = {'24h'};
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _initializeMockData();
+    // Initialize cubit with incidents
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+    });
   }
 
   void _initializeMockData() {
@@ -90,8 +100,18 @@ class _MapScreenState extends State<MapScreen> {
 
   List<Incident> get _filteredIncidents {
     return _allIncidents.where((incident) {
-      return incident.isWithinTimeFilter(_selectedTimeFilter) &&
-          _selectedCategories.contains(incident.category);
+      final matchesTimeFilter = incident.isWithinTimeFilter(_selectedTimeFilter);
+      final matchesCategory = _selectedCategories.contains(incident.category);
+      
+      // Filter by search query if present
+      final matchesSearch = _searchQuery.isEmpty ||
+          incident.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (incident.description != null &&
+              incident.description!
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()));
+      
+      return matchesTimeFilter && matchesCategory && matchesSearch;
     }).toList();
   }
 
@@ -99,16 +119,6 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _mapController.dispose();
     super.dispose();
-  }
-
-  void _toggleCategory(IncidentCategory category) {
-    setState(() {
-      if (_selectedCategories.contains(category)) {
-        _selectedCategories.remove(category);
-      } else {
-        _selectedCategories.add(category);
-      }
-    });
   }
 
   void _showIncidentDetails(Incident incident) {
@@ -127,18 +137,19 @@ class _MapScreenState extends State<MapScreen> {
       builder: (BuildContext dialogContext) {
         return _ReportIncidentDialog(
           onSubmit: (category, title, description) {
-            setState(() {
-              final newIncident = Incident(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                category: category,
-                location: _center,
-                timestamp: DateTime.now(),
-                title: title,
-                description: description,
-                confirmedBy: 1,
-              );
-              _allIncidents.insert(0, newIncident);
-            });
+            final newIncident = Incident(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              category: category,
+              location: _center,
+              timestamp: DateTime.now(),
+              title: title,
+              description: description,
+              confirmedBy: 1,
+            );
+            _allIncidents.insert(0, newIncident);
+            // Update cubit with new incidents list
+            context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+            
             Navigator.of(dialogContext).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -161,61 +172,65 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Map
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _center,
-              minZoom: 10,
-              maxZoom: 18,
-            ),
+    return BlocBuilder<MapFilterCubit, MapFilterState>(
+      builder: (context, filterState) {
+        final filteredIncidents = context.read<MapFilterCubit>().getFilteredIncidents();
+
+        return Scaffold(
+          body: Stack(
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.safezone.app',
-              ),
-              // Incident markers
-              MarkerLayer(
-                markers: _filteredIncidents.map((incident) {
-                  return Marker(
-                    point: incident.location,
-                    width: 40,
-                    height: 40,
-                    child: GestureDetector(
-                      onTap: () {
-                        _showIncidentDetails(incident);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: incident.category.color,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+              // Map
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: _center,
+                  minZoom: 10,
+                  maxZoom: 18,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.safezone.app',
+                  ),
+                  // Incident markers
+                  MarkerLayer(
+                    markers: filteredIncidents.map((incident) {
+                      return Marker(
+                        point: incident.location,
+                        width: 40,
+                        height: 40,
+                        child: GestureDetector(
+                          onTap: () {
+                            _showIncidentDetails(incident);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: incident.category.color,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ],
+                            child: Icon(
+                              incident.category.icon,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
                         ),
-                        child: Icon(
-                          incident.category.icon,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-            ],
-          ),
 
           // Top overlay with search and filters
           SafeArea(
@@ -245,6 +260,11 @@ class _MapScreenState extends State<MapScreen> {
                             ],
                           ),
                           child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                            },
                             decoration: InputDecoration(
                               hintText: 'Search location or zone',
                               hintStyle: TextStyle(
@@ -273,7 +293,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
 
                 // Time filter segments
-                SegmentedButton(
+                SegmentedButton<TimeFilter>(
                   style: SegmentedButton.styleFrom(
                     backgroundColor: Colors.white,
                     selectedBackgroundColor: Theme.of(
@@ -282,23 +302,24 @@ class _MapScreenState extends State<MapScreen> {
                     selectedForegroundColor: Colors.white,
                   ),
                   onSelectionChanged: (newSelection) {
-                    setState(() {
-                      _selectedTimeFilterLabel = newSelection;
-                      if (newSelection.contains('24h')) {
-                        _selectedTimeFilter = TimeFilter.twentyFourHours;
-                      } else if (newSelection.contains('7d')) {
-                        _selectedTimeFilter = TimeFilter.sevenDays;
-                      } else if (newSelection.contains('30d')) {
-                        _selectedTimeFilter = TimeFilter.thirtyDays;
-                      }
-                    });
+                    final selectedFilter = newSelection.first;
+                    context.read<MapFilterCubit>().updateTimeFilter(selectedFilter);
                   },
                   segments: const [
-                    ButtonSegment(value: '24h', label: Text('24h')),
-                    ButtonSegment(value: '7d', label: Text('7d')),
-                    ButtonSegment(value: '30d', label: Text('30d')),
+                    ButtonSegment(
+                      value: TimeFilter.twentyFourHours,
+                      label: Text('24h'),
+                    ),
+                    ButtonSegment(
+                      value: TimeFilter.sevenDays,
+                      label: Text('7d'),
+                    ),
+                    ButtonSegment(
+                      value: TimeFilter.thirtyDays,
+                      label: Text('30d'),
+                    ),
                   ],
-                  selected: _selectedTimeFilterLabel,
+                  selected: {filterState.timeFilter},
                 ),
 
                 const SizedBox(height: 12),
@@ -309,13 +330,15 @@ class _MapScreenState extends State<MapScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: IncidentCategory.values.map((category) {
-                      final isSelected = _selectedCategories.contains(category);
+                      final isSelected = filterState.selectedCategories.contains(category);
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: _buildCategoryFilterChip(
                           category,
                           isSelected: isSelected,
-                          onTap: () => _toggleCategory(category),
+                          onTap: () {
+                            context.read<MapFilterCubit>().toggleCategory(category);
+                          },
                         ),
                       );
                     }).toList(),
@@ -337,7 +360,7 @@ class _MapScreenState extends State<MapScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: _currentRiskLevel.backgroundColor,
+                  color: filterState.riskLevel.backgroundColor,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -352,14 +375,14 @@ class _MapScreenState extends State<MapScreen> {
                   children: [
                     Icon(
                       Icons.circle,
-                      color: _currentRiskLevel.color,
+                      color: filterState.riskLevel.color,
                       size: 12,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _currentRiskLevel.displayName,
+                      filterState.riskLevel.displayName,
                       style: TextStyle(
-                        color: _currentRiskLevel.color,
+                        color: filterState.riskLevel.color,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -415,6 +438,8 @@ class _MapScreenState extends State<MapScreen> {
           size: 24,
         ),
       ),
+    );
+      },
     );
   }
 
