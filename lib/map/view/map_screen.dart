@@ -28,6 +28,7 @@ class _MapScreenState extends State<MapScreen> {
   Set<String> _selectedTimeFilterLabel = {'24h'};
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -90,8 +91,18 @@ class _MapScreenState extends State<MapScreen> {
 
   List<Incident> get _filteredIncidents {
     return _allIncidents.where((incident) {
-      return incident.isWithinTimeFilter(_selectedTimeFilter) &&
-          _selectedCategories.contains(incident.category);
+      final matchesTimeFilter = incident.isWithinTimeFilter(_selectedTimeFilter);
+      final matchesCategory = _selectedCategories.contains(incident.category);
+      
+      // Filter by search query if present
+      final matchesSearch = _searchQuery.isEmpty ||
+          incident.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (incident.description != null &&
+              incident.description!
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()));
+      
+      return matchesTimeFilter && matchesCategory && matchesSearch;
     }).toList();
   }
 
@@ -245,6 +256,11 @@ class _MapScreenState extends State<MapScreen> {
                             ],
                           ),
                           child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                            },
                             decoration: InputDecoration(
                               hintText: 'Search location or zone',
                               hintStyle: TextStyle(
