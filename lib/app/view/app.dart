@@ -36,7 +36,9 @@ class App extends StatelessWidget {
           create: (_) => ProfileCubit(sharedPreferences: prefs)..loadSettings(),
         ),
         BlocProvider(
-          create: (_) => NotificationSettingsCubit(),
+          create: (_) => NotificationSettingsCubit(
+            sharedPreferences: prefs,
+          ),
         ),
       ],
       child: ShadApp.router(
