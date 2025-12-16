@@ -8,7 +8,6 @@ import 'package:safe_zone/profile/repository/profile_settings_repository.dart';
 import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
@@ -19,41 +18,11 @@ const Color _avatarIconColor = Color(0xFF8B7355);
 const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  SharedPreferences? _prefs;
-
-  @override
-  void initState() {
-    super.initState();
-    _initPreferences();
-  }
-
-  Future<void> _initPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _prefs = prefs;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_prefs == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -61,9 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         BlocProvider(
           create: (_) => NotificationSettingsCubit(),
-        ),
-        BlocProvider(
-          create: (_) => ProfileSettingsCubit(ProfileSettingsRepository(_prefs!)),
         ),
       ],
       child: const _ProfileView(),
