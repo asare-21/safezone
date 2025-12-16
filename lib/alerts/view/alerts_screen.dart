@@ -483,6 +483,49 @@ class _AlertsScreenView extends StatelessWidget {
 class _FilterDialog extends StatelessWidget {
   const _FilterDialog();
 
+  // Get icon for each alert type
+  IconData _getTypeIcon(AlertType type) {
+    switch (type) {
+      case AlertType.highRisk:
+        return Icons.warning_rounded;
+      case AlertType.theft:
+        return Icons.shopping_bag_outlined;
+      case AlertType.eventCrowd:
+        return Icons.people_outline;
+      case AlertType.trafficCleared:
+        return Icons.traffic;
+    }
+  }
+
+  // Get icon for each severity level
+  IconData _getSeverityIcon(AlertSeverity severity) {
+    switch (severity) {
+      case AlertSeverity.high:
+        return Icons.error_outline;
+      case AlertSeverity.medium:
+        return Icons.warning_amber_rounded;
+      case AlertSeverity.low:
+        return Icons.info_outline;
+      case AlertSeverity.info:
+        return Icons.notifications_none;
+    }
+  }
+
+  // Count active filters
+  int get _activeFilterCount {
+    var count = 0;
+    if (_tempSeverities.length != AlertSeverity.values.length) {
+      count++;
+    }
+    if (_tempTypes.length != AlertType.values.length) {
+      count++;
+    }
+    if (_tempTimeFilter != AlertTimeFilter.all) {
+      count++;
+    }
+    return count;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AlertFilterCubit, AlertFilterState>(
