@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/utils/router_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class App extends StatelessWidget {
-  const App({super.key});
+  const App({required this.sharedPreferences, super.key});
+
+  final SharedPreferences sharedPreferences;
 
   @override
   Widget build(BuildContext context) {
-    return ShadApp.router(
-      title: 'Safe Zone',
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: routerConfig,
-      theme: ShadThemeData(
-        colorScheme: const ShadBlueColorScheme.light(),
-      ),
-      darkTheme: ShadThemeData(
-        colorScheme: const ShadBlueColorScheme.dark(),
+    return RepositoryProvider.value(
+      value: sharedPreferences,
+      child: ShadApp.router(
+        title: 'Safe Zone',
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: routerConfig,
+        theme: ShadThemeData(
+          colorScheme: const ShadBlueColorScheme.light(),
+        ),
+        darkTheme: ShadThemeData(
+          colorScheme: const ShadBlueColorScheme.dark(),
+        ),
       ),
     );
   }

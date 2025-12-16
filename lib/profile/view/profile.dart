@@ -19,24 +19,11 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SharedPreferences>(
-      future: SharedPreferences.getInstance(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        return BlocProvider(
-          create: (_) => ProfileSettingsCubit(
-            sharedPreferences: snapshot.data!,
-          ),
-          child: const _ProfileView(),
-        );
-      },
+    return BlocProvider(
+      create: (context) => ProfileSettingsCubit(
+        sharedPreferences: context.read<SharedPreferences>(),
+      ),
+      child: const _ProfileView(),
     );
   }
 }

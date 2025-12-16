@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppBlocObserver extends BlocObserver {
   const AppBlocObserver();
@@ -20,14 +21,19 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 
-Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+Future<void> bootstrap(
+  FutureOr<Widget> Function(SharedPreferences sharedPreferences) builder,
+) async {
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
 
   Bloc.observer = const AppBlocObserver();
 
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   // Add cross-flavor configuration here
 
-  runApp(await builder());
+  runApp(await builder(sharedPreferences));
 }
