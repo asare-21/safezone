@@ -33,6 +33,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -95,6 +96,23 @@ class _MapScreenViewState extends State<_MapScreenView> {
         confirmedBy: 2,
       ),
     ];
+  }
+
+  List<Incident> get _filteredIncidents {
+    return _allIncidents.where((incident) {
+      final matchesTimeFilter = incident.isWithinTimeFilter(_selectedTimeFilter);
+      final matchesCategory = _selectedCategories.contains(incident.category);
+      
+      // Filter by search query if present
+      final matchesSearch = _searchQuery.isEmpty ||
+          incident.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          (incident.description != null &&
+              incident.description!
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase()));
+      
+      return matchesTimeFilter && matchesCategory && matchesSearch;
+    }).toList();
   }
 
   @override
@@ -242,6 +260,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
                             ],
                           ),
                           child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                            },
                             decoration: InputDecoration(
                               hintText: 'Search location or zone',
                               hintStyle: TextStyle(
