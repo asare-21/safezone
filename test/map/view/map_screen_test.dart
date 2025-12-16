@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/l10n/l10n.dart';
@@ -7,10 +8,13 @@ import 'package:safe_zone/map/map.dart';
 extension MapPumpApp on WidgetTester {
   Future<void> pumpMapApp(Widget widget) {
     return pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: widget,
+      BlocProvider(
+        create: (_) => MapFilterCubit(),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: widget,
+        ),
       ),
     );
   }
