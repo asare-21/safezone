@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
@@ -11,17 +14,43 @@ const Color _avatarIconColor = Color(0xFF8B7355);
 const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    return FutureBuilder<SharedPreferences>(
+      future: SharedPreferences.getInstance(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        return BlocProvider(
+          create: (_) => ProfileSettingsCubit(
+            sharedPreferences: snapshot.data!,
+          ),
+          child: const _ProfileView(),
+        );
+      },
+    );
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileView extends StatefulWidget {
+  const _ProfileView();
+
+  @override
+  State<_ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<_ProfileView> {
   bool _pushNotifications = true;
   bool _proximityAlerts = true;
-  bool _soundVibration = false;
   bool _anonymousReporting = true;
   bool _shareLocationWithContacts = false;
   double _alertRadius = 2.5;
@@ -89,17 +118,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(height: 1),
                 _buildAlertRadiusItem(theme),
                 const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  icon: LineIcons.volumeUp,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Sound & Vibration',
-                  value: _soundVibration,
-                  onChanged: (value) {
-                    setState(() {
-                      _soundVibration = value;
-                    });
+                BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
+                  builder: (context, state) {
+                    return _buildToggleItem(
+                      theme,
+                      icon: LineIcons.volumeUp,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Sound & Vibration',
+                      value: state.soundVibrationEnabled,
+                      onChanged: (value) {
+                        context
+                            .read<ProfileSettingsCubit>()
+                            .toggleSoundVibration(value);
+                      },
+                    );
                   },
                 ),
               ],
