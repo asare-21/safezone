@@ -275,23 +275,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'assets/images/welcome.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: const Color(0xFFE8F5E9),
-                    child: const Center(
-                      child: Icon(
-                        Icons.map,
-                        size: 40,
-                        color: Color(0xFF34C759),
-                      ),
-                    ),
-                  );
-                },
+            child: const Center(
+              child: Icon(
+                Icons.map,
+                size: 40,
+                color: Color(0xFF34C759),
               ),
             ),
           ),

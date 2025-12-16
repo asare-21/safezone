@@ -3,28 +3,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 
+extension AlertsPumpApp on WidgetTester {
+  Future<void> pumpAlertsApp(Widget widget) {
+    return pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: widget,
+      ),
+    );
+  }
+}
+
 void main() {
   group('AlertsScreen', () {
     testWidgets('renders AlertsScreen', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const AlertsScreen(),
-        ),
-      );
+      await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('Safety Alerts'), findsOneWidget);
     });
 
     testWidgets('displays filter chips', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const AlertsScreen(),
-        ),
-      );
+      await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('All Alerts'), findsOneWidget);
       expect(find.text('High Severity'), findsOneWidget);
@@ -33,13 +33,7 @@ void main() {
     });
 
     testWidgets('displays safe zone status card', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const AlertsScreen(),
-        ),
-      );
+      await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('You are in a Safe Zone'), findsOneWidget);
       expect(
@@ -49,26 +43,14 @@ void main() {
     });
 
     testWidgets('displays real-time alerts section', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const AlertsScreen(),
-        ),
-      );
+      await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('Real-time Alerts'), findsOneWidget);
       expect(find.text('SORTED BY TIME'), findsOneWidget);
     });
 
     testWidgets('displays mock alert cards', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const AlertsScreen(),
-        ),
-      );
+      await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('Entering High-Risk Area'), findsOneWidget);
       expect(find.text('Recent Theft Reported'), findsOneWidget);
@@ -77,13 +59,7 @@ void main() {
     });
 
     testWidgets('displays Map View FAB', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const AlertsScreen(),
-        ),
-      );
+      await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('Map View'), findsOneWidget);
       expect(find.byIcon(Icons.map), findsOneWidget);
