@@ -49,14 +49,14 @@ void main() {
       'navigateToTab does not emit when index is negative',
       build: BottomNavigationCubit.new,
       act: (cubit) => cubit.navigateToTab(-1),
-      expect: () => [],
+      expect: () => <dynamic>[],
     );
 
     blocTest<BottomNavigationCubit, BottomNavigationState>(
       'navigateToTab does not emit when index is greater than 3',
       build: BottomNavigationCubit.new,
       act: (cubit) => cubit.navigateToTab(4),
-      expect: () => [],
+      expect: () => <dynamic>[],
     );
   });
 
