@@ -542,220 +542,409 @@ class _FilterDialogState extends State<_FilterDialog> {
     });
   }
 
+  // Get icon for each alert type
+  IconData _getTypeIcon(AlertType type) {
+    switch (type) {
+      case AlertType.highRisk:
+        return Icons.warning_rounded;
+      case AlertType.theft:
+        return Icons.shopping_bag_outlined;
+      case AlertType.eventCrowd:
+        return Icons.people_outline;
+      case AlertType.trafficCleared:
+        return Icons.traffic;
+    }
+  }
+
+  // Get icon for each severity level
+  IconData _getSeverityIcon(AlertSeverity severity) {
+    switch (severity) {
+      case AlertSeverity.high:
+        return Icons.error_outline;
+      case AlertSeverity.medium:
+        return Icons.warning_amber_rounded;
+      case AlertSeverity.low:
+        return Icons.info_outline;
+      case AlertSeverity.info:
+        return Icons.info_outline;
+    }
+  }
+
+  // Count active filters
+  int get _activeFilterCount {
+    var count = 0;
+    if (_tempSeverities.length != AlertSeverity.values.length) {
+      count++;
+    }
+    if (_tempTypes.length != AlertType.values.length) {
+      count++;
+    }
+    if (_tempTimeFilter != AlertTimeFilter.all) {
+      count++;
+    }
+    return count;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final activeCount = _activeFilterCount;
 
-    return AlertDialog(
+    return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Filter Alerts',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-            ),
-          ),
-          TextButton(
-            onPressed: _clearFilters,
-            child: Text(
-              'Clear All',
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.9,
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Enhanced Header
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          LineIcons.filter,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Filter Alerts',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 22,
+                            ),
+                          ),
+                          if (activeCount > 0)
+                            Text(
+                              '$activeCount active filter${activeCount > 1 ? 's' : ''}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+
+            // Content
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Severity Filter Section
+                    _buildFilterSection(
+                      theme: theme,
+                      title: 'Severity Level',
+                      icon: Icons.speed_rounded,
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: AlertSeverity.values.map((severity) {
+                          final isSelected = _tempSeverities.contains(severity);
+                          final color = severity.color;
+
+                          return _buildEnhancedChip(
+                            label: severity.displayName,
+                            icon: _getSeverityIcon(severity),
+                            isSelected: isSelected,
+                            selectedColor: color,
+                            onTap: () => _toggleSeverity(severity),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    _buildDivider(),
+                    const SizedBox(height: 24),
+
+                    // Type Filter Section
+                    _buildFilterSection(
+                      theme: theme,
+                      title: 'Alert Type',
+                      icon: Icons.category_outlined,
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: AlertType.values.map((type) {
+                          final isSelected = _tempTypes.contains(type);
+
+                          return _buildEnhancedChip(
+                            label: type.displayName,
+                            icon: _getTypeIcon(type),
+                            isSelected: isSelected,
+                            selectedColor: theme.colorScheme.primary,
+                            onTap: () => _toggleType(type),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    _buildDivider(),
+                    const SizedBox(height: 24),
+
+                    // Time Filter Section
+                    _buildFilterSection(
+                      theme: theme,
+                      title: 'Time Range',
+                      icon: Icons.access_time_rounded,
+                      child: Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: AlertTimeFilter.values.map((timeFilter) {
+                          final isSelected = _tempTimeFilter == timeFilter;
+
+                          return _buildEnhancedChip(
+                            label: timeFilter.displayName,
+                            icon: Icons.schedule,
+                            isSelected: isSelected,
+                            selectedColor: theme.colorScheme.primary,
+                            onTap: () {
+                              setState(() {
+                                _tempTimeFilter = timeFilter;
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Enhanced Footer with Actions
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FA),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+                border: Border(
+                  top: BorderSide(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  // Clear All Button
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _clearFilters,
+                      icon: const Icon(Icons.clear_all, size: 18),
+                      label: const Text('Clear All'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.2,
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Apply Button
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        widget.onApply(
+                          _tempSeverities,
+                          _tempTypes,
+                          _tempTimeFilter,
+                        );
+                      },
+                      icon: const Icon(Icons.check_rounded, size: 18),
+                      label: const Text('Apply Filters'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      content: SingleChildScrollView(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.9,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  Widget _buildFilterSection({
+    required ThemeData theme,
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        child,
+      ],
+    );
+  }
+
+  Widget _buildEnhancedChip({
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required Color selectedColor,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected ? selectedColor : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? selectedColor : const Color(0xFFE5E5E5),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: selectedColor.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Severity filter
+              Icon(
+                icon,
+                size: 18,
+                color: isSelected
+                    ? Colors.white
+                    : const Color(0xFF8E8E93),
+              ),
+              const SizedBox(width: 8),
               Text(
-                'Severity',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black87,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: AlertSeverity.values.map((severity) {
-                  final isSelected = _tempSeverities.contains(severity);
-                  final color = severity.color;
-
-                  return GestureDetector(
-                    onTap: () => _toggleSeverity(severity),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected ? color : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected ? color : const Color(0xFFE5E5E5),
-                        ),
-                      ),
-                      child: Text(
-                        severity.displayName,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-
-              // Type filter
-              Text(
-                'Alert Type',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
+              if (isSelected) ...[
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.check_circle,
+                  size: 16,
+                  color: Colors.white.withValues(alpha: 0.9),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: AlertType.values.map((type) {
-                  final isSelected = _tempTypes.contains(type);
-
-                  return GestureDetector(
-                    onTap: () => _toggleType(type),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.black : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.black
-                              : const Color(0xFFE5E5E5),
-                        ),
-                      ),
-                      child: Text(
-                        type.displayName,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
-
-              // Time filter
-              Text(
-                'Time Range',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: AlertTimeFilter.values.map((timeFilter) {
-                  final isSelected = _tempTimeFilter == timeFilter;
-
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _tempTimeFilter = timeFilter;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.black : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? Colors.black
-                              : const Color(0xFFE5E5E5),
-                        ),
-                      ),
-                      child: Text(
-                        timeFilter.displayName,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
+              ],
             ],
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            'Cancel',
-            style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Container(
+      height: 1,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.transparent,
+            Colors.black.withValues(alpha: 0.1),
+            Colors.transparent,
+          ],
         ),
-        ElevatedButton(
-          onPressed: () {
-            widget.onApply(
-              _tempSeverities,
-              _tempTypes,
-              _tempTimeFilter,
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'Apply Filters',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
