@@ -45,7 +45,7 @@ class GuideScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     _buildInfoCard(
                       theme,
-                      icon: LineIcons.shieldAlt,
+                      icon: LineIcons.alternateShield,
                       iconColor: const Color(0xFF34C759),
                       iconBgColor: const Color(0xFFE8F5E9),
                       title: 'Crowdsourced Safety',
