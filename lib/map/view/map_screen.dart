@@ -25,6 +25,8 @@ class _MapScreenState extends State<MapScreen> {
   final LatLng _center = const LatLng(40.7128, -74.0060);
   RiskLevel _currentRiskLevel = RiskLevel.moderate;
 
+  final RiskLevel _currentRiskLevel = RiskLevel.moderate;
+  Set<String> _selectedTimeFilterLabel = {'24h'};
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
 
@@ -213,36 +215,12 @@ class _MapScreenState extends State<MapScreen> {
               children: [
                 // Avatar and search bar
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 5,
+                  ),
                   child: Row(
                     children: [
-                      // User avatar
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFE4CC),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          LineIcons.user,
-                          color: Color(0xFF8B7355),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
                       // Search bar
                       Expanded(
                         child: Container(
@@ -286,27 +264,33 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
 
-                // Time filter chips
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: TimeFilter.values.map((filter) {
-                      final isSelected = _selectedTimeFilter == filter;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: _buildTimeFilterChip(
-                          filter.displayName,
-                          isSelected: isSelected,
-                          onTap: () {
-                            setState(() {
-                              _selectedTimeFilter = filter;
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
+                // Time filter segments
+                SegmentedButton(
+                  style: SegmentedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    selectedBackgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primary,
+                    selectedForegroundColor: Colors.white,
                   ),
+                  onSelectionChanged: (newSelection) {
+                    setState(() {
+                      _selectedTimeFilterLabel = newSelection;
+                      if (newSelection.contains('24h')) {
+                        _selectedTimeFilter = TimeFilter.twentyFourHours;
+                      } else if (newSelection.contains('7d')) {
+                        _selectedTimeFilter = TimeFilter.sevenDays;
+                      } else if (newSelection.contains('30d')) {
+                        _selectedTimeFilter = TimeFilter.thirtyDays;
+                      }
+                    });
+                  },
+                  segments: const [
+                    ButtonSegment(value: '24h', label: Text('24h')),
+                    ButtonSegment(value: '7d', label: Text('7d')),
+                    ButtonSegment(value: '30d', label: Text('30d')),
+                  ],
+                  selected: _selectedTimeFilterLabel,
                 ),
 
                 const SizedBox(height: 12),
@@ -327,64 +311,6 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       );
                     }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Map controls (right side)
-          Positioned(
-            right: 16,
-            bottom: 200,
-            child: Column(
-              children: [
-                // Layers button
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(LineIcons.layerGroup, size: 24),
-                    onPressed: () {
-                      // TODO(joasare019): Implement layer selection
-                    },
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Current location button
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      LineIcons.crosshairs,
-                      size: 24,
-                      color: theme.colorScheme.primary,
-                    ),
-                    onPressed: _centerOnUserLocation,
                   ),
                 ),
               ],
@@ -440,7 +366,7 @@ class _MapScreenState extends State<MapScreen> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 24,
+            bottom: 15,
             child: Center(
               child: ElevatedButton.icon(
                 onPressed: _showReportIncidentDialog,
@@ -474,40 +400,11 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTimeFilterChip(
-    String label, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? Colors.black : const Color(0xFFE5E5E5),
-          ),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _centerOnUserLocation,
+        child: const Icon(
+          LineIcons.crosshairs,
+          size: 24,
         ),
       ),
     );
