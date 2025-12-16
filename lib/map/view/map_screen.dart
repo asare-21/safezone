@@ -99,20 +99,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   List<Incident> get _filteredIncidents {
-    return _allIncidents.where((incident) {
-      final matchesTimeFilter = incident.isWithinTimeFilter(_selectedTimeFilter);
-      final matchesCategory = _selectedCategories.contains(incident.category);
-      
-      // Filter by search query if present
-      final matchesSearch = _searchQuery.isEmpty ||
-          incident.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (incident.description != null &&
-              incident.description!
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase()));
-      
-      return matchesTimeFilter && matchesCategory && matchesSearch;
-    }).toList();
+    final cubit = context.read<MapFilterCubit>();
+    return cubit.getFilteredIncidents();
   }
 
   @override

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/cubit/notification_settings_cubit.dart';
+import 'package:safe_zone/profile/cubit/profile_settings_cubit.dart';
 import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
+import 'package:safe_zone/profile/repository/profile_settings_repository.dart';
 import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
@@ -15,13 +19,51 @@ const Color _avatarIconColor = Color(0xFF8B7355);
 const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _initPreferences();
+  }
+
+  Future<void> _initPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ProfileCubit()..loadSettings(),
+    if (_prefs == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ProfileCubit()..loadSettings(),
+        ),
+        BlocProvider(
+          create: (_) => NotificationSettingsCubit(),
+        ),
+        BlocProvider(
+          create: (_) => ProfileSettingsCubit(ProfileSettingsRepository(_prefs!)),
+        ),
+      ],
       child: const _ProfileView(),
     );
   }
@@ -96,7 +138,7 @@ class _ProfileViewState extends State<_ProfileView> {
                       onChanged: cubit.toggleProximityAlerts,
                     ),
                     const Divider(height: 1),
-                    _buildAlertRadiusItem(theme, state.alertRadius, cubit),
+                    _buildAlertRadiusItem(theme),
                     const Divider(height: 1),
                     _buildToggleItem(
                       theme,
@@ -116,17 +158,12 @@ class _ProfileViewState extends State<_ProfileView> {
             // Privacy & Safety Section
             _buildSectionHeader(theme, 'PRIVACY & SAFETY'),
 
-            BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
-              builder: (context, state) {
-                final cubit = context.read<NotificationSettingsCubit>();
-                return _buildSettingsCard(
-                  theme,
-                  children: [
-                 
+            _buildSettingsCard(
+              theme,
+              children: [
                 BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
                   builder: (context, state) {
                     return _buildToggleItemWithSubtitle(
-
                       theme,
                       icon: LineIcons.userSecret,
                       iconColor: Theme.of(context).colorScheme.primary,
@@ -144,33 +181,20 @@ class _ProfileViewState extends State<_ProfileView> {
                   },
                 ),
                 const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  children: [
-                    _buildToggleItemWithSubtitle(
-                      theme,
-                      icon: LineIcons.userSecret,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      iconBgColor: _lightBlueBackground,
-                      title: 'Anonymous Reporting',
-                      subtitle:
-                          'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
-                      value: state.anonymousReporting,
-                      onChanged: cubit.updateAnonymousReporting,
-                    ),
-                    const Divider(height: 1),
-                    _buildToggleItem(
+                BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
+                  builder: (context, state) {
+                    return _buildToggleItem(
                       theme,
                       icon: LineIcons.share,
                       iconColor: Theme.of(context).colorScheme.primary,
                       iconBgColor: _lightBlueBackground,
                       title: 'Share Location with Contacts',
                       value: state.shareLocationWithContacts,
-                      onChanged: cubit.updateShareLocationWithContacts,
-                    ),
-                  ],
-                );
-              },
+                      onChanged: context.read<NotificationSettingsCubit>().toggleShareLocationWithContacts,
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
 
