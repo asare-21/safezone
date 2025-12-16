@@ -18,6 +18,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
 
   final SharedPreferences? _sharedPreferences;
   final FirebaseMessaging _firebaseMessaging;
+  SharedPreferences? _cachedPreferences;
 
   // Storage keys
   static const String _pushNotificationsKey = 'push_notifications';
@@ -27,12 +28,19 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   static const String _shareLocationKey = 'share_location_with_contacts';
   static const String _alertRadiusKey = 'alert_radius';
 
+  /// Get SharedPreferences instance (cached)
+  Future<SharedPreferences> _getPreferences() async {
+    if (_sharedPreferences != null) return _sharedPreferences!;
+    _cachedPreferences ??= await SharedPreferences.getInstance();
+    return _cachedPreferences!;
+  }
+
   /// Load settings from persistent storage
   Future<void> _loadSettings() async {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
+      final prefs = await _getPreferences();
 
       final pushNotifications =
           prefs.getBool(_pushNotificationsKey) ?? state.pushNotifications;
@@ -116,7 +124,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   /// Save a boolean setting to persistent storage
   Future<void> _saveSetting(String key, bool value) async {
     try {
-      final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
+      final prefs = await _getPreferences();
       await prefs.setBool(key, value);
     } catch (e) {
       // Fail silently - setting is still updated in state
@@ -126,7 +134,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   /// Save a double setting to persistent storage
   Future<void> _saveDoubleSetting(String key, double value) async {
     try {
-      final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
+      final prefs = await _getPreferences();
       await prefs.setDouble(key, value);
     } catch (e) {
       // Fail silently - setting is still updated in state
