@@ -38,37 +38,67 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
 
   /// Update push notifications setting
   Future<void> updatePushNotifications(bool value) async {
-    await _repository.setPushNotifications(value);
-    emit(state.copyWith(pushNotifications: value));
+    try {
+      await _repository.setPushNotifications(value);
+      emit(state.copyWith(pushNotifications: value));
+    } catch (e) {
+      // If save fails, reload settings to ensure UI is in sync
+      await loadSettings();
+    }
   }
 
   /// Update proximity alerts setting
   Future<void> updateProximityAlerts(bool value) async {
-    await _repository.setProximityAlerts(value);
-    emit(state.copyWith(proximityAlerts: value));
+    try {
+      await _repository.setProximityAlerts(value);
+      emit(state.copyWith(proximityAlerts: value));
+    } catch (e) {
+      // If save fails, reload settings to ensure UI is in sync
+      await loadSettings();
+    }
   }
 
   /// Update sound and vibration setting
   Future<void> updateSoundVibration(bool value) async {
-    await _repository.setSoundVibration(value);
-    emit(state.copyWith(soundVibration: value));
+    try {
+      await _repository.setSoundVibration(value);
+      emit(state.copyWith(soundVibration: value));
+    } catch (e) {
+      // If save fails, reload settings to ensure UI is in sync
+      await loadSettings();
+    }
   }
 
   /// Update anonymous reporting setting
   Future<void> updateAnonymousReporting(bool value) async {
-    await _repository.setAnonymousReporting(value);
-    emit(state.copyWith(anonymousReporting: value));
+    try {
+      await _repository.setAnonymousReporting(value);
+      emit(state.copyWith(anonymousReporting: value));
+    } catch (e) {
+      // If save fails, reload settings to ensure UI is in sync
+      await loadSettings();
+    }
   }
 
   /// Update share location with contacts setting
   Future<void> updateShareLocationWithContacts(bool value) async {
-    await _repository.setShareLocationWithContacts(value);
-    emit(state.copyWith(shareLocationWithContacts: value));
+    try {
+      await _repository.setShareLocationWithContacts(value);
+      emit(state.copyWith(shareLocationWithContacts: value));
+    } catch (e) {
+      // If save fails, reload settings to ensure UI is in sync
+      await loadSettings();
+    }
   }
 
   /// Update alert radius setting
   Future<void> updateAlertRadius(double value) async {
-    await _repository.setAlertRadius(value);
-    emit(state.copyWith(alertRadius: value));
+    try {
+      await _repository.setAlertRadius(value);
+      emit(state.copyWith(alertRadius: value));
+    } catch (e) {
+      // If save fails, reload settings to ensure UI is in sync
+      await loadSettings();
+    }
   }
 }
