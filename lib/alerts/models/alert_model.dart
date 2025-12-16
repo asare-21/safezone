@@ -7,11 +7,76 @@ enum AlertType {
   trafficCleared,
 }
 
+extension AlertTypeExtension on AlertType {
+  String get displayName {
+    switch (this) {
+      case AlertType.highRisk:
+        return 'High Risk';
+      case AlertType.theft:
+        return 'Theft';
+      case AlertType.eventCrowd:
+        return 'Event Crowd';
+      case AlertType.trafficCleared:
+        return 'Traffic Cleared';
+    }
+  }
+}
+
 enum AlertSeverity {
   high,
   medium,
   low,
   info,
+}
+
+extension AlertSeverityExtension on AlertSeverity {
+  String get displayName {
+    switch (this) {
+      case AlertSeverity.high:
+        return 'High';
+      case AlertSeverity.medium:
+        return 'Medium';
+      case AlertSeverity.low:
+        return 'Low';
+      case AlertSeverity.info:
+        return 'Info';
+    }
+  }
+}
+
+enum AlertTimeFilter {
+  lastHour,
+  lastDay,
+  lastWeek,
+  all,
+}
+
+extension AlertTimeFilterExtension on AlertTimeFilter {
+  String get displayName {
+    switch (this) {
+      case AlertTimeFilter.lastHour:
+        return 'Last Hour';
+      case AlertTimeFilter.lastDay:
+        return 'Last 24 Hours';
+      case AlertTimeFilter.lastWeek:
+        return 'Last Week';
+      case AlertTimeFilter.all:
+        return 'All Time';
+    }
+  }
+
+  Duration? get duration {
+    switch (this) {
+      case AlertTimeFilter.lastHour:
+        return const Duration(hours: 1);
+      case AlertTimeFilter.lastDay:
+        return const Duration(hours: 24);
+      case AlertTimeFilter.lastWeek:
+        return const Duration(days: 7);
+      case AlertTimeFilter.all:
+        return null;
+    }
+  }
 }
 
 class Alert {
@@ -63,5 +128,12 @@ class Alert {
       case AlertSeverity.info:
         return const Color(0xFF8E8E93);
     }
+  }
+
+  bool isWithinTimeFilter(AlertTimeFilter filter) {
+    if (filter.duration == null) return true;
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+    return difference <= filter.duration!;
   }
 }
