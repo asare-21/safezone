@@ -182,6 +182,39 @@ void main() {
       // Dialog should be closed
       expect(find.text('Category'), findsNothing);
     });
+
+    testWidgets('tapping incident marker shows incident details', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Find and tap an incident marker (GestureDetector wrapping Container)
+      final markerFinder = find.byType(GestureDetector).first;
+      await tester.tap(markerFinder);
+      await tester.pumpAndSettle();
+
+      // Verify incident details bottom sheet appears
+      expect(find.text('Theft reported'), findsOneWidget);
+      expect(find.text('Confirmed by'), findsOneWidget);
+    });
+
+    testWidgets('incident details shows all information', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Tap the first incident marker
+      final markerFinder = find.byType(GestureDetector).first;
+      await tester.tap(markerFinder);
+      await tester.pumpAndSettle();
+
+      // Verify all incident details are displayed
+      expect(find.text('Theft reported'), findsOneWidget);
+      expect(find.text('Theft'), findsNWidgets(2)); // Filter chip + details badge
+      expect(find.byIcon(Icons.access_time), findsOneWidget);
+      expect(find.byIcon(Icons.people), findsOneWidget);
+      
+      // Verify "Confirmed by" text appears
+      expect(find.textContaining('Confirmed by'), findsOneWidget);
+    });
   });
 
   group('Incident Model', () {

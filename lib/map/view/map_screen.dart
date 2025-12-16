@@ -112,6 +112,16 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  void _showIncidentDetails(Incident incident) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return _IncidentDetailsSheet(incident: incident);
+      },
+    );
+  }
+
   void _showReportIncidentDialog() {
     showDialog<void>(
       context: context,
@@ -178,7 +188,7 @@ class _MapScreenState extends State<MapScreen> {
                     height: 40,
                     child: GestureDetector(
                       onTap: () {
-                        // TODO(joasare019): Show incident details
+                        _showIncidentDetails(incident);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -699,6 +709,184 @@ class _ReportIncidentDialogState extends State<_ReportIncidentDialog> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _IncidentDetailsSheet extends StatelessWidget {
+  const _IncidentDetailsSheet({
+    required this.incident,
+  });
+
+  final Incident incident;
+
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${difference.inDays}d ago';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE5E5E5),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Category badge
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: incident.category.color,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      incident.category.icon,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      incident.category.displayName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Title
+              Text(
+                incident.title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Timestamp
+              Row(
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    _formatTimestamp(incident.timestamp),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Description (if available)
+              if (incident.description != null &&
+                  incident.description!.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Description',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  incident.description!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // Confirmed by
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.people,
+                      size: 16,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Confirmed by ${incident.confirmedBy} ${incident.confirmedBy == 1 ? 'person' : 'people'}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
