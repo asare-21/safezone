@@ -144,7 +144,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _centerOnUserLocation() {
-    _mapController.move(_center, 13);
+    _mapController.move(_center, 18);
   }
 
   @override
