@@ -10,8 +10,6 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class _AlertsScreenState extends State<AlertsScreen> {
-  String _selectedFilter = 'All Alerts';
-
   // Mock data for demonstration
   final List<Alert> _mockAlerts = [
     Alert(
