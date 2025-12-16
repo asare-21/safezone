@@ -33,7 +33,7 @@ class App extends StatelessWidget {
           create: (_) => AlertFilterCubit(),
         ),
         BlocProvider(
-          create: (_) => ProfileCubit()..loadSettings(),
+          create: (_) => ProfileCubit(sharedPreferences: prefs)..loadSettings(),
         ),
         BlocProvider(
           create: (_) => NotificationSettingsCubit(),
