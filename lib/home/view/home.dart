@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/profile/profile.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => BottomNavigationCubit(),
+      child: const _HomeView(),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+class _HomeView extends StatefulWidget {
+  const _HomeView();
 
+  @override
+  State<_HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<_HomeView> {
   final PageController _pageController = PageController();
 
   final List<Widget> _pages = [
@@ -24,10 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    _onItemTapped(index);
+    context.read<BottomNavigationCubit>().navigateToTab(index);
   }
 
   @override
@@ -36,42 +45,49 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
-    _pageController.jumpToPage(index);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: _pages,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onPageChanged,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(LineIcons.mapMarked),
-            label: 'Map',
+    return BlocConsumer<BottomNavigationCubit, BottomNavigationState>(
+      listener: (context, state) {
+        // Only jump to page if it's different from the current page
+        // to avoid infinite loops when swiping
+        if (_pageController.hasClients &&
+            _pageController.page?.round() != state.index) {
+          _pageController.jumpToPage(state.index);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: PageView(
+            controller: _pageController,
+            onPageChanged: _onPageChanged,
+            children: _pages,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(LineIcons.bell),
-            label: 'Alerts',
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: state.index,
+            onTap: _onPageChanged,
+            type: BottomNavigationBarType.fixed,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(LineIcons.home),
+                label: 'Map',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(LineIcons.bell),
+                label: 'Alerts',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(LineIcons.alternateShield),
+                label: 'Guide',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(LineIcons.cog),
+                label: 'Settings',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(LineIcons.alternateShield),
-            label: 'Guide',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(LineIcons.cog),
-            label: 'Settings',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
