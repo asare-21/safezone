@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
+import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
 
@@ -138,18 +140,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Divider(height: 1),
                 _buildToggleItem(
                   theme,
-                  icon: LineIcons.share,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Share Location with Contacts',
-                  value: _shareLocationWithContacts,
-                  onChanged: (value) {
-                    setState(() {
-                      _shareLocationWithContacts = value;
-                    });
-                  },
-                ),
-              ],
+                  children: [
+                    _buildToggleItemWithSubtitle(
+                      theme,
+                      icon: LineIcons.userSecret,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Anonymous Reporting',
+                      subtitle:
+                          'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
+                      value: state.anonymousReporting,
+                      onChanged: cubit.updateAnonymousReporting,
+                    ),
+                    const Divider(height: 1),
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.share,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Share Location with Contacts',
+                      value: state.shareLocationWithContacts,
+                      onChanged: cubit.updateShareLocationWithContacts,
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 24),
 
