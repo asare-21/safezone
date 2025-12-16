@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -11,20 +13,31 @@ const Color _avatarIconColor = Color(0xFF8B7355);
 const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ProfileCubit()..loadSettings(),
+      child: const _ProfileView(),
+    );
+  }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileView extends StatefulWidget {
+  const _ProfileView();
+
+  @override
+  State<_ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<_ProfileView> {
   bool _pushNotifications = true;
   bool _proximityAlerts = true;
   bool _soundVibration = false;
   bool _anonymousReporting = true;
   bool _shareLocationWithContacts = false;
-  double _alertRadius = 2.5;
 
   @override
   Widget build(BuildContext context) {
@@ -537,92 +550,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAlertRadiusItem(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        children: [
-          Row(
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _lightBlueBackground,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  LineIcons.bullseye,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Text(
-                  'Alert Radius',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: _lightBlueBackground,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      LineIcons.bullseye,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Text(
+                      'Alert Radius',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${state.alertRadius.toStringAsFixed(1)} km',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                '${_alertRadius.toStringAsFixed(1)} km',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    '500m',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor:
+                            Theme.of(context).colorScheme.primary,
+                        inactiveTrackColor: theme.dividerColor.withValues(
+                          alpha: 0.2,
+                        ),
+                        thumbColor: Theme.of(context).colorScheme.primary,
+                        trackHeight: 4,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 8,
+                        ),
+                      ),
+                      child: Slider(
+                        value: state.alertRadius,
+                        min: 0.5,
+                        max: 10,
+                        divisions: 19,
+                        onChanged: (value) {
+                          context.read<ProfileCubit>().updateAlertRadius(value);
+                        },
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '10km',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                '500m',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-              Expanded(
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: Theme.of(context).colorScheme.primary,
-                    inactiveTrackColor: theme.dividerColor.withValues(
-                      alpha: 0.2,
-                    ),
-                    thumbColor: Theme.of(context).colorScheme.primary,
-                    trackHeight: 4,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 8,
-                    ),
-                  ),
-                  child: Slider(
-                    value: _alertRadius,
-                    min: 0.5,
-                    max: 10,
-                    divisions: 19,
-                    onChanged: (value) {
-                      setState(() {
-                        _alertRadius = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              Text(
-                '10km',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
