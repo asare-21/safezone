@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_zone/alerts/models/alert_model.dart';
+import 'package:safe_zone/home/home.dart';
 
 class AlertDetailsScreen extends StatelessWidget {
   const AlertDetailsScreen({required this.alert, super.key});
@@ -212,7 +214,8 @@ class AlertDetailsScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // TODO(joasare019): Implement view on map
+                        context.read<BottomNavigationCubit>().navigateToMap();
+                        Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,

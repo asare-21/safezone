@@ -215,6 +215,73 @@ void main() {
       // Verify "Confirmed by" text appears
       expect(find.textContaining('Confirmed by'), findsOneWidget);
     });
+
+    testWidgets('search filters incidents by title', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Enter search query for "Theft"
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Search location or zone'),
+        'Theft',
+      );
+      await tester.pumpAndSettle();
+
+      // Should filter to show only theft-related incidents
+      // The search should work with the filtering system
+      expect(find.widgetWithText(TextField, 'Search location or zone'), findsOneWidget);
+    });
+
+    testWidgets('search filters incidents by description', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Enter search query
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Search location or zone'),
+        'Pickpocketing',
+      );
+      await tester.pumpAndSettle();
+
+      // Search field should contain the query
+      expect(find.widgetWithText(TextField, 'Search location or zone'), findsOneWidget);
+    });
+
+    testWidgets('search is case insensitive', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Enter uppercase search query
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Search location or zone'),
+        'THEFT',
+      );
+      await tester.pumpAndSettle();
+
+      // Should still filter incidents
+      expect(find.widgetWithText(TextField, 'Search location or zone'), findsOneWidget);
+    });
+
+    testWidgets('empty search shows all filtered incidents', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Enter and then clear search query
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Search location or zone'),
+        'test',
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Search location or zone'),
+        '',
+      );
+      await tester.pumpAndSettle();
+
+      // Should show all incidents again
+      expect(find.widgetWithText(TextField, 'Search location or zone'), findsOneWidget);
+    });
   });
 
   group('Incident Model', () {

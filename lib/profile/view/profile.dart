@@ -25,8 +25,12 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _ProfileView extends StatelessWidget {
-  const _ProfileView();
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _pushNotifications = true;
+  bool _proximityAlerts = true;
+  bool _soundVibration = false;
+  bool _shareLocationWithContacts = false;
+  double _alertRadius = 2.5;
 
   @override
   Widget build(BuildContext context) {
@@ -103,13 +107,18 @@ class _ProfileView extends StatelessWidget {
 
             // Privacy & Safety Section
             _buildSectionHeader(theme, 'PRIVACY & SAFETY'),
+
             BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
               builder: (context, state) {
                 final cubit = context.read<NotificationSettingsCubit>();
                 return _buildSettingsCard(
                   theme,
                   children: [
-                    _buildToggleItemWithSubtitle(
+                 
+                BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
+                  builder: (context, state) {
+                    return _buildToggleItemWithSubtitle(
+
                       theme,
                       icon: LineIcons.userSecret,
                       iconColor: Theme.of(context).colorScheme.primary,
@@ -118,21 +127,29 @@ class _ProfileView extends StatelessWidget {
                       subtitle:
                           'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
                       value: state.anonymousReporting,
-                      onChanged: cubit.toggleAnonymousReporting,
-                    ),
-                    const Divider(height: 1),
-                    _buildToggleItem(
-                      theme,
-                      icon: LineIcons.share,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      iconBgColor: _lightBlueBackground,
-                      title: 'Share Location with Contacts',
-                      value: state.shareLocationWithContacts,
-                      onChanged: cubit.toggleShareLocationWithContacts,
-                    ),
-                  ],
-                );
-              },
+                      onChanged: (value) {
+                        context
+                            .read<ProfileSettingsCubit>()
+                            .setAnonymousReporting(value);
+                      },
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                _buildToggleItem(
+                  theme,
+                  icon: LineIcons.share,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconBgColor: _lightBlueBackground,
+                  title: 'Share Location with Contacts',
+                  value: _shareLocationWithContacts,
+                  onChanged: (value) {
+                    setState(() {
+                      _shareLocationWithContacts = value;
+                    });
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 24),
 
