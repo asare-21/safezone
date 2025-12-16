@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/models/alert_model.dart';
+import 'package:safe_zone/alerts/view/alert_details_screen.dart';
 import 'package:safe_zone/home/home.dart';
 
 class AlertsScreen extends StatefulWidget {
@@ -295,7 +296,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            // TODO(joasare019): Navigate to alert details
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => AlertDetailsScreen(alert: alert),
+              ),
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(16),

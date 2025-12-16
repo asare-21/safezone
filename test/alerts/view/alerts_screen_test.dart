@@ -64,6 +64,22 @@ void main() {
       expect(find.text('Map View'), findsOneWidget);
       expect(find.byIcon(Icons.map), findsOneWidget);
     });
+
+    testWidgets('navigates to alert details when alert card is tapped',
+        (tester) async {
+      await tester.pumpAlertsApp(const AlertsScreen());
+
+      // Find and tap the first alert card
+      final alertCard = find.text('Entering High-Risk Area');
+      expect(alertCard, findsOneWidget);
+
+      await tester.tap(alertCard);
+      await tester.pumpAndSettle();
+
+      // Verify navigation to alert details screen
+      expect(find.text('Alert Details'), findsOneWidget);
+      expect(find.text('Entering High-Risk Area'), findsOneWidget);
+    });
   });
 
   group('Alert Model', () {
