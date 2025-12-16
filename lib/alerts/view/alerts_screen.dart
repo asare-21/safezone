@@ -18,52 +18,52 @@ class _AlertsScreenView extends StatelessWidget {
 
   // Mock data for demonstration
   static List<Alert> get _mockAlerts => [
-        Alert(
-          id: '1',
-          type: AlertType.highRisk,
-          severity: AlertSeverity.high,
-          title: 'Entering High-Risk Area',
-          location: 'Market St & 5th Ave',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 2)),
-          icon: Icons.warning,
-          iconColor: const Color(0xFFFF4C4C),
-          iconBackgroundColor: const Color(0xFFFFF0F0),
-        ),
-        Alert(
-          id: '2',
-          type: AlertType.theft,
-          severity: AlertSeverity.medium,
-          title: 'Recent Theft Reported',
-          location: 'Central Park Entrance',
-          timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
-          confirmedBy: 3,
-          icon: Icons.star,
-          iconColor: const Color(0xFFFF9500),
-          iconBackgroundColor: const Color(0xFFFFF4E5),
-        ),
-        Alert(
-          id: '3',
-          type: AlertType.eventCrowd,
-          severity: AlertSeverity.low,
-          title: 'Public Event Crowd',
-          location: 'Downtown Plaza',
-          timestamp: DateTime.now().subtract(const Duration(hours: 1)),
-          icon: Icons.people,
-          iconColor: const Color(0xFF5856D6),
-          iconBackgroundColor: const Color(0xFFF0F0FF),
-        ),
-        Alert(
-          id: '4',
-          type: AlertType.trafficCleared,
-          severity: AlertSeverity.info,
-          title: 'Traffic Accident Cleared',
-          location: 'I-95 Exit 42',
-          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-          icon: Icons.check_circle,
-          iconColor: const Color(0xFF8E8E93),
-          iconBackgroundColor: const Color(0xFFF5F5F5),
-        ),
-      ];
+    Alert(
+      id: '1',
+      type: AlertType.highRisk,
+      severity: AlertSeverity.high,
+      title: 'Entering High-Risk Area',
+      location: 'Market St & 5th Ave',
+      timestamp: DateTime.now().subtract(const Duration(minutes: 2)),
+      icon: Icons.warning,
+      iconColor: const Color(0xFFFF4C4C),
+      iconBackgroundColor: const Color(0xFFFFF0F0),
+    ),
+    Alert(
+      id: '2',
+      type: AlertType.theft,
+      severity: AlertSeverity.medium,
+      title: 'Recent Theft Reported',
+      location: 'Central Park Entrance',
+      timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
+      confirmedBy: 3,
+      icon: Icons.star,
+      iconColor: const Color(0xFFFF9500),
+      iconBackgroundColor: const Color(0xFFFFF4E5),
+    ),
+    Alert(
+      id: '3',
+      type: AlertType.eventCrowd,
+      severity: AlertSeverity.low,
+      title: 'Public Event Crowd',
+      location: 'Downtown Plaza',
+      timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+      icon: Icons.people,
+      iconColor: const Color(0xFF5856D6),
+      iconBackgroundColor: const Color(0xFFF0F0FF),
+    ),
+    Alert(
+      id: '4',
+      type: AlertType.trafficCleared,
+      severity: AlertSeverity.info,
+      title: 'Traffic Accident Cleared',
+      location: 'I-95 Exit 42',
+      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+      icon: Icons.check_circle,
+      iconColor: const Color(0xFF8E8E93),
+      iconBackgroundColor: const Color(0xFFF5F5F5),
+    ),
+  ];
 
   List<Alert> _getFilteredAlerts(AlertFilterState filterState) {
     return _mockAlerts.where((alert) {
@@ -100,8 +100,10 @@ class _AlertsScreenView extends StatelessWidget {
               children: [
                 // Header
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -482,6 +484,7 @@ class _FilterDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO #39 (joasare019): Refactor this. Make the interface cleaner and more user-friendly. Organise things well.
     return BlocBuilder<AlertFilterCubit, AlertFilterState>(
       builder: (context, state) {
         final theme = Theme.of(context);
@@ -535,8 +538,9 @@ class _FilterDialog extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: AlertSeverity.values.map((severity) {
-                      final isSelected =
-                          state.selectedSeverities.contains(severity);
+                      final isSelected = state.selectedSeverities.contains(
+                        severity,
+                      );
                       final color = severity.color;
 
                       return GestureDetector(
@@ -552,7 +556,9 @@ class _FilterDialog extends StatelessWidget {
                             color: isSelected ? color : Colors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: isSelected ? color : const Color(0xFFE5E5E5),
+                              color: isSelected
+                                  ? color
+                                  : const Color(0xFFE5E5E5),
                             ),
                           ),
                           child: Text(
@@ -681,8 +687,10 @@ class _FilterDialog extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

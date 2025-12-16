@@ -152,6 +152,7 @@ class _ProfileView extends StatelessWidget {
 
             // Account Section
             _buildSectionHeader(theme, 'ACCOUNT'),
+            // TODO #38 (joasare019): Implement my incident history screen. make this comprehensive and professional.
             _buildSettingsCard(
               theme,
               children: [
