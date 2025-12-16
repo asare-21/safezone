@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text('Home')),
     const AlertsScreen(),
     const Center(child: Text('Guide')),
-    const Center(child: Text('Profile')),
+    const ProfileScreen(),
   ];
 
   void _onPageChanged(int index) {
@@ -45,19 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
-        children: const [
-          Center(child: Text('Map Screen')),
-          Center(child: Text('Alerts Screen')),
-          Center(child: Text('Guide Screen')),
-          ProfileScreen(),
-        ],
+        children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onPageChanged,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(LineIcons.map), label: 'Map'),
+          BottomNavigationBarItem(icon: Icon(LineIcons.home), label: 'Map'),
           BottomNavigationBarItem(
             icon: Icon(LineIcons.bell),
             label: 'Alerts',

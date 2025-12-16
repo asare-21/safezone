@@ -86,7 +86,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       // TODO(joasare019): Implement filter dialog
                     },
                     icon: const Icon(
-                      LineIcons.slidersH,
+                      LineIcons.horizontalSliders,
                       size: 28,
                     ),
                   ),
@@ -140,8 +140,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         Text(
                           'SORTED BY TIME',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
@@ -153,10 +154,12 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     const SizedBox(height: 16),
 
                     // Alert list
-                    ..._mockAlerts.map((alert) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildAlertCard(context, alert),
-                        ),),
+                    ..._mockAlerts.map(
+                      (alert) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildAlertCard(context, alert),
+                      ),
+                    ),
                     const SizedBox(height: 80),
                   ],
                 ),
@@ -257,8 +260,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 Text(
                   'No immediate threats detected in your current vicinity.',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color:
-                        theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 14,
                     height: 1.4,
                   ),
@@ -362,8 +364,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       Text(
                         'Reported ${alert.timeAgo}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.5),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.5,
+                          ),
                           fontSize: 13,
                         ),
                       ),
@@ -372,8 +375,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         Text(
                           'Confirmed by ${alert.confirmedBy} users',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                             fontSize: 13,
                           ),
                         ),
@@ -384,15 +388,17 @@ class _AlertsScreenState extends State<AlertsScreen> {
                           Icon(
                             Icons.location_on,
                             size: 14,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             alert.location,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.5),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
                               fontSize: 13,
                             ),
                           ),
