@@ -140,17 +140,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     });
                   },
                 ),
-                const Divider(height: 1),
-                _buildNavigationItem(
-                  theme,
-                  icon: LineIcons.ban,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Manage Blocked Users',
-                  onTap: () {
-                    // Navigate to blocked users screen
-                  },
-                ),
               ],
             ),
             const SizedBox(height: 24),

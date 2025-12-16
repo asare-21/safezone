@@ -172,7 +172,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       // Map View FAB
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO(joasare019): Navigate to map view
+          // TODO(joasare019): Navigate to map view. Use the cubit that manages the bottom navigation to impelemt this. Implement the bottom navigation cubit if it does not exist.
         },
         backgroundColor: theme.colorScheme.primary,
         icon: const Icon(Icons.map, color: Colors.white),
