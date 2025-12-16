@@ -37,18 +37,8 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _ProfileView extends StatefulWidget {
+class _ProfileView extends StatelessWidget {
   const _ProfileView();
-
-  @override
-  State<_ProfileView> createState() => _ProfileViewState();
-}
-
-class _ProfileViewState extends State<_ProfileView> {
-  bool _pushNotifications = true;
-  bool _proximityAlerts = true;
-  bool _soundVibration = false;
-  bool _shareLocationWithContacts = false;
 
   @override
   Widget build(BuildContext context) {
