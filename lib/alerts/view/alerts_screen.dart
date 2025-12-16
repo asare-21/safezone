@@ -9,10 +9,7 @@ class AlertsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AlertFilterCubit(),
-      child: const _AlertsScreenView(),
-    );
+    return const _AlertsScreenView();
   }
 }
 

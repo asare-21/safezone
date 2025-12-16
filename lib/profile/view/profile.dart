@@ -18,17 +18,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => ProfileCubit()..loadSettings(),
-        ),
-        BlocProvider(
-          create: (_) => NotificationSettingsCubit(),
-        ),
-      ],
-      child: const _ProfileView(),
-    );
+    return const _ProfileView();
   }
 }
 

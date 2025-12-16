@@ -12,10 +12,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => BottomNavigationCubit(),
-      child: const _HomeView(),
-    );
+    return const _HomeView();
   }
 }
 
