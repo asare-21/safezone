@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 
 extension AlertsPumpApp on WidgetTester {
   Future<void> pumpAlertsApp(Widget widget) {
     return pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: widget,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => AlertFilterCubit(),
+          ),
+          BlocProvider(
+            create: (_) => BottomNavigationCubit(),
+          ),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: widget,
+        ),
       ),
     );
   }

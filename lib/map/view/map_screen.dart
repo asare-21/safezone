@@ -11,10 +11,7 @@ class MapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MapFilterCubit(),
-      child: const _MapScreenView(),
-    );
+    return const _MapScreenView();
   }
 }
 

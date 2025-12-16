@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
+import 'package:safe_zone/map/map.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/router_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -13,10 +16,31 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ProfileSettingsCubit(
-        ProfileSettingsRepository(prefs),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ProfileSettingsCubit(
+            ProfileSettingsRepository(prefs),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => BottomNavigationCubit(),
+        ),
+        BlocProvider(
+          create: (_) => MapFilterCubit(),
+        ),
+        BlocProvider(
+          create: (_) => AlertFilterCubit(),
+        ),
+        BlocProvider(
+          create: (_) => ProfileCubit(sharedPreferences: prefs)..loadSettings(),
+        ),
+        BlocProvider(
+          create: (_) => NotificationSettingsCubit(
+            sharedPreferences: prefs,
+          ),
+        ),
+      ],
       child: ShadApp.router(
         title: 'Safe Zone',
         localizationsDelegates: AppLocalizations.localizationsDelegates,
