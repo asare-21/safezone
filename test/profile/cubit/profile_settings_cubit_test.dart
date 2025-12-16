@@ -12,12 +12,10 @@ void main() {
       sharedPreferences = await SharedPreferences.getInstance();
     });
 
-    test('initial state has sound & vibration disabled', () async {
+    test('initial state has sound & vibration disabled', () {
       final cubit = ProfileSettingsCubit(
         sharedPreferences: sharedPreferences,
       );
-      // Wait for the initial load
-      await Future<void>.delayed(Duration.zero);
       expect(cubit.state.soundVibrationEnabled, false);
     });
 
@@ -26,8 +24,6 @@ void main() {
       final cubit = ProfileSettingsCubit(
         sharedPreferences: sharedPreferences,
       );
-      // Wait for the initial load
-      await Future<void>.delayed(Duration.zero);
       expect(cubit.state.soundVibrationEnabled, true);
     });
 

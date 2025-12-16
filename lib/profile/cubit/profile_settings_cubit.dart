@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'profile_settings_state.dart';
@@ -8,25 +9,16 @@ class ProfileSettingsCubit extends Cubit<ProfileSettingsState> {
   ProfileSettingsCubit({
     required SharedPreferences sharedPreferences,
   })  : _sharedPreferences = sharedPreferences,
-        super(const ProfileSettingsState()) {
-    _loadSettings();
-  }
+        super(
+          ProfileSettingsState(
+            soundVibrationEnabled:
+                sharedPreferences.getBool(_soundVibrationKey) ?? false,
+          ),
+        );
 
   final SharedPreferences _sharedPreferences;
 
   static const String _soundVibrationKey = 'sound_vibration_enabled';
-
-  /// Load settings from shared preferences
-  Future<void> _loadSettings() async {
-    final soundVibrationEnabled =
-        _sharedPreferences.getBool(_soundVibrationKey) ?? false;
-
-    emit(
-      state.copyWith(
-        soundVibrationEnabled: soundVibrationEnabled,
-      ),
-    );
-  }
 
   /// Toggle sound and vibration setting
   Future<void> toggleSoundVibration(bool enabled) async {

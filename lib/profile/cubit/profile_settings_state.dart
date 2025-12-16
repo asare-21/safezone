@@ -1,7 +1,7 @@
 part of 'profile_settings_cubit.dart';
 
 /// Represents the state of profile settings
-class ProfileSettingsState {
+class ProfileSettingsState extends Equatable {
   const ProfileSettingsState({
     this.soundVibrationEnabled = false,
   });
@@ -20,12 +20,5 @@ class ProfileSettingsState {
   }
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ProfileSettingsState &&
-        other.soundVibrationEnabled == soundVibrationEnabled;
-  }
-
-  @override
-  int get hashCode => soundVibrationEnabled.hashCode;
+  List<Object?> get props => [soundVibrationEnabled];
 }
