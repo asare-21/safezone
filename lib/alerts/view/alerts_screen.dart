@@ -13,20 +13,25 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class _AlertsScreenState extends State<AlertsScreen> {
-  // Filter state
-  Set<AlertSeverity> _selectedSeverities = {
+  // Default filter values
+  static const Set<AlertSeverity> _defaultSeverities = {
     AlertSeverity.high,
     AlertSeverity.medium,
     AlertSeverity.low,
     AlertSeverity.info,
   };
-  Set<AlertType> _selectedTypes = {
+  static const Set<AlertType> _defaultTypes = {
     AlertType.highRisk,
     AlertType.theft,
     AlertType.eventCrowd,
     AlertType.trafficCleared,
   };
-  AlertTimeFilter _selectedTimeFilter = AlertTimeFilter.all;
+  static const AlertTimeFilter _defaultTimeFilter = AlertTimeFilter.all;
+
+  // Filter state
+  Set<AlertSeverity> _selectedSeverities = Set.from(_defaultSeverities);
+  Set<AlertType> _selectedTypes = Set.from(_defaultTypes);
+  AlertTimeFilter _selectedTimeFilter = _defaultTimeFilter;
 
   // Mock data for demonstration
   final List<Alert> _mockAlerts = [
@@ -512,19 +517,9 @@ class _FilterDialogState extends State<_FilterDialog> {
 
   void _clearFilters() {
     setState(() {
-      _tempSeverities = {
-        AlertSeverity.high,
-        AlertSeverity.medium,
-        AlertSeverity.low,
-        AlertSeverity.info,
-      };
-      _tempTypes = {
-        AlertType.highRisk,
-        AlertType.theft,
-        AlertType.eventCrowd,
-        AlertType.trafficCleared,
-      };
-      _tempTimeFilter = AlertTimeFilter.all;
+      _tempSeverities = Set.from(_AlertsScreenState._defaultSeverities);
+      _tempTypes = Set.from(_AlertsScreenState._defaultTypes);
+      _tempTimeFilter = _AlertsScreenState._defaultTimeFilter;
     });
   }
 
@@ -581,14 +576,7 @@ class _FilterDialogState extends State<_FilterDialog> {
                 runSpacing: 8,
                 children: AlertSeverity.values.map((severity) {
                   final isSelected = _tempSeverities.contains(severity);
-                  final color = Alert(
-                    id: '',
-                    type: AlertType.highRisk,
-                    severity: severity,
-                    title: '',
-                    location: '',
-                    timestamp: DateTime.now(),
-                  ).severityColor;
+                  final color = severity.color;
 
                   return GestureDetector(
                     onTap: () => _toggleSeverity(severity),

@@ -42,6 +42,19 @@ extension AlertSeverityExtension on AlertSeverity {
         return 'Info';
     }
   }
+
+  Color get color {
+    switch (this) {
+      case AlertSeverity.high:
+        return const Color(0xFFFF4C4C);
+      case AlertSeverity.medium:
+        return const Color(0xFFFF9500);
+      case AlertSeverity.low:
+        return const Color(0xFF5856D6);
+      case AlertSeverity.info:
+        return const Color(0xFF8E8E93);
+    }
+  }
 }
 
 enum AlertTimeFilter {
