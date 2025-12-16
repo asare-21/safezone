@@ -7,9 +7,40 @@ import 'package:safe_zone/map/models/incident_model.dart';
 void main() {
   group('MapFilterCubit', () {
     late MapFilterCubit cubit;
+    late List<Incident> mockIncidents;
 
     setUp(() {
       cubit = MapFilterCubit();
+      mockIncidents = [
+        Incident(
+          id: '1',
+          category: IncidentCategory.theft,
+          location: const LatLng(40.7128, -74.0060),
+          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+          title: 'Theft 1',
+        ),
+        Incident(
+          id: '2',
+          category: IncidentCategory.assault,
+          location: const LatLng(40.7128, -74.0060),
+          timestamp: DateTime.now().subtract(const Duration(hours: 5)),
+          title: 'Assault 1',
+        ),
+        Incident(
+          id: '3',
+          category: IncidentCategory.suspicious,
+          location: const LatLng(40.7128, -74.0060),
+          timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
+          title: 'Suspicious 1',
+        ),
+        Incident(
+          id: '4',
+          category: IncidentCategory.lighting,
+          location: const LatLng(40.7128, -74.0060),
+          timestamp: DateTime.now().subtract(const Duration(hours: 12)),
+          title: 'Lighting 1',
+        ),
+      ];
     });
 
     tearDown(() {
@@ -31,9 +62,32 @@ void main() {
     });
 
     blocTest<MapFilterCubit, MapFilterState>(
-      'updateTimeFilter changes time filter',
+      'initializeIncidents calculates risk level based on incidents',
       build: () => cubit,
+      act: (cubit) => cubit.initializeIncidents(mockIncidents),
+      expect: () => [
+        MapFilterState(
+          timeFilter: TimeFilter.twentyFourHours,
+          selectedCategories: {
+            IncidentCategory.theft,
+            IncidentCategory.assault,
+            IncidentCategory.suspicious,
+            IncidentCategory.lighting,
+          },
+          riskLevel: RiskLevel.high,
+        ),
+      ],
+    );
+
+    blocTest<MapFilterCubit, MapFilterState>(
+      'updateTimeFilter changes time filter and recalculates risk',
+      build: () {
+        final cubit = MapFilterCubit();
+        cubit.initializeIncidents(mockIncidents);
+        return cubit;
+      },
       act: (cubit) => cubit.updateTimeFilter(TimeFilter.sevenDays),
+      skip: 1, // Skip the initialization emission
       expect: () => [
         MapFilterState(
           timeFilter: TimeFilter.sevenDays,
@@ -43,15 +97,20 @@ void main() {
             IncidentCategory.suspicious,
             IncidentCategory.lighting,
           },
-          riskLevel: RiskLevel.moderate,
+          riskLevel: RiskLevel.high,
         ),
       ],
     );
 
     blocTest<MapFilterCubit, MapFilterState>(
-      'toggleCategory removes category when present',
-      build: () => cubit,
+      'toggleCategory removes category when present and recalculates risk',
+      build: () {
+        final cubit = MapFilterCubit();
+        cubit.initializeIncidents(mockIncidents);
+        return cubit;
+      },
       act: (cubit) => cubit.toggleCategory(IncidentCategory.theft),
+      skip: 1, // Skip the initialization emission
       expect: () => [
         MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
@@ -66,35 +125,48 @@ void main() {
     );
 
     blocTest<MapFilterCubit, MapFilterState>(
-      'toggleCategory adds category when not present',
-      build: () => MapFilterCubit(),
-      seed: () => MapFilterState(
-        timeFilter: TimeFilter.twentyFourHours,
-        selectedCategories: {
-          IncidentCategory.assault,
-          IncidentCategory.suspicious,
-        },
-        riskLevel: RiskLevel.moderate,
-      ),
+      'toggleCategory adds category when not present and recalculates risk',
+      build: () {
+        final cubit = MapFilterCubit();
+        cubit.initializeIncidents(mockIncidents);
+        cubit.toggleCategory(IncidentCategory.theft);
+        return cubit;
+      },
       act: (cubit) => cubit.toggleCategory(IncidentCategory.theft),
+      skip: 2, // Skip initialization and first toggle
       expect: () => [
         MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
             IncidentCategory.assault,
             IncidentCategory.suspicious,
+            IncidentCategory.lighting,
             IncidentCategory.theft,
           },
-          riskLevel: RiskLevel.moderate,
+          riskLevel: RiskLevel.high,
         ),
       ],
     );
 
-    group('updateRiskLevel', () {
+    test('getFilteredIncidents filters by time and category', () {
+      cubit.initializeIncidents(mockIncidents);
+      
+      // All incidents within 24h
+      var filtered = cubit.getFilteredIncidents();
+      expect(filtered.length, 4);
+
+      // Toggle off theft category
+      cubit.toggleCategory(IncidentCategory.theft);
+      filtered = cubit.getFilteredIncidents();
+      expect(filtered.length, 3);
+      expect(filtered.any((i) => i.category == IncidentCategory.theft), false);
+    });
+
+    group('risk level calculation', () {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to safe when no incidents',
         build: () => cubit,
-        act: (cubit) => cubit.updateRiskLevel([]),
+        act: (cubit) => cubit.initializeIncidents([]),
         expect: () => [
           MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
@@ -112,7 +184,7 @@ void main() {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to safe with 1 low severity incident',
         build: () => cubit,
-        act: (cubit) => cubit.updateRiskLevel([
+        act: (cubit) => cubit.initializeIncidents([
           Incident(
             id: '1',
             category: IncidentCategory.lighting,
@@ -138,7 +210,7 @@ void main() {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to moderate with 2 incidents',
         build: () => cubit,
-        act: (cubit) => cubit.updateRiskLevel([
+        act: (cubit) => cubit.initializeIncidents([
           Incident(
             id: '1',
             category: IncidentCategory.lighting,
@@ -171,7 +243,7 @@ void main() {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to moderate with 1 high severity incident',
         build: () => cubit,
-        act: (cubit) => cubit.updateRiskLevel([
+        act: (cubit) => cubit.initializeIncidents([
           Incident(
             id: '1',
             category: IncidentCategory.theft,
@@ -197,7 +269,7 @@ void main() {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to high with 5+ incidents',
         build: () => cubit,
-        act: (cubit) => cubit.updateRiskLevel([
+        act: (cubit) => cubit.initializeIncidents([
           Incident(
             id: '1',
             category: IncidentCategory.lighting,
@@ -251,7 +323,7 @@ void main() {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to high with 3+ high severity incidents',
         build: () => cubit,
-        act: (cubit) => cubit.updateRiskLevel([
+        act: (cubit) => cubit.initializeIncidents([
           Incident(
             id: '1',
             category: IncidentCategory.theft,

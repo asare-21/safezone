@@ -38,14 +38,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
   void initState() {
     super.initState();
     _initializeMockData();
-    // Update risk level after initialization
+    // Initialize cubit with incidents
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final filterCubit = context.read<MapFilterCubit>();
-      final filteredIncidents = _getFilteredIncidents(
-        filterCubit.state.timeFilter,
-        filterCubit.state.selectedCategories,
-      );
-      filterCubit.updateRiskLevel(filteredIncidents);
+      context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
     });
   }
 
@@ -102,16 +97,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
     ];
   }
 
-  List<Incident> _getFilteredIncidents(
-    TimeFilter timeFilter,
-    Set<IncidentCategory> selectedCategories,
-  ) {
-    return _allIncidents.where((incident) {
-      return incident.isWithinTimeFilter(timeFilter) &&
-          selectedCategories.contains(incident.category);
-    }).toList();
-  }
-
   @override
   void dispose() {
     _mapController.dispose();
@@ -134,18 +119,19 @@ class _MapScreenViewState extends State<_MapScreenView> {
       builder: (BuildContext dialogContext) {
         return _ReportIncidentDialog(
           onSubmit: (category, title, description) {
-            setState(() {
-              final newIncident = Incident(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                category: category,
-                location: _center,
-                timestamp: DateTime.now(),
-                title: title,
-                description: description,
-                confirmedBy: 1,
-              );
-              _allIncidents.insert(0, newIncident);
-            });
+            final newIncident = Incident(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              category: category,
+              location: _center,
+              timestamp: DateTime.now(),
+              title: title,
+              description: description,
+              confirmedBy: 1,
+            );
+            _allIncidents.insert(0, newIncident);
+            // Update cubit with new incidents list
+            context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+            
             Navigator.of(dialogContext).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -170,10 +156,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
     return BlocBuilder<MapFilterCubit, MapFilterState>(
       builder: (context, filterState) {
-        final filteredIncidents = _getFilteredIncidents(
-          filterState.timeFilter,
-          filterState.selectedCategories,
-        );
+        final filteredIncidents = context.read<MapFilterCubit>().getFilteredIncidents();
 
         return Scaffold(
           body: Stack(
@@ -298,11 +281,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
                   onSelectionChanged: (newSelection) {
                     final selectedFilter = newSelection.first;
                     context.read<MapFilterCubit>().updateTimeFilter(selectedFilter);
-                    final updatedFilteredIncidents = _getFilteredIncidents(
-                      selectedFilter,
-                      filterState.selectedCategories,
-                    );
-                    context.read<MapFilterCubit>().updateRiskLevel(updatedFilteredIncidents);
                   },
                   segments: const [
                     ButtonSegment(
@@ -337,13 +315,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           isSelected: isSelected,
                           onTap: () {
                             context.read<MapFilterCubit>().toggleCategory(category);
-                            final updatedFilteredIncidents = _getFilteredIncidents(
-                              filterState.timeFilter,
-                              filterState.selectedCategories.contains(category)
-                                  ? (Set<IncidentCategory>.from(filterState.selectedCategories)..remove(category))
-                                  : (Set<IncidentCategory>.from(filterState.selectedCategories)..add(category)),
-                            );
-                            context.read<MapFilterCubit>().updateRiskLevel(updatedFilteredIncidents);
                           },
                         ),
                       );

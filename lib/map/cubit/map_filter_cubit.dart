@@ -19,12 +19,21 @@ class MapFilterCubit extends Cubit<MapFilterState> {
           ),
         );
 
-  /// Update the time filter
-  void updateTimeFilter(TimeFilter filter) {
-    emit(state.copyWith(timeFilter: filter));
+  List<Incident> _allIncidents = [];
+
+  /// Initialize incidents and calculate initial risk level
+  void initializeIncidents(List<Incident> incidents) {
+    _allIncidents = incidents;
+    _recalculateRiskLevel();
   }
 
-  /// Toggle a category filter
+  /// Update the time filter and recalculate risk level
+  void updateTimeFilter(TimeFilter filter) {
+    emit(state.copyWith(timeFilter: filter));
+    _recalculateRiskLevel();
+  }
+
+  /// Toggle a category filter and recalculate risk level
   void toggleCategory(IncidentCategory category) {
     final newCategories = Set<IncidentCategory>.from(state.selectedCategories);
     if (newCategories.contains(category)) {
@@ -33,10 +42,19 @@ class MapFilterCubit extends Cubit<MapFilterState> {
       newCategories.add(category);
     }
     emit(state.copyWith(selectedCategories: newCategories));
+    _recalculateRiskLevel();
   }
 
-  /// Calculate and update risk level based on filtered incidents
-  void updateRiskLevel(List<Incident> filteredIncidents) {
+  /// Get filtered incidents based on current state
+  List<Incident> getFilteredIncidents() {
+    return _allIncidents.where((incident) {
+      return incident.isWithinTimeFilter(state.timeFilter) &&
+          state.selectedCategories.contains(incident.category);
+    }).toList();
+  }
+
+  void _recalculateRiskLevel() {
+    final filteredIncidents = getFilteredIncidents();
     final riskLevel = _calculateRiskLevel(filteredIncidents);
     emit(state.copyWith(riskLevel: riskLevel));
   }
