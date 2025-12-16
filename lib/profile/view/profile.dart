@@ -15,13 +15,18 @@ const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({
+    super.key,
+    ProximityAlertsSettingsRepository? repository,
+  }) : _repository = repository;
+
+  final ProximityAlertsSettingsRepository? _repository;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ProximityAlertsSettingsCubit(
-        repository: ProximityAlertsSettingsRepository(),
+        repository: _repository ?? ProximityAlertsSettingsRepository(),
       ),
       child: const _ProfileScreenView(),
     );

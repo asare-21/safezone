@@ -95,13 +95,14 @@ class ProximityAlertsSettingsRepository {
 
   /// Load all settings at once
   Future<Map<String, dynamic>> loadAllSettings() async {
+    final prefs = await _prefs;
     return {
-      'pushNotifications': await getPushNotifications(),
-      'proximityAlerts': await getProximityAlerts(),
-      'soundVibration': await getSoundVibration(),
-      'anonymousReporting': await getAnonymousReporting(),
-      'shareLocationWithContacts': await getShareLocationWithContacts(),
-      'alertRadius': await getAlertRadius(),
+      'pushNotifications': prefs.getBool(_pushNotificationsKey) ?? true,
+      'proximityAlerts': prefs.getBool(_proximityAlertsKey) ?? true,
+      'soundVibration': prefs.getBool(_soundVibrationKey) ?? false,
+      'anonymousReporting': prefs.getBool(_anonymousReportingKey) ?? true,
+      'shareLocationWithContacts': prefs.getBool(_shareLocationKey) ?? false,
+      'alertRadius': prefs.getDouble(_alertRadiusKey) ?? 2.5,
     };
   }
 }
