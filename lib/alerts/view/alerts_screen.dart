@@ -566,7 +566,7 @@ class _FilterDialogState extends State<_FilterDialog> {
       case AlertSeverity.low:
         return Icons.info_outline;
       case AlertSeverity.info:
-        return Icons.info_outline;
+        return Icons.notifications_none;
     }
   }
 
@@ -764,7 +764,7 @@ class _FilterDialogState extends State<_FilterDialog> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FA),
+                color: theme.colorScheme.surface,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
