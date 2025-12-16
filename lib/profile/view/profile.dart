@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
@@ -169,17 +170,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Navigate to incident history screen
                   },
                 ),
-                const Divider(height: 1),
-                _buildNavigationItem(
-                  theme,
-                  icon: LineIcons.key,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Change Password',
-                  onTap: () {
-                    // Navigate to change password screen
-                  },
-                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -208,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Version Info
             Center(
               child: Text(
-                'SafeZone v2.4.1 (Build 2045)',
+                appVersion,
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -502,7 +492,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: Colors.white,
               activeTrackColor: Theme.of(context).colorScheme.primary,
             ),
           ),
@@ -624,7 +613,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Slider(
                     value: _alertRadius,
                     min: 0.5,
-                    max: 10.0,
+                    max: 10,
                     divisions: 19,
                     onChanged: (value) {
                       setState(() {
