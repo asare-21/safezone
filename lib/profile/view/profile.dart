@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -22,7 +24,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _pushNotifications = true;
   bool _proximityAlerts = true;
   bool _soundVibration = false;
-  bool _anonymousReporting = true;
   bool _shareLocationWithContacts = false;
   double _alertRadius = 2.5;
 
@@ -111,19 +112,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildSettingsCard(
               theme,
               children: [
-                _buildToggleItemWithSubtitle(
-                  theme,
-                  icon: LineIcons.userSecret,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Anonymous Reporting',
-                  subtitle:
-                      'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
-                  value: _anonymousReporting,
-                  onChanged: (value) {
-                    setState(() {
-                      _anonymousReporting = value;
-                    });
+                BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
+                  builder: (context, state) {
+                    return _buildToggleItemWithSubtitle(
+                      theme,
+                      icon: LineIcons.userSecret,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Anonymous Reporting',
+                      subtitle:
+                          'Your username will be hidden on public maps. Admins can still see your ID for safety verification.',
+                      value: state.anonymousReporting,
+                      onChanged: (value) {
+                        context
+                            .read<ProfileSettingsCubit>()
+                            .setAnonymousReporting(value);
+                      },
+                    );
                   },
                 ),
                 const Divider(height: 1),
