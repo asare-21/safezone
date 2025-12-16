@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/map/map.dart';
 import 'package:safe_zone/profile/profile.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
 
   final List<Widget> _pages = [
-    const Center(child: Text('Home')),
+    const MapScreen(),
     const AlertsScreen(),
     const Center(child: Text('Guide')),
     const ProfileScreen(),
