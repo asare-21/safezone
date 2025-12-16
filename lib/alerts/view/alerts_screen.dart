@@ -654,16 +654,15 @@ class _FilterDialogState extends State<_FilterDialog> {
                       ),
                     ],
                   ),
-                  IconButton(
+                  TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(
-                      Icons.close_rounded,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -681,7 +680,7 @@ class _FilterDialogState extends State<_FilterDialog> {
                     // Severity Filter Section
                     _buildFilterSection(
                       theme: theme,
-                      title: 'Severity Level',
+                      title: 'Severity',
                       icon: Icons.speed_rounded,
                       child: Wrap(
                         spacing: 10,
