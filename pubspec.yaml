@@ -17,6 +17,7 @@ dependencies:
   go_router: ^17.0.1
   intl: ^0.20.2
   introduction_screen: ^4.0.0
+  line_icons: ^2.0.3
   shadcn_ui: ^0.42.0
 
 dev_dependencies:

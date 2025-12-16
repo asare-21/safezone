@@ -9,25 +9,51 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
+
+  final PageController _pageController = PageController();
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    _onItemTapped(index);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    _pageController.jumpToPage(index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onPageChanged,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(LineIcons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(LineIcons.bell),
             label: 'Alerts',
           ),
           BottomNavigationBarItem(
-            icon: Icon(LineIcons.userShield),
+            icon: Icon(LineIcons.alternateShield),
             label: 'Guide',
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(LineIcons.user),
+            icon: Icon(LineIcons.alternateUser),
             label: 'Profile',
           ),
         ],
