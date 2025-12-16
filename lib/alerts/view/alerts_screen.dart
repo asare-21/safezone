@@ -33,8 +33,9 @@ class AlertsScreen extends StatefulWidget {
 
 class _AlertsScreenState extends State<AlertsScreen> {
   // Filter state
-  Set<AlertSeverity> _selectedSeverities =
-      Set.from(AlertFilterDefaults.severities);
+  Set<AlertSeverity> _selectedSeverities = Set.from(
+    AlertFilterDefaults.severities,
+  );
   Set<AlertType> _selectedTypes = Set.from(AlertFilterDefaults.types);
   AlertTimeFilter _selectedTimeFilter = AlertFilterDefaults.timeFilter;
 
@@ -244,24 +245,36 @@ class _AlertsScreenState extends State<AlertsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, {bool selected = false}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: selected ? Colors.black : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: selected ? Colors.black : const Color(0xFFE5E5E5),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Text(
+  // For filter chips with selection, use InputChip:
+  Widget _buildFilterChip(
+    String label, {
+    bool selected = false,
+    VoidCallback? onPressed,
+  }) {
+    return InputChip(
+      label: Text(
         label,
-        style: TextStyle(
-          color: selected ? Colors.white : Colors.black,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w600,
+          color: selected
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurface,
           fontSize: 14,
         ),
       ),
+      selected: selected,
+      onPressed: onPressed,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      selectedColor: Theme.of(context).colorScheme.primary,
+      side: const BorderSide(
+        color: Colors.white,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      visualDensity: VisualDensity.compact,
+      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
 
@@ -481,7 +494,8 @@ class _FilterDialog extends StatefulWidget {
     Set<AlertSeverity> severities,
     Set<AlertType> types,
     AlertTimeFilter timeFilter,
-  ) onApply;
+  )
+  onApply;
 
   @override
   State<_FilterDialog> createState() => _FilterDialogState();
