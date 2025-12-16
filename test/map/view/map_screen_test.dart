@@ -101,7 +101,7 @@ void main() {
       expect(theftFinder, findsOneWidget);
     });
 
-    testWidgets('Report Incident button shows snackbar', (tester) async {
+    testWidgets('Report Incident button shows dialog', (tester) async {
       await tester.pumpMapApp(const MapScreen());
       await tester.pumpAndSettle();
 
@@ -109,11 +109,78 @@ void main() {
       await tester.tap(find.text('Report Incident'));
       await tester.pumpAndSettle();
 
-      // Verify snackbar appears
-      expect(
-        find.text('Report incident feature coming soon!'),
-        findsOneWidget,
+      // Verify dialog appears with title
+      expect(find.text('Report Incident'), findsNWidgets(2)); // Button + Dialog
+      expect(find.text('Category'), findsOneWidget);
+      expect(find.text('Title'), findsOneWidget);
+      expect(find.text('Description (Optional)'), findsOneWidget);
+      
+      // Verify category chips are displayed
+      expect(find.text('Theft'), findsNWidgets(2)); // Filter + Dialog
+      expect(find.text('Assault'), findsNWidgets(2)); // Filter + Dialog
+      
+      // Verify action buttons
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Submit'), findsOneWidget);
+    });
+
+    testWidgets('Report Incident dialog can be cancelled', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Open dialog
+      await tester.tap(find.text('Report Incident'));
+      await tester.pumpAndSettle();
+
+      // Tap cancel button
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      // Dialog should be closed
+      expect(find.text('Category'), findsNothing);
+      expect(find.text('Submit'), findsNothing);
+    });
+
+    testWidgets('Report Incident requires title', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Open dialog
+      await tester.tap(find.text('Report Incident'));
+      await tester.pumpAndSettle();
+
+      // Try to submit without entering title
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      // Validation error should appear
+      expect(find.text('Please enter a title'), findsOneWidget);
+    });
+
+    testWidgets('Report Incident can submit with valid data', (tester) async {
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Open dialog
+      await tester.tap(find.text('Report Incident'));
+      await tester.pumpAndSettle();
+
+      // Enter title
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Brief description of the incident'),
+        'Test incident title',
       );
+      await tester.pumpAndSettle();
+
+      // Submit form
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      // Success message should appear
+      expect(find.text('Incident reported successfully'), findsOneWidget);
+      
+      // Dialog should be closed
+      expect(find.text('Category'), findsNothing);
     });
   });
 
