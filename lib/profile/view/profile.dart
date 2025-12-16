@@ -151,6 +151,7 @@ class _ProfileViewState extends State<_ProfileView> {
                 const Divider(height: 1),
                 BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
                   builder: (context, state) {
+                    final cubit = context.read<NotificationSettingsCubit>();
                     return _buildToggleItem(
                       theme,
                       icon: LineIcons.share,
@@ -158,7 +159,7 @@ class _ProfileViewState extends State<_ProfileView> {
                       iconBgColor: _lightBlueBackground,
                       title: 'Share Location with Contacts',
                       value: state.shareLocationWithContacts,
-                      onChanged: context.read<NotificationSettingsCubit>().toggleShareLocationWithContacts,
+                      onChanged: cubit.toggleShareLocationWithContacts,
                     );
                   },
                 ),
