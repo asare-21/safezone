@@ -52,7 +52,10 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: _onPageChanged,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(LineIcons.home), label: 'Map'),
+          BottomNavigationBarItem(
+            icon: Icon(LineIcons.mapMarked),
+            label: 'Map',
+          ),
           BottomNavigationBarItem(
             icon: Icon(LineIcons.bell),
             label: 'Alerts',
