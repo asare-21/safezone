@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
-import 'package:safe_zone/map/map.dart';
-import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/guide/guide.dart';
+import 'package:safe_zone/home/home.dart';
+import 'package:safe_zone/map/map.dart';
 import 'package:safe_zone/profile/profile.dart';
 
 class HomeScreen extends StatelessWidget {

@@ -23,7 +23,7 @@ class _MapScreenState extends State<MapScreen> {
 
   // New York City center coordinates (example location)
   final LatLng _center = const LatLng(40.7128, -74.0060);
-  RiskLevel _currentRiskLevel = RiskLevel.moderate;
+  final RiskLevel _currentRiskLevel = RiskLevel.moderate;
 
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
@@ -136,7 +136,6 @@ class _MapScreenState extends State<MapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _center,
-              initialZoom: 13,
               minZoom: 10,
               maxZoom: 18,
             ),

@@ -21,7 +21,7 @@ void main() {
       build: BottomNavigationCubit.new,
       seed: () => const BottomNavigationState(index: 2),
       act: (cubit) => cubit.navigateToMap(),
-      expect: () => [const BottomNavigationState(index: 0)],
+      expect: () => [const BottomNavigationState()],
     );
 
     blocTest<BottomNavigationCubit, BottomNavigationState>(
@@ -63,14 +63,14 @@ void main() {
   group('BottomNavigationState', () {
     test('supports value equality', () {
       expect(
-        const BottomNavigationState(index: 0),
-        equals(const BottomNavigationState(index: 0)),
+        const BottomNavigationState(),
+        equals(const BottomNavigationState()),
       );
     });
 
     test('different indices are not equal', () {
       expect(
-        const BottomNavigationState(index: 0),
+        const BottomNavigationState(),
         isNot(equals(const BottomNavigationState(index: 1))),
       );
     });
