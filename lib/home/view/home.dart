@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/home/home.dart';
+import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/profile/profile.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -30,7 +31,7 @@ class _HomeViewState extends State<_HomeView> {
   final List<Widget> _pages = [
     const Center(child: Text('Home')),
     const AlertsScreen(),
-    const Center(child: Text('Guide')),
+    const GuideScreen(),
     const ProfileScreen(),
   ];
 
