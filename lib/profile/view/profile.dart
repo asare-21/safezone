@@ -13,11 +13,16 @@ const Color _avatarIconColor = Color(0xFF8B7355);
 const int _currentTrustScore = 450;
 const int _maxTrustScore = 600;
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => NotificationSettingsCubit(),
+      child: const _ProfileView(),
+    );
+  }
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
@@ -57,64 +62,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // Alerts & Notifications Section
             _buildSectionHeader(theme, 'ALERTS & NOTIFICATIONS'),
-            _buildSettingsCard(
-              theme,
-              children: [
-                _buildToggleItem(
+            BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
+              builder: (context, state) {
+                final cubit = context.read<NotificationSettingsCubit>();
+                return _buildSettingsCard(
                   theme,
-                  icon: LineIcons.bell,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Push Notifications',
-                  value: _pushNotifications,
-                  onChanged: (value) {
-                    setState(() {
-                      _pushNotifications = value;
-                    });
-                  },
-                ),
-                const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  icon: LineIcons.mapMarker,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Proximity Alerts',
-                  value: _proximityAlerts,
-                  onChanged: (value) {
-                    setState(() {
-                      _proximityAlerts = value;
-                    });
-                  },
-                ),
-                const Divider(height: 1),
-                _buildAlertRadiusItem(theme),
-                const Divider(height: 1),
-                _buildToggleItem(
-                  theme,
-                  icon: LineIcons.volumeUp,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Sound & Vibration',
-                  value: _soundVibration,
-                  onChanged: (value) {
-                    setState(() {
-                      _soundVibration = value;
-                    });
-                  },
-                ),
-              ],
+                  children: [
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.bell,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Push Notifications',
+                      value: state.pushNotifications,
+                      onChanged: cubit.togglePushNotifications,
+                    ),
+                    const Divider(height: 1),
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.mapMarker,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Proximity Alerts',
+                      value: state.proximityAlerts,
+                      onChanged: cubit.toggleProximityAlerts,
+                    ),
+                    const Divider(height: 1),
+                    _buildAlertRadiusItem(theme, state.alertRadius, cubit),
+                    const Divider(height: 1),
+                    _buildToggleItem(
+                      theme,
+                      icon: LineIcons.volumeUp,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      iconBgColor: _lightBlueBackground,
+                      title: 'Sound & Vibration',
+                      value: state.soundVibration,
+                      onChanged: cubit.toggleSoundVibration,
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 24),
 
             // Privacy & Safety Section
             _buildSectionHeader(theme, 'PRIVACY & SAFETY'),
-            _buildSettingsCard(
-              theme,
-              children: [
+
+            BlocBuilder<NotificationSettingsCubit, NotificationSettingsState>(
+              builder: (context, state) {
+                final cubit = context.read<NotificationSettingsCubit>();
+                return _buildSettingsCard(
+                  theme,
+                  children: [
+                 
                 BlocBuilder<ProfileSettingsCubit, ProfileSettingsState>(
                   builder: (context, state) {
                     return _buildToggleItemWithSubtitle(
+
                       theme,
                       icon: LineIcons.userSecret,
                       iconColor: Theme.of(context).colorScheme.primary,
@@ -541,7 +545,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAlertRadiusItem(ThemeData theme) {
+  Widget _buildAlertRadiusItem(
+    ThemeData theme,
+    double alertRadius,
+    NotificationSettingsCubit cubit,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -572,7 +580,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               Text(
-                '${_alertRadius.toStringAsFixed(1)} km',
+                '${alertRadius.toStringAsFixed(1)} km',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -605,15 +613,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   child: Slider(
-                    value: _alertRadius,
+                    value: alertRadius,
                     min: 0.5,
                     max: 10,
                     divisions: 19,
-                    onChanged: (value) {
-                      setState(() {
-                        _alertRadius = value;
-                      });
-                    },
+                    onChanged: cubit.updateAlertRadius,
                   ),
                 ),
               ),

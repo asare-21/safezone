@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +29,16 @@ Future<void> bootstrap(FutureOr<Widget> Function(SharedPreferences) builder) asy
 
   Bloc.observer = const AppBlocObserver();
 
+  // Initialize Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+    log('Firebase initialized successfully');
+  } catch (e) {
+    log('Firebase initialization failed: $e. App will continue without Firebase.');
+  }
+
+  // Add cross-flavor configuration here
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
 
