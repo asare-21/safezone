@@ -23,9 +23,8 @@ class _MapScreenState extends State<MapScreen> {
 
   // New York City center coordinates (example location)
   final LatLng _center = const LatLng(40.7128, -74.0060);
-  RiskLevel _currentRiskLevel = RiskLevel.moderate;
-
   final RiskLevel _currentRiskLevel = RiskLevel.moderate;
+
   Set<String> _selectedTimeFilterLabel = {'24h'};
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
@@ -160,7 +159,6 @@ class _MapScreenState extends State<MapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _center,
-              initialZoom: 13,
               minZoom: 10,
               maxZoom: 18,
             ),
@@ -467,7 +465,8 @@ class _ReportIncidentDialog extends StatefulWidget {
     IncidentCategory category,
     String title,
     String description,
-  ) onSubmit;
+  )
+  onSubmit;
 
   @override
   State<_ReportIncidentDialog> createState() => _ReportIncidentDialogState();
@@ -505,14 +504,14 @@ class _ReportIncidentDialogState extends State<_ReportIncidentDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      title: Row(
+      title: const Row(
         children: [
-          const Icon(
+          Icon(
             LineIcons.bullhorn,
             size: 24,
           ),
-          const SizedBox(width: 12),
-          const Text(
+          SizedBox(width: 12),
+          Text(
             'Report Incident',
             style: TextStyle(
               fontSize: 20,
