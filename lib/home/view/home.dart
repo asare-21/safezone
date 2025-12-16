@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/alerts/alerts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,6 +13,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   final PageController _pageController = PageController();
+
+  final List<Widget> _pages = [
+    const Center(child: Text('Home')),
+    const AlertsScreen(),
+    const Center(child: Text('Guide')),
+    const Center(child: Text('Profile')),
+  ];
 
   void _onPageChanged(int index) {
     setState(() {
@@ -36,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
+        children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
