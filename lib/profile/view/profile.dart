@@ -127,25 +127,25 @@ class _ProfileView extends StatelessWidget {
                     );
                   },
                 ),
-                const Divider(height: 1),
-                BlocBuilder<
-                  NotificationSettingsCubit,
-                  NotificationSettingsState
-                >(
-                  builder: (context, state) {
-                    final cubit = context.read<NotificationSettingsCubit>();
-                    return _buildToggleItem(
-                      theme,
-                      context,
-                      icon: LineIcons.share,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      iconBgColor: _lightBlueBackground,
-                      title: 'Share Location with Contacts',
-                      value: state.shareLocationWithContacts,
-                      onChanged: cubit.toggleShareLocationWithContacts,
-                    );
-                  },
-                ),
+                // const Divider(height: 1),
+                // BlocBuilder<
+                //   NotificationSettingsCubit,
+                //   NotificationSettingsState
+                // >(
+                //   builder: (context, state) {
+                //     final cubit = context.read<NotificationSettingsCubit>();
+                //     return _buildToggleItem(
+                //       theme,
+                //       context,
+                //       icon: LineIcons.share,
+                //       iconColor: Theme.of(context).colorScheme.primary,
+                //       iconBgColor: _lightBlueBackground,
+                //       title: 'Share Location with Contacts',
+                //       value: state.shareLocationWithContacts,
+                //       onChanged: cubit.toggleShareLocationWithContacts,
+                //     );
+                //   },
+                // ),
               ],
             ),
             const SizedBox(height: 24),
