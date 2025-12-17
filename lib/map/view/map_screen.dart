@@ -6,6 +6,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
+import 'package:safe_zone/profile/profile.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
@@ -155,7 +156,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   void _centerOnUserLocation() {
-    _mapController.move(_center, 18);
+    final defaultZoom = context.read<ProfileCubit>().state.defaultZoom;
+    _mapController.move(_center, defaultZoom);
   }
 
   Widget _buildLoadingScreen() {
@@ -214,88 +216,91 @@ class _MapScreenViewState extends State<_MapScreenView> {
           return _buildLoadingScreen();
         }
 
-        return BlocBuilder<MapFilterCubit, MapFilterState>(
-          builder: (context, filterState) {
-            final filteredIncidents = context
-                .read<MapFilterCubit>()
-                .getFilteredIncidents();
+        return BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, profileState) {
+            return BlocBuilder<MapFilterCubit, MapFilterState>(
+              builder: (context, filterState) {
+                final filteredIncidents = context
+                    .read<MapFilterCubit>()
+                    .getFilteredIncidents();
 
-            return Scaffold(
-              body: Stack(
-                children: [
-                  // Map
-                  FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: _center,
-                      minZoom: 10,
-                      maxZoom: 18,
-                    ),
+                return Scaffold(
+                  body: Stack(
                     children: [
-                      TileLayer(
-                        urlTemplate:
-                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.safezone.app',
-                      ),
-                      // Incident markers
-                      MarkerLayer(
-                        markers: filteredIncidents.map((incident) {
-                          final isRecent = _isRecentIncident(incident);
-                          return Marker(
-                            point: incident.location,
-                            width: 40,
-                            height: 40,
-                            child: GestureDetector(
-                              onTap: () {
-                                _showIncidentDetails(incident);
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                decoration: BoxDecoration(
-                                  color: incident.category.color,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
+                      // Map
+                      FlutterMap(
+                        mapController: _mapController,
+                        options: MapOptions(
+                          initialCenter: _center,
+                          initialZoom: profileState.defaultZoom,
+                          minZoom: 10,
+                          maxZoom: 18,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.safezone.app',
+                          ),
+                          // Incident markers
+                          MarkerLayer(
+                            markers: filteredIncidents.map((incident) {
+                              final isRecent = _isRecentIncident(incident);
+                              return Marker(
+                                point: incident.location,
+                                width: 40,
+                                height: 40,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _showIncidentDetails(incident);
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    decoration: BoxDecoration(
+                                      color: incident.category.color,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
+                                      boxShadow: isRecent
+                                          ? [
+                                              BoxShadow(
+                                                color: incident.category.color
+                                                    .withValues(alpha: 0.6),
+                                                blurRadius: 8,
+                                                spreadRadius: 2,
+                                              ),
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ]
+                                          : [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                    ),
+                                    child: Icon(
+                                      incident.category.icon,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ),
-                                  boxShadow: isRecent
-                                      ? [
-                                          BoxShadow(
-                                            color: incident.category.color
-                                                .withValues(alpha: 0.6),
-                                            blurRadius: 8,
-                                            spreadRadius: 2,
-                                          ),
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ]
-                                      : [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
                                 ),
-                                child: Icon(
-                                  incident.category.icon,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
 
                   // Top overlay with search and filters
                   SafeArea(
@@ -624,6 +629,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
                   size: 24,
                 ),
               ),
+            );
+              },
             );
           },
         );
