@@ -5,6 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
+import 'package:safe_zone/map/models/user_location_model.dart';
+import 'package:safe_zone/utils/fun_icon_loader.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
 
 class MapScreen extends StatelessWidget {
@@ -25,6 +27,7 @@ class _MapScreenView extends StatefulWidget {
 
 class _MapScreenViewState extends State<_MapScreenView> {
   final MapController _mapController = MapController();
+  final FunIconLoader _iconLoader = FunIconLoader();
   final TextEditingController _searchController = TextEditingController();
   final Debouncer _searchDebouncer = Debouncer(milliseconds: 300);
 
@@ -34,12 +37,20 @@ class _MapScreenViewState extends State<_MapScreenView> {
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
 
+  // Mock user locations for demonstration
+  late List<UserLocation> _userLocations;
+
+  // Current user's selected icon
+  String _currentUserIcon = '';
   // Loading state
   late Future<void> _dataLoadingFuture;
 
   @override
   void initState() {
     super.initState();
+    _initializeMockData();
+    _initializeUserLocations();
+    // Initialize cubit with incidents
     _dataLoadingFuture = _initializeData();
   }
 
@@ -47,6 +58,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
     await _initializeMockData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+      // Preload and validate icons
+      _iconLoader.validateAssets();
+      _iconLoader.preload(context);
     });
   }
 
@@ -103,6 +117,36 @@ class _MapScreenViewState extends State<_MapScreenView> {
     ];
   }
 
+  void _initializeUserLocations() {
+    // Current user location
+    _currentUserIcon = _iconLoader.iconForUser('currentUser');
+
+    // Mock nearby users
+    _userLocations = [
+      UserLocation(
+        userId: 'currentUser',
+        location: _center,
+        iconPath: _currentUserIcon,
+        displayName: 'You',
+      ),
+      UserLocation(
+        userId: 'user1',
+        location: const LatLng(40.7148, -74.0070),
+        iconPath: _iconLoader.iconForUser('user1'),
+      ),
+      UserLocation(
+        userId: 'user2',
+        location: const LatLng(40.7108, -74.0050),
+        iconPath: _iconLoader.iconForUser('user2'),
+      ),
+      UserLocation(
+        userId: 'user3',
+        location: const LatLng(40.7138, -74.0040),
+        iconPath: _iconLoader.iconForUser('user3'),
+      ),
+    ];
+  }
+
   @override
   void dispose() {
     _mapController.dispose();
@@ -149,6 +193,126 @@ class _MapScreenViewState extends State<_MapScreenView> {
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showIconSelectionDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.account_circle, size: 24),
+              SizedBox(width: 12),
+              Text(
+                'Choose Your Icon',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              itemCount: _iconLoader.funIcons.length,
+              itemBuilder: (context, index) {
+                final iconPath = _iconLoader.funIcons[index];
+                final isSelected = iconPath == _currentUserIcon;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _currentUserIcon = iconPath;
+                      // Update current user's icon using functional approach
+                      _userLocations = _userLocations.map((user) {
+                        if (user.userId == 'currentUser') {
+                          return UserLocation(
+                            userId: 'currentUser',
+                            location: _center,
+                            iconPath: iconPath,
+                            displayName: 'You',
+                          );
+                        }
+                        return user;
+                      }).toList();
+                    });
+                    Navigator.of(dialogContext).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Icon updated successfully'),
+                        backgroundColor: Color(0xFF34C759),
+                        behavior: SnackBarBehavior.floating,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.grey.shade300,
+                        width: isSelected ? 3 : 2,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        iconPath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey,
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(
+                'Close',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -294,6 +458,84 @@ class _MapScreenViewState extends State<_MapScreenView> {
                       ),
                     ],
                   ),
+                  // User location markers
+                  MarkerLayer(
+                    markers: _userLocations.map((userLocation) {
+                      final isCurrentUser = userLocation.userId == 'currentUser';
+                      return Marker(
+                        point: userLocation.location,
+                        width: 50,
+                        height: 50,
+                        child: GestureDetector(
+                          onTap: isCurrentUser
+                              ? _showIconSelectionDialog
+                              : null,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isCurrentUser
+                                        ? theme.colorScheme.primary
+                                        : Colors.white,
+                                    width: isCurrentUser ? 3 : 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    userLocation.iconPath,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey,
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              if (userLocation.displayName != null)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    userLocation.displayName!,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
 
                   // Top overlay with search and filters
                   SafeArea(
