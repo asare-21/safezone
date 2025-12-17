@@ -155,8 +155,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     );
   }
 
-  void _centerOnUserLocation() {
-    final defaultZoom = context.read<ProfileCubit>().state.defaultZoom;
+  void _centerOnUserLocation(double defaultZoom) {
     _mapController.move(_center, defaultZoom);
   }
 
@@ -622,7 +621,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ],
               ),
               floatingActionButton: FloatingActionButton(
-                onPressed: _centerOnUserLocation,
+                onPressed: () => _centerOnUserLocation(profileState.defaultZoom),
                 tooltip: 'Center on location',
                 child: const Icon(
                   LineIcons.crosshairs,
