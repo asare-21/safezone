@@ -882,7 +882,7 @@ class _FilterBottomSheet extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildTimeRangeFilterSection(context, state),
                     const SizedBox(height: 24),
-                    
+
                     // Apply button
                     SizedBox(
                       width: double.infinity,
