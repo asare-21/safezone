@@ -512,6 +512,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           heroTag: 'zoom_in',
                           onPressed: _zoomIn,
                           backgroundColor: Colors.white,
+                          tooltip: 'Zoom in',
                           child: Icon(
                             Icons.add,
                             color: theme.colorScheme.primary,
@@ -522,6 +523,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           heroTag: 'zoom_out',
                           onPressed: _zoomOut,
                           backgroundColor: Colors.white,
+                          tooltip: 'Zoom out',
                           child: Icon(
                             Icons.remove,
                             color: theme.colorScheme.primary,
@@ -616,6 +618,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: _centerOnUserLocation,
+                tooltip: 'Center on location',
                 child: const Icon(
                   LineIcons.crosshairs,
                   size: 24,
