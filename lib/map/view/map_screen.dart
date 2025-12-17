@@ -30,7 +30,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -93,11 +92,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
         confirmedBy: 2,
       ),
     ];
-  }
-
-  List<Incident> get _filteredIncidents {
-    final cubit = context.read<MapFilterCubit>();
-    return cubit.getFilteredIncidents();
   }
 
   @override
@@ -249,9 +243,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                               ),
                               child: TextField(
                                 onChanged: (value) {
-                                  setState(() {
-                                    _searchQuery = value;
-                                  });
+                                  setState(() {});
                                 },
                                 decoration: InputDecoration(
                                   hintText: 'Search location or zone',
