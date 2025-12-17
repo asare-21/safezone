@@ -790,7 +790,7 @@ class _ProfileView extends StatelessWidget {
                         value: state.defaultZoom,
                         min: 10,
                         max: 18,
-                        divisions: 16,
+                        divisions: 8,
                         onChanged: (value) {
                           context.read<ProfileCubit>().updateDefaultZoom(value);
                         },
