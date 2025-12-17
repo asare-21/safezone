@@ -484,7 +484,6 @@ class _FilterDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO #39 (joasare019): Refactor this. Make the interface cleaner and more user-friendly. Organise things well.
     return BlocBuilder<AlertFilterCubit, AlertFilterState>(
       builder: (context, state) {
         final theme = Theme.of(context);
@@ -494,218 +493,240 @@ class _FilterDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Filter Alerts',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 20,
-                ),
-              ),
-              TextButton(
-                onPressed: () =>
-                    context.read<AlertFilterCubit>().resetFilters(),
-                child: Text(
-                  'Clear All',
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Severity filter
-                  Text(
-                    'Severity',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: AlertSeverity.values.map((severity) {
-                      final isSelected = state.selectedSeverities.contains(
-                        severity,
-                      );
-                      final color = severity.color;
-
-                      return GestureDetector(
-                        onTap: () => context
-                            .read<AlertFilterCubit>()
-                            .toggleSeverity(severity),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected ? color : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isSelected
-                                  ? color
-                                  : const Color(0xFFE5E5E5),
-                            ),
-                          ),
-                          child: Text(
-                            severity.displayName,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Type filter
-                  Text(
-                    'Alert Type',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: AlertType.values.map((type) {
-                      final isSelected = state.selectedTypes.contains(type);
-
-                      return GestureDetector(
-                        onTap: () =>
-                            context.read<AlertFilterCubit>().toggleType(type),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected ? Colors.black : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Colors.black
-                                  : const Color(0xFFE5E5E5),
-                            ),
-                          ),
-                          child: Text(
-                            type.displayName,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Time filter
-                  Text(
-                    'Time Range',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: AlertTimeFilter.values.map((timeFilter) {
-                      final isSelected = state.selectedTimeFilter == timeFilter;
-
-                      return GestureDetector(
-                        onTap: () => context
-                            .read<AlertFilterCubit>()
-                            .setTimeFilter(timeFilter),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected ? Colors.black : Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isSelected
-                                  ? Colors.black
-                                  : const Color(0xFFE5E5E5),
-                            ),
-                          ),
-                          child: Text(
-                            timeFilter.displayName,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Apply Filters',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
+          title: _buildDialogHeader(context, theme),
+          content: _buildDialogContent(context, state, theme),
+          actions: _buildDialogActions(context, theme),
         );
       },
+    );
+  }
+
+  /// Builds the dialog header with title and clear all button
+  Widget _buildDialogHeader(BuildContext context, ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Filter Alerts',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
+        ),
+        TextButton(
+          onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
+          child: Text(
+            'Clear All',
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the scrollable content area with filter sections
+  Widget _buildDialogContent(
+    BuildContext context,
+    AlertFilterState state,
+    ThemeData theme,
+  ) {
+    return SingleChildScrollView(
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSeverityFilterSection(context, state, theme),
+            const SizedBox(height: 24),
+            _buildAlertTypeFilterSection(context, state, theme),
+            const SizedBox(height: 24),
+            _buildTimeRangeFilterSection(context, state, theme),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds the severity filter section
+  Widget _buildSeverityFilterSection(
+    BuildContext context,
+    AlertFilterState state,
+    ThemeData theme,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('Severity', theme),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: AlertSeverity.values.map((severity) {
+            final isSelected = state.selectedSeverities.contains(severity);
+            return _FilterChip(
+              label: severity.displayName,
+              isSelected: isSelected,
+              color: severity.color,
+              onTap: () => context
+                  .read<AlertFilterCubit>()
+                  .toggleSeverity(severity),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the alert type filter section
+  Widget _buildAlertTypeFilterSection(
+    BuildContext context,
+    AlertFilterState state,
+    ThemeData theme,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('Alert Type', theme),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: AlertType.values.map((type) {
+            final isSelected = state.selectedTypes.contains(type);
+            return _FilterChip(
+              label: type.displayName,
+              isSelected: isSelected,
+              color: Colors.black,
+              onTap: () => context.read<AlertFilterCubit>().toggleType(type),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the time range filter section
+  Widget _buildTimeRangeFilterSection(
+    BuildContext context,
+    AlertFilterState state,
+    ThemeData theme,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('Time Range', theme),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: AlertTimeFilter.values.map((timeFilter) {
+            final isSelected = state.selectedTimeFilter == timeFilter;
+            return _FilterChip(
+              label: timeFilter.displayName,
+              isSelected: isSelected,
+              color: Colors.black,
+              onTap: () => context
+                  .read<AlertFilterCubit>()
+                  .setTimeFilter(timeFilter),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  /// Builds a section title
+  Widget _buildSectionTitle(String title, ThemeData theme) {
+    return Text(
+      title,
+      style: theme.textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+        fontSize: 16,
+      ),
+    );
+  }
+
+  /// Builds the dialog action buttons
+  List<Widget> _buildDialogActions(BuildContext context, ThemeData theme) {
+    return [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(
+          'Cancel',
+          style: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () => Navigator.of(context).pop(),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.colorScheme.primary,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: const Text(
+          'Apply Filters',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ];
+  }
+}
+
+/// Reusable filter chip widget for the filter dialog
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? color : const Color(0xFFE5E5E5),
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 }
