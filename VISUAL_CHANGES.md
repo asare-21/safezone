@@ -11,13 +11,15 @@ This document describes the visual changes made to the map screen UI.
 - "Loading incidents..." text below spinner
 - Clean, professional loading screen
 
-### 2. Search Bar Enhancement
+### 2. Search Bar & Time Filters Enhancement
 **Before:** Basic search bar with search icon only
 **After:**
 - Search icon on left (unchanged)
 - **NEW:** Clear button (X icon) appears on right when typing
 - Debounced input (300ms delay) for better performance
 - Integrated with filter state management
+- **NEW:** 8px spacing between search and time filters
+- **NEW:** Time filter segments have horizontal padding (16px) for better visual spacing
 
 ### 3. Zoom Controls
 **Before:** Only FAB for centering location at bottom right
@@ -27,6 +29,8 @@ This document describes the visual changes made to the map screen UI.
   - Bottom: "-" button for zoom out (8px gap between)
 - White background with primary color icons
 - Professional shadow and elevation
+- **NEW:** Accessibility tooltips ("Zoom in", "Zoom out")
+- **NEW:** "Center on location" tooltip for main FAB
 
 ### 4. Empty State
 **Before:** Blank map when no results
@@ -158,6 +162,7 @@ All changes maintain the app's professional aesthetic:
 - ✅ Smooth animations
 - ✅ Clear visual hierarchy
 - ✅ Accessibility-friendly touch targets
+- ✅ Accessibility tooltips for all interactive controls
 - ✅ Color consistency with existing design
 
 ## Performance Optimizations
