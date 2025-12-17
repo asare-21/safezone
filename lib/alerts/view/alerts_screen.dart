@@ -431,7 +431,7 @@ class _AlertsScreenView extends StatelessWidget {
     final backgroundColor = selected
         ? (color ?? theme.colorScheme.primary)
         : Colors.white;
-    
+
     return GestureDetector(
       onTap: () => context.read<AlertFilterCubit>().setQuickFilter(filter),
       child: AnimatedContainer(
@@ -577,7 +577,7 @@ class _AlertsScreenView extends StatelessWidget {
   Widget _buildAlertCard(BuildContext context, Alert alert) {
     final theme = Theme.of(context);
     final isCritical = alert.severity == AlertSeverity.high;
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 12),
@@ -622,7 +622,7 @@ class _AlertsScreenView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 // Alert icon with badge
                 Stack(
                   children: [
@@ -661,7 +661,7 @@ class _AlertsScreenView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(width: 16),
-                
+
                 // Alert content
                 Expanded(
                   child: Column(
@@ -817,7 +817,7 @@ class _FilterBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -840,7 +840,7 @@ class _FilterBottomSheet extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     // Active filters indicator
                     if (state.selectedSeverities.isNotEmpty ||
                         state.selectedTypes.length != AlertType.values.length)
@@ -874,7 +874,7 @@ class _FilterBottomSheet extends StatelessWidget {
                           ],
                         ),
                       ),
-                    
+
                     const SizedBox(height: 24),
                     _buildSeverityFilterSection(context, state),
                     const SizedBox(height: 24),
