@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/profile.dart';
+import 'package:safe_zone/profile/view/incident_history_screen.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -152,7 +153,6 @@ class _ProfileView extends StatelessWidget {
 
             // Account Section
             _buildSectionHeader(theme, 'ACCOUNT'),
-            // TODO #38 (joasare019): Implement my incident history screen. make this comprehensive and professional.
             _buildSettingsCard(
               theme,
               children: [
@@ -163,7 +163,11 @@ class _ProfileView extends StatelessWidget {
                   iconBgColor: _lightBlueBackground,
                   title: 'My Incident History',
                   onTap: () {
-                    // Navigate to incident history screen
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const IncidentHistoryScreen(),
+                      ),
+                    );
                   },
                 ),
               ],
