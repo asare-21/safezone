@@ -59,6 +59,7 @@ void main() {
         },
       );
       expect(cubit.state.riskLevel, RiskLevel.moderate);
+      expect(cubit.state.searchQuery, '');
     });
 
     blocTest<MapFilterCubit, MapFilterState>(
@@ -75,6 +76,7 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.high,
+          searchQuery: '',
         ),
       ],
     );
@@ -97,6 +99,7 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.high,
+          searchQuery: '',
         ),
       ],
     );
@@ -118,6 +121,7 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.moderate,
+          searchQuery: '',
         ),
       ],
     );
@@ -142,6 +146,7 @@ void main() {
             IncidentCategory.theft,
           },
           riskLevel: RiskLevel.high,
+          searchQuery: '',
         ),
       ],
     );
@@ -160,6 +165,95 @@ void main() {
       expect(filtered.any((i) => i.category == IncidentCategory.theft), false);
     });
 
+    blocTest<MapFilterCubit, MapFilterState>(
+      'updateSearchQuery updates search query and recalculates risk',
+      build: () {
+        final cubit = MapFilterCubit()..initializeIncidents(mockIncidents);
+        return cubit;
+      },
+      act: (cubit) => cubit.updateSearchQuery('Theft'),
+      skip: 1,
+      expect: () => [
+        const MapFilterState(
+          timeFilter: TimeFilter.twentyFourHours,
+          selectedCategories: {
+            IncidentCategory.theft,
+            IncidentCategory.assault,
+            IncidentCategory.suspicious,
+            IncidentCategory.lighting,
+          },
+          riskLevel: RiskLevel.moderate,
+          searchQuery: 'Theft',
+        ),
+      ],
+    );
+
+    blocTest<MapFilterCubit, MapFilterState>(
+      'clearSearch clears search query',
+      build: () {
+        final cubit = MapFilterCubit()
+          ..initializeIncidents(mockIncidents)
+          ..updateSearchQuery('test');
+        return cubit;
+      },
+      act: (cubit) => cubit.clearSearch(),
+      skip: 2,
+      expect: () => [
+        const MapFilterState(
+          timeFilter: TimeFilter.twentyFourHours,
+          selectedCategories: {
+            IncidentCategory.theft,
+            IncidentCategory.assault,
+            IncidentCategory.suspicious,
+            IncidentCategory.lighting,
+          },
+          riskLevel: RiskLevel.high,
+          searchQuery: '',
+        ),
+      ],
+    );
+
+    test('getFilteredIncidents filters by search query', () {
+      cubit.initializeIncidents(mockIncidents);
+
+      // Search for "Theft"
+      cubit.updateSearchQuery('Theft');
+      var filtered = cubit.getFilteredIncidents();
+      expect(filtered.length, 1);
+      expect(filtered.first.title, 'Theft 1');
+
+      // Clear search
+      cubit.clearSearch();
+      filtered = cubit.getFilteredIncidents();
+      expect(filtered.length, 4);
+    });
+
+    blocTest<MapFilterCubit, MapFilterState>(
+      'clearFilters resets categories and search',
+      build: () {
+        final cubit = MapFilterCubit()
+          ..initializeIncidents(mockIncidents)
+          ..toggleCategory(IncidentCategory.theft)
+          ..updateSearchQuery('test');
+        return cubit;
+      },
+      act: (cubit) => cubit.clearFilters(),
+      skip: 3,
+      expect: () => [
+        const MapFilterState(
+          timeFilter: TimeFilter.twentyFourHours,
+          selectedCategories: {
+            IncidentCategory.theft,
+            IncidentCategory.assault,
+            IncidentCategory.suspicious,
+            IncidentCategory.lighting,
+          },
+          riskLevel: RiskLevel.high,
+          searchQuery: '',
+        ),
+      ],
+    );
+
     group('risk level calculation', () {
       blocTest<MapFilterCubit, MapFilterState>(
         'sets risk level to safe when no incidents',
@@ -175,6 +269,7 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.safe,
+            searchQuery: '',
           ),
         ],
       );
@@ -201,6 +296,7 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.safe,
+            searchQuery: '',
           ),
         ],
       );
@@ -234,6 +330,7 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.moderate,
+            searchQuery: '',
           ),
         ],
       );
@@ -260,6 +357,7 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.moderate,
+            searchQuery: '',
           ),
         ],
       );
@@ -314,6 +412,7 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.high,
+            searchQuery: '',
           ),
         ],
       );
@@ -354,6 +453,7 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.high,
+            searchQuery: '',
           ),
         ],
       );
@@ -366,15 +466,18 @@ void main() {
         timeFilter: TimeFilter.twentyFourHours,
         selectedCategories: {IncidentCategory.theft},
         riskLevel: RiskLevel.safe,
+        searchQuery: '',
       );
 
       final updated = original.copyWith(
         timeFilter: TimeFilter.sevenDays,
+        searchQuery: 'test',
       );
 
       expect(updated.timeFilter, TimeFilter.sevenDays);
       expect(updated.selectedCategories, {IncidentCategory.theft});
       expect(updated.riskLevel, RiskLevel.safe);
+      expect(updated.searchQuery, 'test');
     });
 
     test('copyWith preserves original values when no parameters provided', () {
@@ -385,6 +488,7 @@ void main() {
           IncidentCategory.suspicious,
         },
         riskLevel: RiskLevel.moderate,
+        searchQuery: 'search term',
       );
 
       final updated = original.copyWith();
@@ -395,6 +499,7 @@ void main() {
         {IncidentCategory.assault, IncidentCategory.suspicious},
       );
       expect(updated.riskLevel, RiskLevel.moderate);
+      expect(updated.searchQuery, 'search term');
     });
   });
 }
