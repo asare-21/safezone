@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'notification_settings_state.dart';
@@ -10,9 +11,9 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   NotificationSettingsCubit({
     SharedPreferences? sharedPreferences,
     FirebaseMessaging? firebaseMessaging,
-  })  : _sharedPreferences = sharedPreferences,
-        _firebaseMessaging = firebaseMessaging ?? FirebaseMessaging.instance,
-        super(const NotificationSettingsState()) {
+  }) : _sharedPreferences = sharedPreferences,
+       _firebaseMessaging = firebaseMessaging ?? FirebaseMessaging.instance,
+       super(const NotificationSettingsState()) {
     _loadSettings();
   }
 
@@ -52,8 +53,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
           prefs.getBool(_anonymousReportingKey) ?? state.anonymousReporting;
       final shareLocationWithContacts =
           prefs.getBool(_shareLocationKey) ?? state.shareLocationWithContacts;
-      final alertRadius =
-          prefs.getDouble(_alertRadiusKey) ?? state.alertRadius;
+      final alertRadius = prefs.getDouble(_alertRadiusKey) ?? state.alertRadius;
 
       emit(
         NotificationSettingsState(
@@ -65,14 +65,17 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
           alertRadius: alertRadius,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       // If loading fails, keep default state
       emit(state.copyWith(isLoading: false));
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Toggle push notifications setting
-  Future<void> togglePushNotifications(bool value) async {
+  Future<void> togglePushNotifications({required bool value}) async {
     emit(state.copyWith(pushNotifications: value));
     await _saveSetting(_pushNotificationsKey, value);
 
@@ -85,7 +88,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   /// Toggle proximity alerts setting
-  Future<void> toggleProximityAlerts(bool value) async {
+  Future<void> toggleProximityAlerts({required bool value}) async {
     emit(state.copyWith(proximityAlerts: value));
     await _saveSetting(_proximityAlertsKey, value);
 
@@ -98,19 +101,19 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   /// Toggle sound and vibration setting
-  Future<void> toggleSoundVibration(bool value) async {
+  Future<void> toggleSoundVibration({required bool value}) async {
     emit(state.copyWith(soundVibration: value));
     await _saveSetting(_soundVibrationKey, value);
   }
 
   /// Toggle anonymous reporting setting
-  Future<void> toggleAnonymousReporting(bool value) async {
+  Future<void> toggleAnonymousReporting({required bool value}) async {
     emit(state.copyWith(anonymousReporting: value));
     await _saveSetting(_anonymousReportingKey, value);
   }
 
   /// Toggle share location with contacts setting
-  Future<void> toggleShareLocationWithContacts(bool value) async {
+  Future<void> toggleShareLocationWithContacts({required bool value}) async {
     emit(state.copyWith(shareLocationWithContacts: value));
     await _saveSetting(_shareLocationKey, value);
   }
@@ -126,8 +129,11 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     try {
       final prefs = await _getPreferences();
       await prefs.setBool(key, value);
-    } catch (e) {
+    } on Exception catch (e) {
       // Fail silently - setting is still updated in state
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -136,20 +142,24 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
     try {
       final prefs = await _getPreferences();
       await prefs.setDouble(key, value);
-    } catch (e) {
+    } on Exception catch (e) {
       // Fail silently - setting is still updated in state
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Subscribe to Firebase notifications
   Future<void> _subscribeToNotifications() async {
     try {
-      await _firebaseMessaging.requestPermission(
-        
-      );
+      await _firebaseMessaging.requestPermission();
       await _firebaseMessaging.subscribeToTopic('all_users');
-    } catch (e) {
+    } on Exception catch (e) {
       // Fail silently - notifications may not be available
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -157,8 +167,11 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   Future<void> _unsubscribeFromNotifications() async {
     try {
       await _firebaseMessaging.unsubscribeFromTopic('all_users');
-    } catch (e) {
+    } on Exception catch (e) {
       // Fail silently
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 }

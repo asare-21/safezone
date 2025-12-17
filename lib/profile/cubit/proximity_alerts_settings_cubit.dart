@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 
 part 'proximity_alerts_settings_state.dart';
@@ -7,8 +8,8 @@ part 'proximity_alerts_settings_state.dart';
 class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
   ProximityAlertsSettingsCubit({
     required ProximityAlertsSettingsRepository repository,
-  })  : _repository = repository,
-        super(const ProximityAlertsSettingsState()) {
+  }) : _repository = repository,
+       super(const ProximityAlertsSettingsState()) {
     loadSettings();
   }
 
@@ -30,64 +31,82 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
           isLoading: false,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       // If loading fails, keep defaults and mark as loaded
       emit(state.copyWith(isLoading: false));
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Update push notifications setting
-  Future<void> updatePushNotifications(bool value) async {
+  Future<void> updatePushNotifications({required bool value}) async {
     try {
-      await _repository.setPushNotifications(value);
+      await _repository.setPushNotifications(value: value);
       emit(state.copyWith(pushNotifications: value));
-    } catch (e) {
+    } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
       await loadSettings();
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Update proximity alerts setting
-  Future<void> updateProximityAlerts(bool value) async {
+  Future<void> updateProximityAlerts({required bool value}) async {
     try {
-      await _repository.setProximityAlerts(value);
+      await _repository.setProximityAlerts(value: value);
       emit(state.copyWith(proximityAlerts: value));
-    } catch (e) {
+    } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
       await loadSettings();
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Update sound and vibration setting
-  Future<void> updateSoundVibration(bool value) async {
+  Future<void> updateSoundVibration({required bool value}) async {
     try {
-      await _repository.setSoundVibration(value);
+      await _repository.setSoundVibration(value: value);
       emit(state.copyWith(soundVibration: value));
-    } catch (e) {
+    } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
       await loadSettings();
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Update anonymous reporting setting
-  Future<void> updateAnonymousReporting(bool value) async {
+  Future<void> updateAnonymousReporting({required bool value}) async {
     try {
-      await _repository.setAnonymousReporting(value);
+      await _repository.setAnonymousReporting(value: value);
       emit(state.copyWith(anonymousReporting: value));
-    } catch (e) {
+    } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
       await loadSettings();
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
   /// Update share location with contacts setting
-  Future<void> updateShareLocationWithContacts(bool value) async {
+  Future<void> updateShareLocationWithContacts({required bool value}) async {
     try {
-      await _repository.setShareLocationWithContacts(value);
+      await _repository.setShareLocationWithContacts(value: value);
       emit(state.copyWith(shareLocationWithContacts: value));
-    } catch (e) {
+    } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
       await loadSettings();
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -96,9 +115,12 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
     try {
       await _repository.setAlertRadius(value);
       emit(state.copyWith(alertRadius: value));
-    } catch (e) {
+    } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
       await loadSettings();
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 }

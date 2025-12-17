@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'profile_state.dart';
@@ -6,8 +7,8 @@ part 'profile_state.dart';
 /// Cubit that manages profile settings
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit({SharedPreferences? sharedPreferences})
-      : _sharedPreferences = sharedPreferences,
-        super(const ProfileState());
+    : _sharedPreferences = sharedPreferences,
+      super(const ProfileState());
 
   final SharedPreferences? _sharedPreferences;
 
@@ -21,13 +22,18 @@ class ProfileCubit extends Cubit<ProfileState> {
       final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
       final savedRadius = prefs.getDouble(_alertRadiusKey) ?? 2.5;
 
-      emit(state.copyWith(
-        alertRadius: savedRadius,
-        isLoading: false,
-      ));
-    } catch (e) {
+      emit(
+        state.copyWith(
+          alertRadius: savedRadius,
+          isLoading: false,
+        ),
+      );
+    } on Exception catch (e) {
       // If loading fails, keep default value
       emit(state.copyWith(isLoading: false));
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -42,9 +48,12 @@ class ProfileCubit extends Cubit<ProfileState> {
     try {
       final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
       await prefs.setDouble(_alertRadiusKey, radius);
-    } catch (e) {
+    } on Exception catch (e) {
       // Persistence failed, but state is already updated
       // Could emit an error state here if needed
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 }

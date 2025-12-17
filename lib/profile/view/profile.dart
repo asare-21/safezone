@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/profile.dart';
-import 'package:safe_zone/profile/view/incident_history_screen.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -70,7 +69,8 @@ class _ProfileView extends StatelessWidget {
                       iconBgColor: _lightBlueBackground,
                       title: 'Push Notifications',
                       value: state.pushNotifications,
-                      onChanged: cubit.togglePushNotifications,
+                      onChanged: (value) =>
+                          cubit.togglePushNotifications(value: value),
                     ),
                     const Divider(height: 1),
                     _buildToggleItem(
@@ -81,7 +81,8 @@ class _ProfileView extends StatelessWidget {
                       iconBgColor: _lightBlueBackground,
                       title: 'Proximity Alerts',
                       value: state.proximityAlerts,
-                      onChanged: cubit.toggleProximityAlerts,
+                      onChanged: (value) =>
+                          cubit.toggleProximityAlerts(value: value),
                     ),
                     const Divider(height: 1),
                     _buildAlertRadiusItem(theme),
@@ -94,7 +95,8 @@ class _ProfileView extends StatelessWidget {
                       iconBgColor: _lightBlueBackground,
                       title: 'Sound & Vibration',
                       value: state.soundVibration,
-                      onChanged: cubit.toggleSoundVibration,
+                      onChanged: (value) =>
+                          cubit.toggleSoundVibration(value: value),
                     ),
                   ],
                 );

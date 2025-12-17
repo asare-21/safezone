@@ -814,8 +814,8 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
             Container(
               width: 120,
               height: 120,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
+              decoration: const BoxDecoration(
+                color: Color(0xFFEFF6FF),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -834,7 +834,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'You haven\'t reported any incidents yet. Start contributing to your community\'s safety by reporting incidents you encounter.',
+              "You haven't reported any incidents yet. Start contributing to your community's safety by reporting incidents you encounter.",
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),

@@ -33,7 +33,7 @@ class ProximityAlertsSettingsRepository {
   }
 
   /// Save push notifications setting
-  Future<void> setPushNotifications(bool value) async {
+  Future<void> setPushNotifications({required bool value}) async {
     final prefs = await _prefs;
     await prefs.setBool(_pushNotificationsKey, value);
   }
@@ -45,7 +45,7 @@ class ProximityAlertsSettingsRepository {
   }
 
   /// Save proximity alerts setting
-  Future<void> setProximityAlerts(bool value) async {
+  Future<void> setProximityAlerts({required bool value}) async {
     final prefs = await _prefs;
     await prefs.setBool(_proximityAlertsKey, value);
   }
@@ -57,7 +57,7 @@ class ProximityAlertsSettingsRepository {
   }
 
   /// Save sound and vibration setting
-  Future<void> setSoundVibration(bool value) async {
+  Future<void> setSoundVibration({required bool value}) async {
     final prefs = await _prefs;
     await prefs.setBool(_soundVibrationKey, value);
   }
@@ -69,7 +69,7 @@ class ProximityAlertsSettingsRepository {
   }
 
   /// Save anonymous reporting setting
-  Future<void> setAnonymousReporting(bool value) async {
+  Future<void> setAnonymousReporting({required bool value}) async {
     final prefs = await _prefs;
     await prefs.setBool(_anonymousReportingKey, value);
   }
@@ -81,7 +81,7 @@ class ProximityAlertsSettingsRepository {
   }
 
   /// Save share location with contacts setting
-  Future<void> setShareLocationWithContacts(bool value) async {
+  Future<void> setShareLocationWithContacts({required bool value}) async {
     final prefs = await _prefs;
     await prefs.setBool(_shareLocationKey, value);
   }

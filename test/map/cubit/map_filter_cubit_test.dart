@@ -82,8 +82,7 @@ void main() {
     blocTest<MapFilterCubit, MapFilterState>(
       'updateTimeFilter changes time filter and recalculates risk',
       build: () {
-        final cubit = MapFilterCubit();
-        cubit.initializeIncidents(mockIncidents);
+        final cubit = MapFilterCubit()..initializeIncidents(mockIncidents);
         return cubit;
       },
       act: (cubit) => cubit.updateTimeFilter(TimeFilter.sevenDays),
@@ -105,8 +104,7 @@ void main() {
     blocTest<MapFilterCubit, MapFilterState>(
       'toggleCategory removes category when present and recalculates risk',
       build: () {
-        final cubit = MapFilterCubit();
-        cubit.initializeIncidents(mockIncidents);
+        final cubit = MapFilterCubit()..initializeIncidents(mockIncidents);
         return cubit;
       },
       act: (cubit) => cubit.toggleCategory(IncidentCategory.theft),
@@ -127,9 +125,9 @@ void main() {
     blocTest<MapFilterCubit, MapFilterState>(
       'toggleCategory adds category when not present and recalculates risk',
       build: () {
-        final cubit = MapFilterCubit();
-        cubit.initializeIncidents(mockIncidents);
-        cubit.toggleCategory(IncidentCategory.theft);
+        final cubit = MapFilterCubit()
+          ..initializeIncidents(mockIncidents)
+          ..toggleCategory(IncidentCategory.theft);
         return cubit;
       },
       act: (cubit) => cubit.toggleCategory(IncidentCategory.theft),
@@ -150,7 +148,7 @@ void main() {
 
     test('getFilteredIncidents filters by time and category', () {
       cubit.initializeIncidents(mockIncidents);
-      
+
       // All incidents within 24h
       var filtered = cubit.getFilteredIncidents();
       expect(filtered.length, 4);

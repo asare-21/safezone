@@ -72,7 +72,7 @@ void main() {
       ),
       act: (cubit) => cubit.togglePushNotifications(false),
       expect: () => [
-        const NotificationSettingsState(pushNotifications: false),
+        const NotificationSettingsState(),
       ],
       verify: (_) {
         verify(
@@ -90,7 +90,7 @@ void main() {
         sharedPreferences: mockSharedPreferences,
         firebaseMessaging: mockFirebaseMessaging,
       ),
-      seed: () => const NotificationSettingsState(pushNotifications: false),
+      seed: () => const NotificationSettingsState(),
       act: (cubit) => cubit.togglePushNotifications(true),
       expect: () => [
         const NotificationSettingsState(),
@@ -222,7 +222,6 @@ void main() {
       expect: () => [
         const NotificationSettingsState(isLoading: true),
         const NotificationSettingsState(
-          pushNotifications: false,
           proximityAlerts: false,
           soundVibration: true,
           anonymousReporting: false,
@@ -246,7 +245,7 @@ void main() {
         const NotificationSettingsState(),
         isNot(
           equals(
-            const NotificationSettingsState(pushNotifications: false),
+            const NotificationSettingsState(),
           ),
         ),
       );
@@ -263,7 +262,6 @@ void main() {
 
     test('has correct props', () {
       const state = NotificationSettingsState(
-        pushNotifications: false,
         alertRadius: 5,
       );
       expect(state.pushNotifications, false);
