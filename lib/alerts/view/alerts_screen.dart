@@ -157,16 +157,18 @@ class _AlertsScreenView extends StatelessWidget {
                               children: [
                                 Text(
                                   'Safety Alerts',
-                                  style: theme.textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 32,
-                                  ),
+                                  style: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 32,
+                                      ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Stay informed, stay safe',
                                   style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.6),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -214,7 +216,9 @@ class _AlertsScreenView extends StatelessWidget {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF34C759).withOpacity(0.5),
+                                      color: const Color(
+                                        0xFF34C759,
+                                      ).withOpacity(0.5),
                                       blurRadius: 4,
                                       spreadRadius: 1,
                                     ),
@@ -255,8 +259,11 @@ class _AlertsScreenView extends StatelessWidget {
                           context,
                           'Critical',
                           QuickFilter.highSeverity,
-                          filterState.selectedQuickFilter == QuickFilter.highSeverity,
-                          count: _mockAlerts.where((a) => a.severity == AlertSeverity.high).length,
+                          filterState.selectedQuickFilter ==
+                              QuickFilter.highSeverity,
+                          count: _mockAlerts
+                              .where((a) => a.severity == AlertSeverity.high)
+                              .length,
                           color: const Color(0xFFFF4C4C),
                         ),
                         const SizedBox(width: 8),
@@ -266,7 +273,13 @@ class _AlertsScreenView extends StatelessWidget {
                           QuickFilter.recent,
                           filterState.selectedQuickFilter == QuickFilter.recent,
                           count: _mockAlerts
-                              .where((a) => a.timestamp.isAfter(DateTime.now().subtract(const Duration(hours: 1))))
+                              .where(
+                                (a) => a.timestamp.isAfter(
+                                  DateTime.now().subtract(
+                                    const Duration(hours: 1),
+                                  ),
+                                ),
+                              )
                               .length,
                         ),
                         const SizedBox(width: 8),
@@ -345,10 +358,11 @@ class _AlertsScreenView extends StatelessWidget {
                                   const SizedBox(height: 24),
                                   Text(
                                     'No alerts match your filters',
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18,
-                                    ),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -360,12 +374,16 @@ class _AlertsScreenView extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 16),
                                   OutlinedButton(
-                                    onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
+                                    onPressed: () => context
+                                        .read<AlertFilterCubit>()
+                                        .resetFilters(),
                                     style: OutlinedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
                                       ),
-                                      side: BorderSide(color: theme.colorScheme.primary),
+                                      side: BorderSide(
+                                        color: theme.colorScheme.primary,
+                                      ),
                                     ),
                                     child: Text(
                                       'Reset Filters',
@@ -441,15 +459,15 @@ class _AlertsScreenView extends StatelessWidget {
           color: backgroundColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: selected
-                ? backgroundColor
-                : Colors.grey.shade300,
+            color: selected ? backgroundColor : Colors.grey.shade300,
             width: selected ? 0 : 1,
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: (color ?? theme.colorScheme.primary).withOpacity(0.3),
+                    color: (color ?? theme.colorScheme.primary).withOpacity(
+                      0.3,
+                    ),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -490,7 +508,9 @@ class _AlertsScreenView extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: selected ? Colors.white : (color ?? theme.colorScheme.primary),
+                    color: selected
+                        ? Colors.white
+                        : (color ?? theme.colorScheme.primary),
                   ),
                 ),
               ),
@@ -630,7 +650,9 @@ class _AlertsScreenView extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: alert.iconBackgroundColor.withOpacity(0.2),
+                        color: alert.iconBackgroundColor!.withValues(
+                          alpha: 0.2,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -695,10 +717,11 @@ class _AlertsScreenView extends StatelessWidget {
                                     const SizedBox(width: 4),
                                     Text(
                                       alert.timeAgo,
-                                      style: theme.textTheme.labelSmall?.copyWith(
-                                        color: Colors.grey.shade600,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
+                                            color: Colors.grey.shade600,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                     ),
                                     if (alert.confirmedBy != null) ...[
                                       const SizedBox(width: 12),
@@ -710,10 +733,11 @@ class _AlertsScreenView extends StatelessWidget {
                                       const SizedBox(width: 4),
                                       Text(
                                         '${alert.confirmedBy} confirmations',
-                                        style: theme.textTheme.labelSmall?.copyWith(
-                                          color: Colors.grey.shade600,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                              color: Colors.grey.shade600,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                       ),
                                     ],
                                   ],
@@ -824,12 +848,14 @@ class _FilterBottomSheet extends StatelessWidget {
                       children: [
                         Text(
                           'Filter Alerts',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                         ),
                         TextButton(
-                          onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
+                          onPressed: () =>
+                              context.read<AlertFilterCubit>().resetFilters(),
                           child: Text(
                             'Reset',
                             style: TextStyle(
@@ -848,10 +874,14 @@ class _FilterBottomSheet extends StatelessWidget {
                         margin: const EdgeInsets.only(top: 12),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.2),
                           ),
                         ),
                         child: Row(
@@ -889,7 +919,9 @@ class _FilterBottomSheet extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
                           padding: const EdgeInsets.symmetric(
                             vertical: 16,
                           ),
@@ -944,9 +976,8 @@ class _FilterBottomSheet extends StatelessWidget {
               label: severity.displayName,
               isSelected: isSelected,
               color: severity.color,
-              onTap: () => context
-                  .read<AlertFilterCubit>()
-                  .toggleSeverity(severity),
+              onTap: () =>
+                  context.read<AlertFilterCubit>().toggleSeverity(severity),
             );
           }).toList(),
         ),
@@ -1014,9 +1045,8 @@ class _FilterBottomSheet extends StatelessWidget {
               label: timeFilter.displayName,
               isSelected: isSelected,
               color: Colors.black,
-              onTap: () => context
-                  .read<AlertFilterCubit>()
-                  .setTimeFilter(timeFilter),
+              onTap: () =>
+                  context.read<AlertFilterCubit>().setTimeFilter(timeFilter),
             );
           }).toList(),
         ),

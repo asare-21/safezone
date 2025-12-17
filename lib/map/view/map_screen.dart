@@ -171,10 +171,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
             Text(
               'Loading incidents...',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -198,8 +197,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   bool _isRecentIncident(Incident incident) {
-    final hoursSinceIncident =
-        DateTime.now().difference(incident.timestamp).inHours;
+    final hoursSinceIncident = DateTime.now()
+        .difference(incident.timestamp)
+        .inHours;
     return hoursSinceIncident < 1;
   }
 
@@ -267,16 +267,18 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                             spreadRadius: 2,
                                           ),
                                           BoxShadow(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.2),
+                                            color: Colors.black.withValues(
+                                              alpha: 0.2,
+                                            ),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
                                         ]
                                       : [
                                           BoxShadow(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.2),
+                                            color: Colors.black.withValues(
+                                              alpha: 0.2,
+                                            ),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
@@ -316,8 +318,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                     borderRadius: BorderRadius.circular(24),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black
-                                            .withValues(alpha: 0.1),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2),
                                       ),
@@ -348,8 +351,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                               alpha: 0.4,
                                             ),
                                       ),
-                                      suffixIcon: filterState
-                                              .searchQuery.isNotEmpty
+                                      suffixIcon:
+                                          filterState.searchQuery.isNotEmpty
                                           ? IconButton(
                                               icon: const Icon(Icons.clear),
                                               onPressed: () {
@@ -363,9 +366,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                       border: InputBorder.none,
                                       contentPadding:
                                           const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 14,
-                                      ),
+                                            horizontal: 16,
+                                            vertical: 14,
+                                          ),
                                     ),
                                   ),
                                 ),
@@ -374,82 +377,174 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           ),
                         ),
 
-                    const SizedBox(height: 8),
-
-                    // Time filter segments
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: SegmentedButton<TimeFilter>(
-                        style: SegmentedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          selectedBackgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary,
-                          selectedForegroundColor: Colors.white,
-                        ),
-                        onSelectionChanged: (newSelection) {
-                          final selectedFilter = newSelection.first;
-                          context.read<MapFilterCubit>().updateTimeFilter(
-                            selectedFilter,
-                          );
-                        },
-                        segments: const [
-                          ButtonSegment(
-                            value: TimeFilter.twentyFourHours,
-                            label: Text('24h'),
+                        // Time filter segments
+                        SegmentedButton<TimeFilter>(
+                          style: SegmentedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            selectedBackgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            selectedForegroundColor: Colors.white,
                           ),
-                          ButtonSegment(
-                            value: TimeFilter.sevenDays,
-                            label: Text('7d'),
-                          ),
-                          ButtonSegment(
-                            value: TimeFilter.thirtyDays,
-                            label: Text('30d'),
-                          ),
-                        ],
-                        selected: {filterState.timeFilter},
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Category filter chips
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: IncidentCategory.values.map((category) {
-                          final isSelected = filterState.selectedCategories
-                              .contains(category);
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: _buildCategoryFilterChip(
-                              category,
-                              isSelected: isSelected,
-                              onTap: () {
-                                context.read<MapFilterCubit>().toggleCategory(
-                                  category,
-                                );
-                              },
+                          onSelectionChanged: (newSelection) {
+                            final selectedFilter = newSelection.first;
+                            context.read<MapFilterCubit>().updateTimeFilter(
+                              selectedFilter,
+                            );
+                          },
+                          segments: const [
+                            ButtonSegment(
+                              value: TimeFilter.twentyFourHours,
+                              label: Text('24h'),
                             ),
-                          );
-                        }).toList(),
+                            ButtonSegment(
+                              value: TimeFilter.sevenDays,
+                              label: Text('7d'),
+                            ),
+                            ButtonSegment(
+                              value: TimeFilter.thirtyDays,
+                              label: Text('30d'),
+                            ),
+                          ],
+                          selected: {filterState.timeFilter},
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Category filter chips
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: IncidentCategory.values.map((category) {
+                              final isSelected = filterState.selectedCategories
+                                  .contains(category);
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: _buildCategoryFilterChip(
+                                  category,
+                                  isSelected: isSelected,
+                                  onTap: () {
+                                    context
+                                        .read<MapFilterCubit>()
+                                        .toggleCategory(
+                                          category,
+                                        );
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Empty state for filtered results
+                  if (filteredIncidents.isEmpty)
+                    Positioned.fill(
+                      child: Center(
+                        child: Container(
+                          margin: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.95),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.location_off,
+                                size: 48,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.4,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No incidents found',
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Try adjusting your filters',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
+                                ),
+                              ),
+                              if (filterState.selectedCategories.isNotEmpty ||
+                                  filterState.searchQuery.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 16),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      context
+                                          .read<MapFilterCubit>()
+                                          .clearFilters();
+                                    },
+                                    child: const Text('Clear filters'),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                  ),
-                ),
 
-                // Empty state for filtered results
-                if (filteredIncidents.isEmpty)
-                  Positioned.fill(
+                  // Zoom controls
+                  Positioned(
+                    right: 16,
+                    bottom: 180,
+                    child: Column(
+                      children: [
+                        FloatingActionButton.small(
+                          heroTag: 'zoom_in',
+                          onPressed: _zoomIn,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.add,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        FloatingActionButton.small(
+                          heroTag: 'zoom_out',
+                          onPressed: _zoomOut,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.remove,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Risk level indicator
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 100,
                     child: Center(
                       child: Container(
-                        margin: const EdgeInsets.all(24),
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.95),
-                          borderRadius: BorderRadius.circular(16),
+                          color: filterState.riskLevel.backgroundColor,
+                          borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.1),
@@ -458,176 +553,80 @@ class _MapScreenViewState extends State<_MapScreenView> {
                             ),
                           ],
                         ),
-                        child: Column(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.location_off,
-                              size: 48,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.4),
+                              Icons.circle,
+                              color: filterState.riskLevel.color,
+                              size: 12,
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(width: 8),
                             Text(
-                              'No incidents found',
-                              style: theme.textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Try adjusting your filters',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.6),
+                              filterState.riskLevel.displayName,
+                              style: TextStyle(
+                                color: filterState.riskLevel.color,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            if (filterState.selectedCategories.isNotEmpty ||
-                                filterState.searchQuery.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 16),
-                                child: TextButton(
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    context
-                                        .read<MapFilterCubit>()
-                                        .clearFilters();
-                                  },
-                                  child: const Text('Clear filters'),
-                                ),
-                              ),
                           ],
                         ),
                       ),
                     ),
                   ),
 
-                // Zoom controls
-                Positioned(
-                  right: 16,
-                  bottom: 180,
-                  child: Column(
-                    children: [
-                      FloatingActionButton.small(
-                        heroTag: 'zoom_in',
-                        onPressed: _zoomIn,
-                        backgroundColor: Colors.white,
-                        tooltip: 'Zoom in',
-                        child: Icon(
-                          Icons.add,
-                          color: theme.colorScheme.primary,
+                  // Report incident button
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 15,
+                    child: Center(
+                      child: ElevatedButton.icon(
+                        onPressed: _showReportIncidentDialog,
+                        icon: const Icon(
+                          LineIcons.bullhorn,
+                          color: Colors.white,
+                          size: 20,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      FloatingActionButton.small(
-                        heroTag: 'zoom_out',
-                        onPressed: _zoomOut,
-                        backgroundColor: Colors.white,
-                        tooltip: 'Zoom out',
-                        child: Icon(
-                          Icons.remove,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Risk level indicator
-                Positioned(
-                left: 0,
-                right: 0,
-                bottom: 100,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: filterState.riskLevel.backgroundColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: filterState.riskLevel.color,
-                          size: 12,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          filterState.riskLevel.displayName,
+                        label: const Text(
+                          'Report Incident',
                           style: TextStyle(
-                            color: filterState.riskLevel.color,
-                            fontSize: 14,
+                            color: Colors.white,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.black.withValues(alpha: 0.2),
+                        ),
+                      ),
                     ),
                   ),
+                ],
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: _centerOnUserLocation,
+                child: const Icon(
+                  LineIcons.crosshairs,
+                  size: 24,
                 ),
               ),
-
-              // Report incident button
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 15,
-                child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: _showReportIncidentDialog,
-                    icon: const Icon(
-                      LineIcons.bullhorn,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    label: const Text(
-                      'Report Incident',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      elevation: 4,
-                      shadowColor: Colors.black.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  ),
-                ),
-              ],
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: _centerOnUserLocation,
-              tooltip: 'Center on location',
-              child: const Icon(
-                LineIcons.crosshairs,
-                size: 24,
-              ),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+            );
+          },
+        );
+      },
+    );
+  }
 
   Widget _buildCategoryFilterChip(
     IncidentCategory category, {
@@ -1076,10 +1075,7 @@ class _IncidentDetailsSheet extends StatelessWidget {
                 child: FlutterMap(
                   options: MapOptions(
                     initialCenter: incident.location,
-                    initialZoom: 15,
-                    interactionConfiguration: const InteractionConfiguration(
-                      flags: InteractiveFlag.none,
-                    ),
+                    initialZoom: 18,
                   ),
                   children: [
                     TileLayer(
