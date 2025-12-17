@@ -225,17 +225,18 @@ class _MapScreenViewState extends State<_MapScreenView> {
                   onTap: () {
                     setState(() {
                       _currentUserIcon = iconPath;
-                      // Update current user's icon in the list
-                      final currentUserIndex = _userLocations
-                          .indexWhere((u) => u.userId == 'currentUser');
-                      if (currentUserIndex != -1) {
-                        _userLocations[currentUserIndex] = UserLocation(
-                          userId: 'currentUser',
-                          location: _center,
-                          iconPath: iconPath,
-                          displayName: 'You',
-                        );
-                      }
+                      // Update current user's icon using functional approach
+                      _userLocations = _userLocations.map((user) {
+                        if (user.userId == 'currentUser') {
+                          return UserLocation(
+                            userId: 'currentUser',
+                            location: _center,
+                            iconPath: iconPath,
+                            displayName: 'You',
+                          );
+                        }
+                        return user;
+                      }).toList();
                     });
                     Navigator.of(dialogContext).pop();
                     ScaffoldMessenger.of(context).showSnackBar(

@@ -86,6 +86,27 @@ void main() {
       expect(loader.funIcons, contains('assets/icons/custom2.png'));
     });
 
+    test('should clear cache when adding custom icons', () {
+      // Assign icons to some users
+      loader.iconForUser('user1');
+      loader.iconForUser('user2');
+      expect(loader.debugInfo['cachedUsers'], equals(2));
+      
+      // Add custom icons should clear cache
+      loader.addCustomIcons(['assets/icons/custom1.png']);
+      expect(loader.debugInfo['cachedUsers'], equals(0));
+    });
+
+    test('should invalidate assets when adding custom icons', () {
+      // Mock validation by checking the flag
+      final initialValidation = loader.debugInfo['assetsValidated'];
+      
+      loader.addCustomIcons(['assets/icons/custom1.png']);
+      
+      // Assets should be marked for revalidation
+      expect(loader.debugInfo['assetsValidated'], isFalse);
+    });
+
     test('should throw StateError when requesting random icon with no icons', () {
       // Create a new instance to test edge case
       // Note: This test demonstrates the error handling, but in practice

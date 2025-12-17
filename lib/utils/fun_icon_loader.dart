@@ -35,6 +35,10 @@ class FunIconLoader {
 
   /// Add custom icons to the available set
   void addCustomIcons(List<String> customIconPaths) {
+    // Clear cache when modifying icon list to prevent stale references
+    _userIconCache.clear();
+    _assetsValidated = false; // Revalidate with new icons
+    
     _availableIcons = List.unmodifiable([
       ..._availableIcons,
       ...customIconPaths,
