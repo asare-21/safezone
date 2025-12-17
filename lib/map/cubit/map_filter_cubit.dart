@@ -48,9 +48,56 @@ class MapFilterCubit extends Cubit<MapFilterState> {
   /// Get filtered incidents based on current state
   List<Incident> getFilteredIncidents() {
     return _allIncidents.where((incident) {
-      return incident.isWithinTimeFilter(state.timeFilter) &&
-          state.selectedCategories.contains(incident.category);
+      // Filter by time
+      if (!incident.isWithinTimeFilter(state.timeFilter)) {
+        return false;
+      }
+      
+      // Filter by category
+      if (!state.selectedCategories.contains(incident.category)) {
+        return false;
+      }
+      
+      // Filter by search query
+      if (state.searchQuery.isNotEmpty) {
+        final query = state.searchQuery.toLowerCase();
+        final titleMatch = incident.title.toLowerCase().contains(query);
+        final descriptionMatch = incident.description
+            ?.toLowerCase()
+            .contains(query) ?? false;
+        return titleMatch || descriptionMatch;
+      }
+      
+      return true;
     }).toList();
+  }
+
+  /// Update search query
+  void updateSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query));
+    _recalculateRiskLevel();
+  }
+
+  /// Clear search query
+  void clearSearch() {
+    emit(state.copyWith(searchQuery: ''));
+    _recalculateRiskLevel();
+  }
+
+  /// Clear all filters
+  void clearFilters() {
+    emit(
+      state.copyWith(
+        selectedCategories: {
+          IncidentCategory.theft,
+          IncidentCategory.assault,
+          IncidentCategory.suspicious,
+          IncidentCategory.lighting,
+        },
+        searchQuery: '',
+      ),
+    );
+    _recalculateRiskLevel();
   }
 
   void _recalculateRiskLevel() {
