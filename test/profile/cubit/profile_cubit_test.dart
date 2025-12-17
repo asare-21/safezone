@@ -14,31 +14,45 @@ void main() {
       mockSharedPreferences = MockSharedPreferences();
     });
 
-    test('initial state has default alert radius of 2.5', () {
+    test('initial state has default values', () {
       final cubit = ProfileCubit(sharedPreferences: mockSharedPreferences);
       expect(cubit.state.alertRadius, 2.5);
+      expect(cubit.state.defaultZoom, 13.0);
+      expect(cubit.state.locationIcon, 'assets/icons/courier.png');
       expect(cubit.state.isLoading, false);
     });
 
     group('loadSettings', () {
       blocTest<ProfileCubit, ProfileState>(
-        'loads saved alert radius from shared preferences',
+        'loads all saved settings from shared preferences',
         setUp: () {
           when(() => mockSharedPreferences.getDouble('alert_radius'))
               .thenReturn(5);
+          when(() => mockSharedPreferences.getDouble('default_zoom'))
+              .thenReturn(15);
+          when(() => mockSharedPreferences.getString('location_icon'))
+              .thenReturn('assets/icons/penguin.png');
         },
         build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
         act: (cubit) => cubit.loadSettings(),
         expect: () => [
           const ProfileState(isLoading: true),
-          const ProfileState(alertRadius: 5),
+          const ProfileState(
+            alertRadius: 5,
+            defaultZoom: 15,
+            locationIcon: 'assets/icons/penguin.png',
+          ),
         ],
       );
 
       blocTest<ProfileCubit, ProfileState>(
-        'uses default value when no saved setting exists',
+        'uses default values when no saved settings exist',
         setUp: () {
           when(() => mockSharedPreferences.getDouble('alert_radius'))
+              .thenReturn(null);
+          when(() => mockSharedPreferences.getDouble('default_zoom'))
+              .thenReturn(null);
+          when(() => mockSharedPreferences.getString('location_icon'))
               .thenReturn(null);
         },
         build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
@@ -145,6 +159,132 @@ void main() {
         ],
       );
     });
+
+    group('updateDefaultZoom', () {
+      blocTest<ProfileCubit, ProfileState>(
+        'updates default zoom and saves to preferences',
+        setUp: () {
+          when(() => mockSharedPreferences.setDouble('default_zoom', 15))
+              .thenAnswer((_) async => true);
+        },
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateDefaultZoom(15),
+        expect: () => [
+          const ProfileState(defaultZoom: 15),
+        ],
+        verify: (_) {
+          verify(() => mockSharedPreferences.setDouble('default_zoom', 15))
+              .called(1);
+        },
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'does not update when zoom is below minimum',
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateDefaultZoom(5),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verifyNever(
+            () => mockSharedPreferences.setDouble(any(), any()),
+          );
+        },
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'does not update when zoom is above maximum',
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateDefaultZoom(20),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verifyNever(
+            () => mockSharedPreferences.setDouble(any(), any()),
+          );
+        },
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'updates state even when persistence fails',
+        setUp: () {
+          when(() => mockSharedPreferences.setDouble('default_zoom', 14))
+              .thenThrow(Exception('Storage error'));
+        },
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateDefaultZoom(14),
+        expect: () => [
+          const ProfileState(defaultZoom: 14),
+        ],
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'accepts minimum valid zoom (10.0)',
+        setUp: () {
+          when(() => mockSharedPreferences.setDouble('default_zoom', 10))
+              .thenAnswer((_) async => true);
+        },
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateDefaultZoom(10),
+        expect: () => [
+          const ProfileState(defaultZoom: 10),
+        ],
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'accepts maximum valid zoom (18.0)',
+        setUp: () {
+          when(() => mockSharedPreferences.setDouble('default_zoom', 18))
+              .thenAnswer((_) async => true);
+        },
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateDefaultZoom(18),
+        expect: () => [
+          const ProfileState(defaultZoom: 18),
+        ],
+      );
+    });
+
+    group('updateLocationIcon', () {
+      blocTest<ProfileCubit, ProfileState>(
+        'updates location icon and saves to preferences',
+        setUp: () {
+          when(() => mockSharedPreferences.setString('location_icon', 'assets/icons/penguin.png'))
+              .thenAnswer((_) async => true);
+        },
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateLocationIcon('assets/icons/penguin.png'),
+        expect: () => [
+          const ProfileState(locationIcon: 'assets/icons/penguin.png'),
+        ],
+        verify: (_) {
+          verify(() => mockSharedPreferences.setString('location_icon', 'assets/icons/penguin.png'))
+              .called(1);
+        },
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'does not update when icon path is empty',
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateLocationIcon(''),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verifyNever(
+            () => mockSharedPreferences.setString(any(), any()),
+          );
+        },
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'updates state even when persistence fails',
+        setUp: () {
+          when(() => mockSharedPreferences.setString('location_icon', 'assets/icons/animal.png'))
+              .thenThrow(Exception('Storage error'));
+        },
+        build: () => ProfileCubit(sharedPreferences: mockSharedPreferences),
+        act: (cubit) => cubit.updateLocationIcon('assets/icons/animal.png'),
+        expect: () => [
+          const ProfileState(locationIcon: 'assets/icons/animal.png'),
+        ],
+      );
+    });
   });
 
   group('ProfileState', () {
@@ -162,6 +302,20 @@ void main() {
       );
     });
 
+    test('different zoom levels are not equal', () {
+      expect(
+        const ProfileState(),
+        isNot(equals(const ProfileState(defaultZoom: 15))),
+      );
+    });
+
+    test('different location icons are not equal', () {
+      expect(
+        const ProfileState(),
+        isNot(equals(const ProfileState(locationIcon: 'assets/icons/penguin.png'))),
+      );
+    });
+
     test('different loading states are not equal', () {
       expect(
         const ProfileState(isLoading: true),
@@ -171,22 +325,38 @@ void main() {
 
     test('copyWith returns new instance with updated values', () {
       const state = ProfileState(alertRadius: 3);
-      final newState = state.copyWith(alertRadius: 5);
+      final newState = state.copyWith(
+        alertRadius: 5,
+        defaultZoom: 16,
+        locationIcon: 'assets/icons/food.png',
+      );
 
       expect(newState.alertRadius, 5.0);
+      expect(newState.defaultZoom, 16.0);
+      expect(newState.locationIcon, 'assets/icons/food.png');
       expect(newState.isLoading, false);
     });
 
     test('copyWith preserves values when not specified', () {
-      const state = ProfileState(alertRadius: 3, isLoading: true);
+      const state = ProfileState(
+        alertRadius: 3,
+        defaultZoom: 14,
+        locationIcon: 'assets/icons/animal.png',
+        isLoading: true,
+      );
       final newState = state.copyWith(alertRadius: 5);
 
+      expect(newState.alertRadius, 5.0);
+      expect(newState.defaultZoom, 14.0);
+      expect(newState.locationIcon, 'assets/icons/animal.png');
       expect(newState.isLoading, true);
     });
 
     test('has correct default values', () {
       const state = ProfileState();
       expect(state.alertRadius, 2.5);
+      expect(state.defaultZoom, 13.0);
+      expect(state.locationIcon, 'assets/icons/courier.png');
       expect(state.isLoading, false);
     });
   });

@@ -59,6 +59,10 @@ class _ProfileView extends StatelessWidget {
                 _buildAlertRadiusItem(theme),
                 const Divider(),
 
+                // TODO (joasare019): Add mapp settings here to manage default zoom, map location icon and alert radius. Use class FunIconLoader to load custom icons. Use a cubit to manage all of this.
+                _buildLocationIconItem(theme, context),
+                const Divider(),
+                _buildDefaultZoomItem(theme),
                 // TODO #50 (joasare019): Add mapp settings here to manage default zoom, map location icon and alert radius. Use class FunIconLoader to load custom icons. Use a cubit to manage all of this.
                 _buildNavigationItem(
                   theme,
@@ -667,6 +671,227 @@ class _ProfileView extends StatelessWidget {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLocationIconItem(ThemeData theme, BuildContext context) {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        return InkWell(
+          onTap: () => _showLocationIconPicker(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _lightBlueBackground,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    LineIcons.marker,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Text(
+                    'Location Icon',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: theme.dividerColor.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(7),
+                    child: Image.asset(
+                      state.locationIcon,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDefaultZoomItem(ThemeData theme) {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: _lightBlueBackground,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      LineIcons.searchPlus,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Text(
+                      'Default Map Zoom',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    state.defaultZoom.toStringAsFixed(1),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    '10',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: Theme.of(context).colorScheme.primary,
+                        inactiveTrackColor: theme.dividerColor.withValues(
+                          alpha: 0.2,
+                        ),
+                        thumbColor: Theme.of(context).colorScheme.primary,
+                        trackHeight: 4,
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 8,
+                        ),
+                      ),
+                      child: Slider(
+                        value: state.defaultZoom,
+                        min: 10,
+                        max: 18,
+                        divisions: 8,
+                        onChanged: (value) {
+                          context.read<ProfileCubit>().updateDefaultZoom(value);
+                        },
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '18',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLocationIconPicker(BuildContext context) {
+    final iconLoader = FunIconLoader();
+    final icons = iconLoader.getFunIcons();
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Select Location Icon'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: icons.length,
+              itemBuilder: (gridContext, index) {
+                final iconPath = icons[index];
+                return BlocBuilder<ProfileCubit, ProfileState>(
+                  bloc: context.read<ProfileCubit>(),
+                  builder: (builderContext, state) {
+                    final isSelected = state.locationIcon == iconPath;
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<ProfileCubit>().updateLocationIcon(iconPath);
+                        Navigator.of(dialogContext).pop();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                            width: isSelected ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(11),
+                          child: Image.asset(
+                            iconPath,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+          ],
         );
       },
     );

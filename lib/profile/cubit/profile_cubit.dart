@@ -13,6 +13,8 @@ class ProfileCubit extends Cubit<ProfileState> {
   final SharedPreferences? _sharedPreferences;
 
   static const String _alertRadiusKey = 'alert_radius';
+  static const String _defaultZoomKey = 'default_zoom';
+  static const String _locationIconKey = 'location_icon';
 
   /// Load saved settings from persistent storage
   Future<void> loadSettings() async {
@@ -21,10 +23,14 @@ class ProfileCubit extends Cubit<ProfileState> {
     try {
       final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
       final savedRadius = prefs.getDouble(_alertRadiusKey) ?? 2.5;
+      final savedZoom = prefs.getDouble(_defaultZoomKey) ?? 13.0;
+      final savedIcon = prefs.getString(_locationIconKey) ?? 'assets/icons/courier.png';
 
       emit(
         state.copyWith(
           alertRadius: savedRadius,
+          defaultZoom: savedZoom,
+          locationIcon: savedIcon,
           isLoading: false,
         ),
       );
@@ -51,6 +57,44 @@ class ProfileCubit extends Cubit<ProfileState> {
     } on Exception catch (e) {
       // Persistence failed, but state is already updated
       // Could emit an error state here if needed
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  /// Update the default zoom level setting
+  Future<void> updateDefaultZoom(double zoom) async {
+    if (zoom < 10 || zoom > 18) {
+      return; // Invalid zoom level
+    }
+
+    emit(state.copyWith(defaultZoom: zoom));
+
+    try {
+      final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
+      await prefs.setDouble(_defaultZoomKey, zoom);
+    } on Exception catch (e) {
+      // Persistence failed, but state is already updated
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  /// Update the location icon setting
+  Future<void> updateLocationIcon(String iconPath) async {
+    if (iconPath.isEmpty) {
+      return; // Invalid icon path
+    }
+
+    emit(state.copyWith(locationIcon: iconPath));
+
+    try {
+      final prefs = _sharedPreferences ?? await SharedPreferences.getInstance();
+      await prefs.setString(_locationIconKey, iconPath);
+    } on Exception catch (e) {
+      // Persistence failed, but state is already updated
       if (kDebugMode) {
         print(e);
       }
