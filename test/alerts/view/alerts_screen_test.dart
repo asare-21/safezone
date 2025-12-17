@@ -202,6 +202,38 @@ void main() {
       expect(find.text('Recent Theft Reported'), findsOneWidget);
     });
 
+    testWidgets('displays empty state when no alerts match filters',
+        (tester) async {
+      await tester.pumpAlertsApp(const AlertsScreen());
+
+      // Open filter dialog
+      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
+      await tester.pumpAndSettle();
+
+      // Deselect all severities to ensure no alerts match
+      await tester.tap(find.text('High'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Medium'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Low'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Info'));
+      await tester.pumpAndSettle();
+
+      // Apply filters
+      await tester.tap(find.text('Apply Filters'));
+      await tester.pumpAndSettle();
+
+      // Verify empty state is displayed
+      expect(find.text('No alerts match your filters'), findsOneWidget);
+      expect(
+        find.text('Try adjusting your filters or check back later'),
+        findsOneWidget,
+      );
+      expect(find.text('Reset Filters'), findsOneWidget);
+      expect(find.byIcon(Icons.notifications_off_outlined), findsOneWidget);
+    });
+
   });
 
   group('Alert Model', () {
