@@ -74,14 +74,45 @@ class _AlertsScreenView extends StatelessWidget {
   }
 
   void _showFilterDialog(BuildContext context) {
-    showDialog<void>(
+    showModalBottomSheet<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return BlocProvider.value(
-          value: context.read<AlertFilterCubit>(),
-          child: const _FilterDialog(),
-        );
-      },
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => BlocProvider.value(
+        value: context.read<AlertFilterCubit>(),
+        child: const _FilterBottomSheet(),
+      ),
+    );
+  }
+
+  void _showAlertDetails(BuildContext context, Alert alert) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => AlertDetailsScreen(alert: alert),
+      ),
+    );
+  }
+
+  void _showAlertActions(BuildContext context, Alert alert) {
+    // Placeholder for future implementation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Long press actions for ${alert.title}'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _showSafeZoneDetails(BuildContext context) {
+    // Placeholder for future implementation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Safe Zone details'),
+        duration: Duration(seconds: 1),
+      ),
     );
   }
 
@@ -95,129 +126,271 @@ class _AlertsScreenView extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: const Color(0xFFF8F9FA),
-          body: SafeArea(
-            child: Column(
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Safety Alerts',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 28,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => _showFilterDialog(context),
-                        icon: const Icon(
-                          LineIcons.horizontalSliders,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Filter chips
-                SizedBox(
-                  height: 50,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    children: [
-                      _buildFilterChip(
-                        context,
-                        'All Alerts',
-                        QuickFilter.all,
-                        filterState.selectedQuickFilter == QuickFilter.all,
-                      ),
-                      const SizedBox(width: 12),
-                      _buildFilterChip(
-                        context,
-                        'High Severity',
-                        QuickFilter.highSeverity,
-                        filterState.selectedQuickFilter ==
-                            QuickFilter.highSeverity,
-                      ),
-                      const SizedBox(width: 12),
-                      _buildFilterChip(
-                        context,
-                        'Recent',
-                        QuickFilter.recent,
-                        filterState.selectedQuickFilter == QuickFilter.recent,
-                      ),
-                      const SizedBox(width: 12),
-                      _buildFilterChip(
-                        context,
-                        'Nearby',
-                        QuickFilter.nearby,
-                        filterState.selectedQuickFilter == QuickFilter.nearby,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Scrollable content
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFFF8F9FA),
+                  const Color(0xFFF8F9FA).withOpacity(0.5),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // Enhanced header with status
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Safe zone status card
-                        _buildSafeZoneCard(context),
-
-                        const SizedBox(height: 32),
-
-                        // Real-time alerts section
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Real-time Alerts',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 22,
-                              ),
-                            ),
-                            Text(
-                              'SORTED BY TIME',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.5,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Safety Alerts',
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 32,
+                                  ),
                                 ),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Stay informed, stay safe',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Badge(
+                              backgroundColor: theme.colorScheme.primary,
+                              child: IconButton(
+                                onPressed: () => _showFilterDialog(context),
+                                icon: const Icon(
+                                  LineIcons.horizontalSliders,
+                                  size: 24,
+                                ),
                               ),
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 16),
-
-                        // Alert list
-                        ...filteredAlerts.map(
-                          (alert) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildAlertCard(context, alert),
+                        // Live status indicator
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.grey.shade200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF34C759),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF34C759).withOpacity(0.5),
+                                      blurRadius: 4,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'System Status: Active',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 80),
                       ],
                     ),
                   ),
-                ),
-              ],
+
+                  // Enhanced filter chips with counters
+                  SizedBox(
+                    height: 60,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      children: [
+                        _buildEnhancedFilterChip(
+                          context,
+                          'All Alerts',
+                          QuickFilter.all,
+                          filterState.selectedQuickFilter == QuickFilter.all,
+                          count: _mockAlerts.length,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildEnhancedFilterChip(
+                          context,
+                          'Critical',
+                          QuickFilter.highSeverity,
+                          filterState.selectedQuickFilter == QuickFilter.highSeverity,
+                          count: _mockAlerts.where((a) => a.severity == AlertSeverity.high).length,
+                          color: const Color(0xFFFF4C4C),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildEnhancedFilterChip(
+                          context,
+                          'Recent',
+                          QuickFilter.recent,
+                          filterState.selectedQuickFilter == QuickFilter.recent,
+                          count: _mockAlerts
+                              .where((a) => a.timestamp.isAfter(DateTime.now().subtract(const Duration(hours: 1))))
+                              .length,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildEnhancedFilterChip(
+                          context,
+                          'Nearby',
+                          QuickFilter.nearby,
+                          filterState.selectedQuickFilter == QuickFilter.nearby,
+                          icon: Icons.location_on_outlined,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Scrollable content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Safe zone status card
+                          _buildSafeZoneCard(context),
+
+                          const SizedBox(height: 32),
+
+                          // Real-time alerts section
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Real-time Alerts',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 22,
+                                ),
+                              ),
+                              Text(
+                                'SORTED BY TIME',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Empty state
+                          if (filteredAlerts.isEmpty) ...[
+                            Container(
+                              margin: const EdgeInsets.symmetric(vertical: 32),
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 120,
+                                    height: 120,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.notifications_off_outlined,
+                                      size: 48,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    'No alerts match your filters',
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Try adjusting your filters or check back later',
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  OutlinedButton(
+                                    onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
+                                    style: OutlinedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      side: BorderSide(color: theme.colorScheme.primary),
+                                    ),
+                                    child: Text(
+                                      'Reset Filters',
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          // Alert list
+                          ...filteredAlerts.map(
+                            (alert) => _buildAlertCard(context, alert),
+                          ),
+                          const SizedBox(height: 80),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -244,217 +417,350 @@ class _AlertsScreenView extends StatelessWidget {
     );
   }
 
-  // For filter chips with selection, use InputChip:
-  Widget _buildFilterChip(
+  // Improved chip widget
+  Widget _buildEnhancedFilterChip(
     BuildContext context,
     String label,
     QuickFilter filter,
-    bool selected,
-  ) {
-    return InputChip(
-      label: Text(
-        label,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: selected
-              ? Colors.white
-              : Theme.of(context).colorScheme.onSurface,
-          fontSize: 14,
+    bool selected, {
+    int? count,
+    Color? color,
+    IconData? icon,
+  }) {
+    final theme = Theme.of(context);
+    final backgroundColor = selected
+        ? (color ?? theme.colorScheme.primary)
+        : Colors.white;
+    
+    return GestureDetector(
+      onTap: () => context.read<AlertFilterCubit>().setQuickFilter(filter),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: selected
+                ? backgroundColor
+                : Colors.grey.shade300,
+            width: selected ? 0 : 1,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: (color ?? theme.colorScheme.primary).withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 16,
+                color: selected ? Colors.white : Colors.grey.shade600,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: selected ? Colors.white : Colors.grey.shade800,
+              ),
+            ),
+            if (count != null) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Colors.white.withOpacity(0.2)
+                      : (color ?? theme.colorScheme.primary).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : (color ?? theme.colorScheme.primary),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
-      selected: selected,
-      onPressed: () => context.read<AlertFilterCubit>().setQuickFilter(filter),
-      backgroundColor: Theme.of(context).colorScheme.secondary,
-      selectedColor: Theme.of(context).colorScheme.primary,
-      side: const BorderSide(
-        color: Colors.white,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      visualDensity: VisualDensity.compact,
-      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
     );
   }
 
   Widget _buildSafeZoneCard(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () => _showSafeZoneDetails(context),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFE8F5E8),
+              Color(0xFFF0F9F0),
+            ],
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF34C759),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'You are in a Safe Zone',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 17,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'No immediate threats detected in your current vicinity.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
-                ),
-              ],
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.shade100,
+              blurRadius: 20,
+              spreadRadius: 1,
             ),
-          ),
-        ],
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: const Color(0xFF34C759).withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.shield,
+                color: Color(0xFF34C759),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'You\'re in a Safe Zone',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: const Color(0xFF1A7F3A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No immediate threats detected in your vicinity.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: const Color(0xFF1A7F3A).withOpacity(0.8),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: Color(0xFF34C759),
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAlertCard(BuildContext context, Alert alert) {
     final theme = Theme.of(context);
-
-    return Container(
+    final isCritical = alert.severity == AlertSeverity.high;
+    
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: isCritical
+                ? alert.severityColor.withOpacity(0.15)
+                : Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: isCritical ? 1 : 0,
           ),
         ],
+        border: isCritical
+            ? Border.all(
+                color: alert.severityColor.withOpacity(0.3),
+                width: 1.5,
+              )
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => AlertDetailsScreen(alert: alert),
-              ),
-            );
-          },
+          borderRadius: BorderRadius.circular(18),
+          onTap: () => _showAlertDetails(context, alert),
+          onLongPress: () => _showAlertActions(context, alert),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Alert icon
+                // Severity indicator
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 4,
+                  height: 60,
                   decoration: BoxDecoration(
-                    color: alert.iconBackgroundColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    alert.icon,
-                    color: alert.iconColor,
-                    size: 28,
+                    color: alert.severityColor,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
+                const SizedBox(width: 12),
+                
+                // Alert icon with badge
+                Stack(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: alert.iconBackgroundColor.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        alert.icon,
+                        color: alert.iconColor,
+                        size: 24,
+                      ),
+                    ),
+                    if (isCritical)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: alert.severityColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.warning,
+                            size: 8,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
                 const SizedBox(width: 16),
-
+                
                 // Alert content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
-                              alert.title,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  alert.title,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                    color: isCritical
+                                        ? Colors.black
+                                        : Colors.grey.shade800,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.schedule_outlined,
+                                      size: 12,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      alert.timeAgo,
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    if (alert.confirmedBy != null) ...[
+                                      const SizedBox(width: 12),
+                                      Icon(
+                                        Icons.people_outline,
+                                        size: 12,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${alert.confirmedBy} confirmations',
+                                        style: theme.textTheme.labelSmall?.copyWith(
+                                          color: Colors.grey.shade600,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          // Severity indicator
-                          if (alert.severity == AlertSeverity.high)
+                          if (isCritical)
                             Container(
-                              width: 8,
-                              height: 8,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: alert.severityColor,
-                                shape: BoxShape.circle,
+                                color: alert.severityColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'CRITICAL',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: alert.severityColor,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Reported ${alert.timeAgo}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.5,
-                          ),
-                          fontSize: 13,
-                        ),
-                      ),
-                      if (alert.confirmedBy != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          'Confirmed by ${alert.confirmedBy} users',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.5,
-                            ),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           Icon(
-                            Icons.location_on,
+                            Icons.location_on_outlined,
                             size: 14,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.5,
-                            ),
+                            color: Colors.grey.shade600,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            alert.location,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.5,
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              alert.location,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w500,
                               ),
-                              fontSize: 13,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -463,11 +769,9 @@ class _AlertsScreenView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-
-                // Chevron
                 Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  Icons.chevron_right_rounded,
+                  color: Colors.grey.shade400,
                   size: 24,
                 ),
               ],
@@ -479,76 +783,138 @@ class _AlertsScreenView extends StatelessWidget {
   }
 }
 
-class _FilterDialog extends StatelessWidget {
-  const _FilterDialog();
+// Filter bottom sheet implementation
+class _FilterBottomSheet extends StatelessWidget {
+  const _FilterBottomSheet();
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AlertFilterCubit, AlertFilterState>(
       builder: (context, state) {
-        final theme = Theme.of(context);
-
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: _buildDialogHeader(context, theme),
-          content: _buildDialogContent(context, state, theme),
-          actions: _buildDialogActions(context, theme),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          maxChildSize: 0.95,
+          minChildSize: 0.5,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Handle
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filter Alerts',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
+                          child: Text(
+                            'Reset',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    // Active filters indicator
+                    if (state.selectedSeverities.isNotEmpty ||
+                        state.selectedTypes.length != AlertType.values.length)
+                      Container(
+                        margin: const EdgeInsets.only(top: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.filter_alt,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '${state.selectedSeverities.length} severity filters • ${state.selectedTypes.length} types',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    
+                    const SizedBox(height: 24),
+                    _buildSeverityFilterSection(context, state),
+                    const SizedBox(height: 24),
+                    _buildAlertTypeFilterSection(context, state),
+                    const SizedBox(height: 24),
+                    _buildTimeRangeFilterSection(context, state),
+                    const SizedBox(height: 24),
+                    
+                    // Apply button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Apply Filters',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
-    );
-  }
-
-  /// Builds the dialog header with title and clear all button
-  Widget _buildDialogHeader(BuildContext context, ThemeData theme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Filter Alerts',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-          ),
-        ),
-        TextButton(
-          onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
-          child: Text(
-            'Clear All',
-            style: TextStyle(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the scrollable content area with filter sections
-  Widget _buildDialogContent(
-    BuildContext context,
-    AlertFilterState state,
-    ThemeData theme,
-  ) {
-    return SingleChildScrollView(
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.9,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSeverityFilterSection(context, state, theme),
-            const SizedBox(height: 24),
-            _buildAlertTypeFilterSection(context, state, theme),
-            const SizedBox(height: 24),
-            _buildTimeRangeFilterSection(context, state, theme),
-          ],
-        ),
-      ),
     );
   }
 
@@ -556,12 +922,18 @@ class _FilterDialog extends StatelessWidget {
   Widget _buildSeverityFilterSection(
     BuildContext context,
     AlertFilterState state,
-    ThemeData theme,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Severity', theme),
+        Text(
+          'Severity',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+          ),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -586,12 +958,18 @@ class _FilterDialog extends StatelessWidget {
   Widget _buildAlertTypeFilterSection(
     BuildContext context,
     AlertFilterState state,
-    ThemeData theme,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Alert Type', theme),
+        Text(
+          'Alert Type',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+          ),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -614,12 +992,18 @@ class _FilterDialog extends StatelessWidget {
   Widget _buildTimeRangeFilterSection(
     BuildContext context,
     AlertFilterState state,
-    ThemeData theme,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Time Range', theme),
+        Text(
+          'Time Range',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+          ),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
@@ -638,53 +1022,6 @@ class _FilterDialog extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  /// Builds a section title
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Text(
-      title,
-      style: theme.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-        fontSize: 16,
-      ),
-    );
-  }
-
-  /// Builds the dialog action buttons
-  List<Widget> _buildDialogActions(BuildContext context, ThemeData theme) {
-    return [
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: Text(
-          'Cancel',
-          style: TextStyle(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      ElevatedButton(
-        onPressed: () => Navigator.of(context).pop(),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: theme.colorScheme.primary,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 12,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: const Text(
-          'Apply Filters',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    ];
   }
 }
 
