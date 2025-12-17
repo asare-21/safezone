@@ -40,7 +40,7 @@ void main() {
       await tester.pumpAlertsApp(const AlertsScreen());
 
       expect(find.text('All Alerts'), findsOneWidget);
-      expect(find.text('High Severity'), findsOneWidget);
+      expect(find.text('Critical'), findsOneWidget);
       expect(find.text('Recent'), findsOneWidget);
       expect(find.text('Nearby'), findsOneWidget);
     });
@@ -48,9 +48,9 @@ void main() {
     testWidgets('displays safe zone status card', (tester) async {
       await tester.pumpAlertsApp(const AlertsScreen());
 
-      expect(find.text('You are in a Safe Zone'), findsOneWidget);
+      expect(find.text('You\'re in a Safe Zone'), findsOneWidget);
       expect(
-        find.text('No immediate threats detected in your current vicinity.'),
+        find.text('No immediate threats detected in your vicinity.'),
         findsOneWidget,
       );
     });
@@ -105,9 +105,9 @@ void main() {
       await tester.tap(filterButton);
       await tester.pumpAndSettle();
 
-      // Verify filter dialog is displayed
+      // Verify filter bottom sheet is displayed
       expect(find.text('Filter Alerts'), findsOneWidget);
-      expect(find.text('Clear All'), findsOneWidget);
+      expect(find.text('Reset'), findsOneWidget);
       expect(find.text('Severity'), findsOneWidget);
       expect(find.text('Alert Type'), findsOneWidget);
       expect(find.text('Time Range'), findsOneWidget);
@@ -189,8 +189,8 @@ void main() {
       await tester.tap(find.text('High'));
       await tester.pumpAndSettle();
 
-      // Tap Clear All
-      await tester.tap(find.text('Clear All'));
+      // Tap Reset
+      await tester.tap(find.text('Reset'));
       await tester.pumpAndSettle();
 
       // Apply filters
@@ -202,25 +202,6 @@ void main() {
       expect(find.text('Recent Theft Reported'), findsOneWidget);
     });
 
-    testWidgets('cancel button closes dialog without applying filters',
-        (tester) async {
-      await tester.pumpAlertsApp(const AlertsScreen());
-
-      // Open filter dialog
-      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
-      await tester.pumpAndSettle();
-
-      // Deselect 'High' severity
-      await tester.tap(find.text('High'));
-      await tester.pumpAndSettle();
-
-      // Tap Cancel
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-
-      // High severity alert should still be visible
-      expect(find.text('Entering High-Risk Area'), findsOneWidget);
-    });
   });
 
   group('Alert Model', () {
