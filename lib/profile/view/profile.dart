@@ -52,6 +52,34 @@ class _ProfileView extends StatelessWidget {
             // User Profile Card
             _buildUserProfileCard(theme, context),
             const SizedBox(height: 24),
+            _buildSectionHeader(theme, 'MAP SETTINGS'),
+            _buildSettingsCard(
+              theme,
+              children: [
+                _buildAlertRadiusItem(theme),
+                const Divider(),
+
+                // TODO (joasare019): Add mapp settings here to manage default zoom, map location icon and alert radius. Use class FunIconLoader to load custom icons. Use a cubit to manage all of this.
+                _buildNavigationItem(
+                  theme,
+                  icon: LineIcons.marker,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconBgColor: _lightBlueBackground,
+                  title: 'Location Icon',
+                  onTap: () {},
+                ),
+                _buildNavigationItem(
+                  theme,
+                  icon: LineIcons.retroCamera,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconBgColor: _lightBlueBackground,
+                  title: 'Default Map Zoom',
+                  onTap: () {},
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
 
             // Alerts & Notifications Section
             _buildSectionHeader(theme, 'ALERTS & NOTIFICATIONS'),
@@ -84,8 +112,7 @@ class _ProfileView extends StatelessWidget {
                       onChanged: (value) =>
                           cubit.toggleProximityAlerts(value: value),
                     ),
-                    const Divider(height: 1),
-                    _buildAlertRadiusItem(theme),
+
                     const Divider(height: 1),
                     _buildToggleItem(
                       theme,
