@@ -7,6 +7,7 @@ import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/models/user_location_model.dart';
 import 'package:safe_zone/utils/fun_icon_loader.dart';
+import 'package:safe_zone/map/utils/debouncer.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
@@ -27,6 +28,8 @@ class _MapScreenView extends StatefulWidget {
 class _MapScreenViewState extends State<_MapScreenView> {
   final MapController _mapController = MapController();
   final FunIconLoader _iconLoader = FunIconLoader();
+  final TextEditingController _searchController = TextEditingController();
+  final Debouncer _searchDebouncer = Debouncer(milliseconds: 300);
 
   // New York City center coordinates (example location)
   final LatLng _center = const LatLng(40.7128, -74.0060);
@@ -39,6 +42,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
   // Current user's selected icon
   String _currentUserIcon = '';
+  // Loading state
+  late Future<void> _dataLoadingFuture;
 
   @override
   void initState() {
@@ -46,6 +51,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
     _initializeMockData();
     _initializeUserLocations();
     // Initialize cubit with incidents
+    _dataLoadingFuture = _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await _initializeMockData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
       // Preload and validate icons
@@ -54,7 +64,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     });
   }
 
-  void _initializeMockData() {
+  Future<void> _initializeMockData() async {
     _allIncidents = [
       Incident(
         id: '1',
@@ -140,6 +150,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
   @override
   void dispose() {
     _mapController.dispose();
+    _searchController.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 
@@ -310,69 +322,141 @@ class _MapScreenViewState extends State<_MapScreenView> {
     _mapController.move(_center, 18);
   }
 
+  Widget _buildLoadingScreen() {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Loading incidents...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _zoomIn() {
+    _mapController.move(
+      _mapController.camera.center,
+      _mapController.camera.zoom + 1,
+    );
+  }
+
+  void _zoomOut() {
+    _mapController.move(
+      _mapController.camera.center,
+      _mapController.camera.zoom - 1,
+    );
+  }
+
+  bool _isRecentIncident(Incident incident) {
+    final hoursSinceIncident =
+        DateTime.now().difference(incident.timestamp).inHours;
+    return hoursSinceIncident < 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<MapFilterCubit, MapFilterState>(
-      builder: (context, filterState) {
-        final filteredIncidents = context
-            .read<MapFilterCubit>()
-            .getFilteredIncidents();
+    return FutureBuilder(
+      future: _dataLoadingFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingScreen();
+        }
 
-        return Scaffold(
-          body: Stack(
-            children: [
-              // Map
-              FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: _center,
-                  minZoom: 10,
-                  maxZoom: 18,
-                ),
+        return BlocBuilder<MapFilterCubit, MapFilterState>(
+          builder: (context, filterState) {
+            final filteredIncidents = context
+                .read<MapFilterCubit>()
+                .getFilteredIncidents();
+
+            return Scaffold(
+              body: Stack(
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.safezone.app',
-                  ),
-                  // Incident markers
-                  MarkerLayer(
-                    markers: filteredIncidents.map((incident) {
-                      return Marker(
-                        point: incident.location,
-                        width: 40,
-                        height: 40,
-                        child: GestureDetector(
-                          onTap: () {
-                            _showIncidentDetails(incident);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: incident.category.color,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                  // Map
+                  FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: _center,
+                      minZoom: 10,
+                      maxZoom: 18,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.safezone.app',
+                      ),
+                      // Incident markers
+                      MarkerLayer(
+                        markers: filteredIncidents.map((incident) {
+                          final isRecent = _isRecentIncident(incident);
+                          return Marker(
+                            point: incident.location,
+                            width: 40,
+                            height: 40,
+                            child: GestureDetector(
+                              onTap: () {
+                                _showIncidentDetails(incident);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                decoration: BoxDecoration(
+                                  color: incident.category.color,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                  boxShadow: isRecent
+                                      ? [
+                                          BoxShadow(
+                                            color: incident.category.color
+                                                .withValues(alpha: 0.6),
+                                            blurRadius: 8,
+                                            spreadRadius: 2,
+                                          ),
+                                          BoxShadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
                                 ),
-                              ],
+                                child: Icon(
+                                  incident.category.icon,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
                             ),
-                            child: Icon(
-                              incident.category.icon,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
                   // User location markers
                   MarkerLayer(
@@ -453,65 +537,84 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ],
               ),
 
-              // Top overlay with search and filters
-              SafeArea(
-                child: Column(
-                  children: [
-                    // Avatar and search bar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 5,
-                      ),
-                      child: Row(
-                        children: [
-                          // Search bar
-                          Expanded(
-                            child: Container(
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
+                  // Top overlay with search and filters
+                  SafeArea(
+                    child: Column(
+                      children: [
+                        // Avatar and search bar
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 5,
+                          ),
+                          child: Row(
+                            children: [
+                              // Search bar
+                              Expanded(
+                                child: Container(
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black
+                                            .withValues(alpha: 0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: TextField(
-                                onChanged: (value) {
-                                  setState(() {});
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'Search location or zone',
-                                  hintStyle: TextStyle(
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(
-                                          alpha: 0.4,
-                                        ),
-                                    fontSize: 15,
-                                  ),
-                                  prefixIcon: Icon(
-                                    Icons.search,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(
-                                          alpha: 0.4,
-                                        ),
-                                  ),
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
+                                  child: TextField(
+                                    controller: _searchController,
+                                    onChanged: (value) {
+                                      _searchDebouncer.run(() {
+                                        context
+                                            .read<MapFilterCubit>()
+                                            .updateSearchQuery(value);
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'Search location or zone',
+                                      hintStyle: TextStyle(
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(
+                                              alpha: 0.4,
+                                            ),
+                                        fontSize: 15,
+                                      ),
+                                      prefixIcon: Icon(
+                                        Icons.search,
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(
+                                              alpha: 0.4,
+                                            ),
+                                      ),
+                                      suffixIcon: filterState
+                                              .searchQuery.isNotEmpty
+                                          ? IconButton(
+                                              icon: const Icon(Icons.clear),
+                                              onPressed: () {
+                                                _searchController.clear();
+                                                context
+                                                    .read<MapFilterCubit>()
+                                                    .clearSearch();
+                                              },
+                                            )
+                                          : null,
+                                      border: InputBorder.none,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 14,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
 
                     // Time filter segments
                     SegmentedButton<TimeFilter>(
@@ -571,11 +674,100 @@ class _MapScreenViewState extends State<_MapScreenView> {
                       ),
                     ),
                   ],
+                  ),
                 ),
-              ),
 
-              // Risk level indicator
-              Positioned(
+                // Empty state for filtered results
+                if (filteredIncidents.isEmpty)
+                  Positioned.fill(
+                    child: Center(
+                      child: Container(
+                        margin: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.95),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.location_off,
+                              size: 48,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.4),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No incidents found',
+                              style: theme.textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Try adjusting your filters',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                            ),
+                            if (filterState.selectedCategories.isNotEmpty ||
+                                filterState.searchQuery.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: TextButton(
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    context
+                                        .read<MapFilterCubit>()
+                                        .clearFilters();
+                                  },
+                                  child: const Text('Clear filters'),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Zoom controls
+                Positioned(
+                  right: 16,
+                  bottom: 180,
+                  child: Column(
+                    children: [
+                      FloatingActionButton.small(
+                        heroTag: 'zoom_in',
+                        onPressed: _zoomIn,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.add,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      FloatingActionButton.small(
+                        heroTag: 'zoom_out',
+                        onPressed: _zoomOut,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.remove,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Risk level indicator
+                Positioned(
                 left: 0,
                 right: 0,
                 bottom: 100,
@@ -653,21 +845,23 @@ class _MapScreenViewState extends State<_MapScreenView> {
                       shadowColor: Colors.black.withValues(alpha: 0.2),
                     ),
                   ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: _centerOnUserLocation,
-            child: const Icon(
-              LineIcons.crosshairs,
-              size: 24,
+              ],
             ),
-          ),
-        );
-      },
-    );
-  }
+            floatingActionButton: FloatingActionButton(
+              onPressed: _centerOnUserLocation,
+              child: const Icon(
+                LineIcons.crosshairs,
+                size: 24,
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
   Widget _buildCategoryFilterChip(
     IncidentCategory category, {
@@ -1103,6 +1297,59 @@ class _IncidentDetailsSheet extends StatelessWidget {
 
               const SizedBox(height: 16),
 
+              // Map preview
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFE5E5E5),
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: incident.location,
+                    initialZoom: 15,
+                    interactionConfiguration: const InteractionConfiguration(
+                      flags: InteractiveFlag.none,
+                    ),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.safezone.app',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: incident.location,
+                          width: 40,
+                          height: 40,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: incident.category.color,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            child: Icon(
+                              incident.category.icon,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Confirmed by
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -1134,6 +1381,59 @@ class _IncidentDetailsSheet extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              // Quick action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // Confirm incident functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Incident confirmed'),
+                            backgroundColor: Color(0xFF34C759),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.check),
+                      label: const Text('Confirm'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // Share incident functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Sharing incident...'),
+                            backgroundColor: Color(0xFF007AFF),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.share),
+                      label: const Text('Share'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
             ],
