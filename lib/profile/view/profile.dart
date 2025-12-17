@@ -72,14 +72,6 @@ class _ProfileView extends StatelessWidget {
                   title: 'Location Icon',
                   onTap: () {},
                 ),
-                _buildNavigationItem(
-                  theme,
-                  icon: LineIcons.retroCamera,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Default Map Zoom',
-                  onTap: () {},
-                ),
               ],
             ),
 
@@ -859,7 +851,9 @@ class _ProfileView extends StatelessWidget {
                     final isSelected = state.locationIcon == iconPath;
                     return GestureDetector(
                       onTap: () {
-                        context.read<ProfileCubit>().updateLocationIcon(iconPath);
+                        context.read<ProfileCubit>().updateLocationIcon(
+                          iconPath,
+                        );
                         Navigator.of(dialogContext).pop();
                       },
                       child: Container(
@@ -867,7 +861,9 @@ class _ProfileView extends StatelessWidget {
                           border: Border.all(
                             color: isSelected
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                                : Theme.of(
+                                    context,
+                                  ).dividerColor.withValues(alpha: 0.2),
                             width: isSelected ? 3 : 1,
                           ),
                           borderRadius: BorderRadius.circular(12),
