@@ -5,8 +5,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
-import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
-import 'package:safe_zone/profile/cubit/safe_zone_state.dart';
 import 'package:safe_zone/profile/models/safe_zone_model.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
