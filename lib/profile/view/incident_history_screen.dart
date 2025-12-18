@@ -5,6 +5,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/home/cubit/bottom_navigation_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/profile/models/user_incident_model.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class IncidentHistoryScreen extends StatefulWidget {
   const IncidentHistoryScreen({super.key});
@@ -1126,61 +1127,25 @@ class IncidentDetailScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        // Share incident
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: theme.colorScheme.primary,
-                        side: BorderSide(color: theme.colorScheme.primary),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.share),
-                      label: const Text(
-                        'Share',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: incident.location != null
-                          ? () {
-                              context
-                                  .read<BottomNavigationCubit>()
-                                  .navigateToMap();
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.map),
-                      label: const Text(
-                        'View on Map',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // ShadButton(
+              //   height: 50,
+              //   width: double.infinity,
+              //   onPressed: () {
+              //     print('clicked');
+              //     Navigator.of(context).pop();
+              //     Navigator.of(context).pop();
+              //     context.read<BottomNavigationCubit>().navigateToMap();
+              //   },
+
+              //   leading: const Icon(Icons.map),
+              //   child: const Text(
+              //     'View on Map',
+              //     style: TextStyle(
+              //       fontWeight: FontWeight.w600,
+              //       fontSize: 15,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
