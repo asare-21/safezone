@@ -66,7 +66,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
   Future<void> _getCurrentLocation() async {
     // Prevent concurrent location requests
     if (_isRequestingLocation) return;
-    
+
     setState(() {
       _isRequestingLocation = true;
       _isLoadingLocation = true;
@@ -78,7 +78,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
-          _locationError = 'Location services are disabled. Please enable '
+          _locationError =
+              'Location services are disabled. Please enable '
               'location services in your device settings.';
           _isLoadingLocation = false;
           _isRequestingLocation = false;
@@ -92,7 +93,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           setState(() {
-            _locationError = 'Location permissions are denied. Please grant '
+            _locationError =
+                'Location permissions are denied. Please grant '
                 'location permissions to use this feature.';
             _isLoadingLocation = false;
             _isRequestingLocation = false;
@@ -103,7 +105,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
       if (permission == LocationPermission.deniedForever) {
         setState(() {
-          _locationError = 'Location permissions are permanently denied. '
+          _locationError =
+              'Location permissions are permanently denied. '
               'Please enable location permissions in your device settings.';
           _isLoadingLocation = false;
           _isRequestingLocation = false;
@@ -138,7 +141,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     }
 
     const distance = Distance();
-    
+
     // Generate incidents near the user's current location
     _allIncidents = [
       Incident(
@@ -376,7 +379,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
   List<LatLng> _generateCirclePoints(LatLng center, double radiusInMeters) {
     const numberOfPoints = 64; // Number of points to approximate the circle
     const distance = Distance();
-    
+
     final points = <LatLng>[];
     for (var i = 0; i < numberOfPoints; i++) {
       final bearing = (i * 360 / numberOfPoints).toDouble();
@@ -387,7 +390,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
       );
       points.add(point);
     }
-    
+
     return points;
   }
 
@@ -413,389 +416,411 @@ class _MapScreenViewState extends State<_MapScreenView> {
                         .getFilteredIncidents();
 
                     return Scaffold(
-                  body: Stack(
-                    children: [
-                      // Map
-                      FlutterMap(
-                        mapController: _mapController,
-                        options: MapOptions(
-                          initialCenter: _currentLocation ?? _fallbackLocation,
-                          initialZoom: profileState.defaultZoom,
-                          minZoom: 10,
-                          maxZoom: 18,
-                        ),
+                      body: Stack(
                         children: [
-                          TileLayer(
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.safezone.app',
-                          ),
+                          // Map
+                          FlutterMap(
+                            mapController: _mapController,
+                            options: MapOptions(
+                              initialCenter:
+                                  _currentLocation ?? _fallbackLocation,
+                              initialZoom: profileState.defaultZoom,
+                              minZoom: 10,
+                              maxZoom: 18,
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.safezone.app',
+                              ),
 
-                          // Safe zone circles
-                          PolygonLayer(
-                            polygons: safeZoneState.safeZones
-                                .where((zone) => zone.isActive)
-                                .map((zone) {
-                              return Polygon(
-                                points: _generateCirclePoints(
-                                  zone.location,
-                                  zone.radius,
-                                ),
-                                color: theme.colorScheme.primary
-                                    .withValues(alpha: 0.1),
-                                borderColor: theme.colorScheme.primary
-                                    .withValues(alpha: 0.5),
-                                borderStrokeWidth: 2,
-                                isFilled: true,
-                              );
-                            }).toList(),
-                          ),
+                              // Safe zone circles
+                              PolygonLayer(
+                                polygons: safeZoneState.safeZones
+                                    .where((zone) => zone.isActive)
+                                    .map((zone) {
+                                      return Polygon(
+                                        points: _generateCirclePoints(
+                                          zone.location,
+                                          zone.radius,
+                                        ),
+                                        color: theme.colorScheme.primary
+                                            .withValues(alpha: 0.1),
+                                        borderColor: theme.colorScheme.primary
+                                            .withValues(alpha: 0.5),
+                                        borderStrokeWidth: 2,
+                                        isFilled: true,
+                                      );
+                                    })
+                                    .toList(),
+                              ),
 
-                          // Incident markers
-                          MarkerLayer(
-                            markers: filteredIncidents.map((incident) {
-                              final isRecent = _isRecentIncident(incident);
-                              return Marker(
-                                point: incident.location,
-                                width: 40,
-                                height: 40,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _showIncidentDetails(incident);
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    decoration: BoxDecoration(
-                                      color: incident.category.color,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2,
-                                      ),
-                                      boxShadow: isRecent
-                                          ? [
-                                              BoxShadow(
-                                                color: incident.category.color
-                                                    .withValues(alpha: 0.6),
-                                                blurRadius: 8,
-                                                spreadRadius: 2,
-                                              ),
-                                              BoxShadow(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.2,
-                                                ),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ]
-                                          : [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.2,
-                                                ),
-                                                blurRadius: 4,
-                                                offset: const Offset(0, 2),
-                                              ),
-                                            ],
-                                    ),
-                                    child: Icon(
-                                      incident.category.icon,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          if (_currentLocation != null)
-                            MarkerLayer(
-                              markers: [
-                                Marker(
-                                  point: _currentLocation!,
-                                  width: 48,
-                                  height: 48,
-                                  child: Stack(
-                                    children: [
-                                      Positioned(
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                theme.colorScheme.primary,
-                                              ),
-                                          strokeWidth: 5,
-                                          value: 1,
+                              // Incident markers
+                              MarkerLayer(
+                                markers: filteredIncidents.map((incident) {
+                                  final isRecent = _isRecentIncident(incident);
+                                  return Marker(
+                                    point: incident.location,
+                                    width: 40,
+                                    height: 40,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showIncidentDetails(incident);
+                                      },
+                                      child: AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 300,
                                         ),
-                                      ),
-                                      CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Colors.white,
-                                        child: Image.asset(
-                                          profileState.locationIcon,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        bottom: 0,
-                                        child: Container(
-                                          width: 14,
-                                          height: 14,
-                                          decoration: BoxDecoration(
+                                        decoration: BoxDecoration(
+                                          color: incident.category.color,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
                                             color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 2,
+                                            width: 2,
+                                          ),
+                                          boxShadow: isRecent
+                                              ? [
+                                                  BoxShadow(
+                                                    color: incident
+                                                        .category
+                                                        .color
+                                                        .withValues(alpha: 0.6),
+                                                    blurRadius: 8,
+                                                    spreadRadius: 2,
+                                                  ),
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                          alpha: 0.2,
+                                                        ),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ]
+                                              : [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                          alpha: 0.2,
+                                                        ),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                        ),
+                                        child: Icon(
+                                          incident.category.icon,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              if (_currentLocation != null)
+                                MarkerLayer(
+                                  markers: [
+                                    Marker(
+                                      point: _currentLocation!,
+                                      width: 48,
+                                      height: 48,
+                                      child: Stack(
+                                        children: [
+                                          Positioned(
+                                            top: 0,
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            child: CircularProgressIndicator(
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    theme.colorScheme.primary,
+                                                  ),
+                                              strokeWidth: 5,
+                                              value: 1,
                                             ),
                                           ),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: theme.colorScheme.primary,
-                                              shape: BoxShape.circle,
+                                          CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: Colors.white,
+                                            child: Image.asset(
+                                              profileState.locationIcon,
                                             ),
+                                          ),
+                                          Positioned(
+                                            right: 0,
+                                            bottom: 0,
+                                            child: Container(
+                                              width: 14,
+                                              height: 14,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      theme.colorScheme.primary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+
+                          // Empty state for filtered results
+                          if (filteredIncidents.isEmpty)
+                            Positioned.fill(
+                              child: Center(
+                                child: Container(
+                                  margin: const EdgeInsets.all(24),
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.95),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.location_off,
+                                        size: 48,
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(
+                                              alpha: 0.4,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'No incidents found',
+                                        style: theme.textTheme.titleMedium,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Try adjusting your filters',
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: theme.colorScheme.onSurface
+                                                  .withValues(
+                                                    alpha: 0.6,
+                                                  ),
+                                            ),
+                                      ),
+                                      if (filterState
+                                              .selectedCategories
+                                              .isNotEmpty ||
+                                          filterState.searchQuery.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 16,
+                                          ),
+                                          child: TextButton(
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              context
+                                                  .read<MapFilterCubit>()
+                                                  .clearFilters();
+                                            },
+                                            child: const Text('Clear filters'),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          // Emergency Services button
+                          Positioned(
+                            right: 16,
+                            bottom: 90,
+                            child: FloatingActionButton(
+                              heroTag: 'emergency_services',
+                              onPressed: () {
+                                context.push('/emergency-services');
+                              },
+                              backgroundColor: const Color(0xFFFF4C4C),
+                              tooltip: 'Emergency Services',
+                              child: const Icon(
+                                Icons.local_hospital,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          // Location unavailable banner
+                          if (_currentLocation == null &&
+                              _locationError != null)
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                color: theme.colorScheme.error,
+                                child: SafeArea(
+                                  bottom: false,
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.location_off,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Location unavailable. Enable location '
+                                          'to see nearby incidents.',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _dataLoadingFuture =
+                                                _initializeData();
+                                          });
+                                        },
+                                        child: const Text(
+                                          'Retry',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                        ],
-                      ),
-
-                      // Empty state for filtered results
-                      if (filteredIncidents.isEmpty)
-                        Positioned.fill(
-                          child: Center(
-                            child: Container(
-                              margin: const EdgeInsets.all(24),
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.95),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.location_off,
-                                    size: 48,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(
-                                          alpha: 0.4,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No incidents found',
-                                    style: theme.textTheme.titleMedium,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Try adjusting your filters',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(
-                                            alpha: 0.6,
-                                          ),
-                                    ),
-                                  ),
-                                  if (filterState
-                                          .selectedCategories
-                                          .isNotEmpty ||
-                                      filterState.searchQuery.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 16),
-                                      child: TextButton(
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          context
-                                              .read<MapFilterCubit>()
-                                              .clearFilters();
-                                        },
-                                        child: const Text('Clear filters'),
-                                      ),
-                                    ),
-                                ],
                               ),
                             ),
-                          ),
-                        ),
 
-                      // Emergency Services button
-                      Positioned(
-                        right: 16,
-                        bottom: 90,
-                        child: FloatingActionButton(
-                          heroTag: 'emergency_services',
-                          onPressed: () {
-                            context.push('/emergency-services');
-                          },
-                          backgroundColor: const Color(0xFFFF4C4C),
-                          tooltip: 'Emergency Services',
-                          child: const Icon(
-                            Icons.local_hospital,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-
-                      // Location unavailable banner
-                      if (_currentLocation == null && _locationError != null)
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            color: theme.colorScheme.error,
-                            child: SafeArea(
-                              bottom: false,
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_off,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      'Location unavailable. Enable location '
-                                      'to see nearby incidents.',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
+                          // Risk level indicator
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 100,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: filterState.riskLevel.backgroundColor,
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
                                       ),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
                                     ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _dataLoadingFuture = _initializeData();
-                                      });
-                                    },
-                                    child: const Text(
-                                      'Retry',
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.circle,
+                                      color: filterState.riskLevel.color,
+                                      size: 12,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      filterState.riskLevel.displayName,
                                       style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                        color: filterState.riskLevel.color,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
 
-                      // Risk level indicator
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 100,
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: filterState.riskLevel.backgroundColor,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                          // Report incident button
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 15,
+                            child: Center(
+                              child: ElevatedButton.icon(
+                                onPressed: _showReportIncidentDialog,
+                                icon: const Icon(
+                                  LineIcons.bullhorn,
+                                  color: Colors.white,
+                                  size: 20,
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.circle,
-                                  color: filterState.riskLevel.color,
-                                  size: 12,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  filterState.riskLevel.displayName,
+                                label: const Text(
+                                  'Report Accident',
                                   style: TextStyle(
-                                    color: filterState.riskLevel.color,
-                                    fontSize: 14,
+                                    color: Colors.white,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ],
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.primary,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(28),
+                                  ),
+                                  elevation: 4,
+                                  shadowColor: Colors.black.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () =>
+                            _centerOnUserLocation(profileState.defaultZoom),
+                        tooltip: 'Center on location',
+                        child: const Icon(
+                          LineIcons.crosshairs,
+                          size: 24,
                         ),
                       ),
-
-                      // Report incident button
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 15,
-                        child: Center(
-                          child: ElevatedButton.icon(
-                            onPressed: _showReportIncidentDialog,
-                            icon: const Icon(
-                              LineIcons.bullhorn,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            label: const Text(
-                              'Report Accident',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 32,
-                                vertical: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(28),
-                              ),
-                              elevation: 4,
-                              shadowColor: Colors.black.withValues(alpha: 0.2),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () =>
-                        _centerOnUserLocation(profileState.defaultZoom),
-                    tooltip: 'Center on location',
-                    child: const Icon(
-                      LineIcons.crosshairs,
-                      size: 24,
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             );
