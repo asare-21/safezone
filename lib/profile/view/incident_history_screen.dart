@@ -92,7 +92,8 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         locationName: 'West End Shopping Mall',
         timestamp: DateTime.now().subtract(const Duration(days: 21)),
         title: 'Suspicious vehicle in parking lot',
-        description: 'Vehicle with no plates circling the parking lot repeatedly.',
+        description:
+            'Vehicle with no plates circling the parking lot repeatedly.',
         status: IncidentStatus.disputed,
         confirmedBy: 1,
         impactScore: 5,
@@ -132,10 +133,12 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
   Map<String, int> get _statistics {
     return {
       'total': _mockIncidents.length,
-      'verified':
-          _mockIncidents.where((i) => i.status == IncidentStatus.verified).length,
-      'pending':
-          _mockIncidents.where((i) => i.status == IncidentStatus.pending).length,
+      'verified': _mockIncidents
+          .where((i) => i.status == IncidentStatus.verified)
+          .length,
+      'pending': _mockIncidents
+          .where((i) => i.status == IncidentStatus.pending)
+          .length,
       'totalImpact': _mockIncidents.fold(0, (sum, i) => sum + i.impactScore),
     };
   }
@@ -298,7 +301,9 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: ['Recent', 'Oldest', 'Most Confirmed'].map((sort) {
+                        children: ['Recent', 'Oldest', 'Most Confirmed'].map((
+                          sort,
+                        ) {
                           final isSelected = _sortBy == sort;
                           return _buildFilterChip(
                             sort,
@@ -602,7 +607,9 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
                     _selectedCategory = null;
                   });
                 },
-                backgroundColor: _selectedCategory!.color.withValues(alpha: 0.2),
+                backgroundColor: _selectedCategory!.color.withValues(
+                  alpha: 0.2,
+                ),
                 side: BorderSide.none,
               ),
             if (_selectedStatus != null)
@@ -929,7 +936,9 @@ class IncidentDetailScreen extends StatelessWidget {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: incident.category.color.withValues(alpha: 0.1),
+                            color: incident.category.color.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
@@ -1137,7 +1146,7 @@ class IncidentDetailScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // View on map
+                        // TODO #66 (joasare019): Implement View on map function. Use already existing cubit to do this.
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
