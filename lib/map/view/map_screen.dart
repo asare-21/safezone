@@ -158,18 +158,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ? '$categoryName reported and nearby users notified'
                 : '$categoryName reported successfully';
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(message)),
-                  ],
-                ),
-                backgroundColor: const Color(0xFF34C759),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 3),
+            ShadToaster.of(context).show(
+              ShadToast(
+                description: Text(message),
+                leading: const Icon(Icons.check_circle),
               ),
             );
           },
@@ -787,7 +779,8 @@ class _IncidentDetailsSheet extends StatelessWidget {
                         // Confirm incident functionality
                         ShadToaster.of(context).show(
                           const ShadToast(
-                            title: Text('Incident Confirmed'),
+                            leading: Icon(Icons.check),
+                            
 
                             description: Text('Incident confirmed'),
                           ),
@@ -810,11 +803,10 @@ class _IncidentDetailsSheet extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         // Share incident functionality
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Sharing incident...'),
-                            backgroundColor: Color(0xFF007AFF),
-                            behavior: SnackBarBehavior.floating,
+                        ShadToaster.of(context).show(
+                          const ShadToast(
+                            description: Text('Sharing incident...'),
+                            leading: Icon(Icons.share),
                           ),
                         );
                       },
