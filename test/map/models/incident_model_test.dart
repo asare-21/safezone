@@ -8,55 +8,39 @@ void main() {
     test('can be instantiated with required fields', () {
       final incident = Incident(
         id: '1',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7128, -74.0060),
         timestamp: DateTime.now(),
-        title: 'Test Incident',
+        title: 'Test Accident',
       );
 
       expect(incident.id, '1');
-      expect(incident.category, IncidentCategory.theft);
-      expect(incident.title, 'Test Incident');
+      expect(incident.category, IncidentCategory.accident);
+      expect(incident.title, 'Test Accident');
       expect(incident.confirmedBy, 0);
-      expect(incident.mediaUrls, isEmpty);
       expect(incident.notifyNearby, false);
     });
 
     test('supports optional description', () {
       final incident = Incident(
         id: '1',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7128, -74.0060),
         timestamp: DateTime.now(),
-        title: 'Test Incident',
+        title: 'Test Accident',
         description: 'Test description',
       );
 
       expect(incident.description, 'Test description');
     });
 
-    test('supports media URLs', () {
-      final incident = Incident(
-        id: '1',
-        category: IncidentCategory.theft,
-        location: const LatLng(40.7128, -74.0060),
-        timestamp: DateTime.now(),
-        title: 'Test Incident',
-        mediaUrls: ['/path/to/image1.jpg', '/path/to/image2.jpg'],
-      );
-
-      expect(incident.mediaUrls.length, 2);
-      expect(incident.mediaUrls[0], '/path/to/image1.jpg');
-      expect(incident.mediaUrls[1], '/path/to/image2.jpg');
-    });
-
     test('supports notify nearby flag', () {
       final incident = Incident(
         id: '1',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7128, -74.0060),
         timestamp: DateTime.now(),
-        title: 'Test Incident',
+        title: 'Test Accident',
         notifyNearby: true,
       );
 
@@ -66,18 +50,18 @@ void main() {
     test('isWithinTimeFilter returns correct value for 24h', () {
       final recentIncident = Incident(
         id: '1',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7128, -74.0060),
         timestamp: DateTime.now().subtract(const Duration(hours: 12)),
-        title: 'Recent Incident',
+        title: 'Recent Accident',
       );
 
       final oldIncident = Incident(
         id: '2',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7128, -74.0060),
         timestamp: DateTime.now().subtract(const Duration(days: 2)),
-        title: 'Old Incident',
+        title: 'Old Accident',
       );
 
       expect(
@@ -110,31 +94,16 @@ void main() {
   });
 
   group('IncidentCategory', () {
-    test('has correct display names', () {
-      expect(IncidentCategory.theft.displayName, 'Theft');
-      expect(IncidentCategory.assault.displayName, 'Assault');
-      expect(IncidentCategory.harassment.displayName, 'Harassment');
+    test('has correct display name', () {
       expect(IncidentCategory.accident.displayName, 'Accident');
-      expect(IncidentCategory.suspicious.displayName, 'Suspicious');
-      expect(IncidentCategory.lighting.displayName, 'Lighting');
     });
 
-    test('has icons for all categories', () {
-      expect(IncidentCategory.theft.icon, Icons.error);
-      expect(IncidentCategory.assault.icon, Icons.back_hand);
-      expect(IncidentCategory.harassment.icon, Icons.warning);
+    test('has icon', () {
       expect(IncidentCategory.accident.icon, Icons.car_crash);
-      expect(IncidentCategory.suspicious.icon, Icons.visibility);
-      expect(IncidentCategory.lighting.icon, Icons.lightbulb);
     });
 
-    test('has colors for all categories', () {
-      expect(IncidentCategory.theft.color, const Color(0xFFFF4C4C));
-      expect(IncidentCategory.assault.color, const Color(0xFFFF9500));
-      expect(IncidentCategory.harassment.color, const Color(0xFFFF6B6B));
+    test('has color', () {
       expect(IncidentCategory.accident.color, const Color(0xFFFF3B30));
-      expect(IncidentCategory.suspicious.color, const Color(0xFFFFD60A));
-      expect(IncidentCategory.lighting.color, const Color(0xFF5856D6));
     });
   });
 

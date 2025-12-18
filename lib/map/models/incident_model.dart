@@ -2,63 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 enum IncidentCategory {
-  theft,
-  assault,
-  harassment,
   accident,
-  suspicious,
-  lighting,
 }
 
 extension IncidentCategoryExtension on IncidentCategory {
   String get displayName {
     switch (this) {
-      case IncidentCategory.theft:
-        return 'Theft';
-      case IncidentCategory.assault:
-        return 'Assault';
-      case IncidentCategory.harassment:
-        return 'Harassment';
       case IncidentCategory.accident:
         return 'Accident';
-      case IncidentCategory.suspicious:
-        return 'Suspicious';
-      case IncidentCategory.lighting:
-        return 'Lighting';
     }
   }
 
   IconData get icon {
     switch (this) {
-      case IncidentCategory.theft:
-        return Icons.error;
-      case IncidentCategory.assault:
-        return Icons.back_hand;
-      case IncidentCategory.harassment:
-        return Icons.warning;
       case IncidentCategory.accident:
         return Icons.car_crash;
-      case IncidentCategory.suspicious:
-        return Icons.visibility;
-      case IncidentCategory.lighting:
-        return Icons.lightbulb;
     }
   }
 
   Color get color {
     switch (this) {
-      case IncidentCategory.theft:
-        return const Color(0xFFFF4C4C);
-      case IncidentCategory.assault:
-        return const Color(0xFFFF9500);
-      case IncidentCategory.harassment:
-        return const Color(0xFFFF6B6B);
       case IncidentCategory.accident:
         return const Color(0xFFFF3B30);
-      case IncidentCategory.suspicious:
-        return const Color(0xFFFFD60A);
-      case IncidentCategory.lighting:
-        return const Color(0xFF5856D6);
     }
   }
 }
@@ -102,7 +67,6 @@ class Incident {
     required this.title,
     this.description,
     this.confirmedBy = 0,
-    this.mediaUrls = const [],
     this.notifyNearby = false,
   });
 
@@ -113,7 +77,6 @@ class Incident {
   final String title;
   final String? description;
   final int confirmedBy;
-  final List<String> mediaUrls;
   final bool notifyNearby;
 
   bool isWithinTimeFilter(TimeFilter filter) {

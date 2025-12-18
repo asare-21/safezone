@@ -10,7 +10,6 @@ extension ReportIncidentPumpApp on WidgetTester {
       IncidentCategory category,
       String title,
       String description,
-      List<String> mediaPaths,
       bool notifyNearby,
     ) onSubmit,
   }) {
@@ -28,45 +27,31 @@ void main() {
   group('ReportIncidentScreen', () {
     testWidgets('renders ReportIncidentScreen', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
       expect(find.byType(ReportIncidentScreen), findsOneWidget);
-      expect(find.text('Report Incident'), findsOneWidget);
-    });
-
-    testWidgets('displays all incident categories', (tester) async {
-      await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Theft'), findsOneWidget);
-      expect(find.text('Assault'), findsOneWidget);
-      expect(find.text('Harassment'), findsOneWidget);
-      expect(find.text('Accident'), findsOneWidget);
-      expect(find.text('Suspicious'), findsOneWidget);
-      expect(find.text('Lighting'), findsOneWidget);
+      expect(find.text('Report Accident'), findsOneWidget);
     });
 
     testWidgets('displays title and description fields', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Title'), findsOneWidget);
       expect(find.text('Description (Optional)'), findsOneWidget);
       expect(
-        find.text('Brief description of the incident'),
+        find.text('Brief description of the accident'),
         findsOneWidget,
       );
     });
 
     testWidgets('displays notify nearby toggle', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
@@ -80,7 +65,7 @@ void main() {
 
     testWidgets('notify nearby toggle is enabled by default', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
@@ -90,7 +75,7 @@ void main() {
 
     testWidgets('can toggle notify nearby switch', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
@@ -106,35 +91,9 @@ void main() {
       expect(switchWidget.value, isFalse);
     });
 
-    testWidgets('displays add photos button', (tester) async {
-      await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Add Photos (Optional)'), findsOneWidget);
-      expect(find.text('Add Photos'), findsOneWidget);
-      expect(find.byIcon(Icons.add_photo_alternate), findsOneWidget);
-    });
-
-    testWidgets('can select incident category', (tester) async {
-      await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
-      );
-      await tester.pumpAndSettle();
-
-      // Tap on Harassment category
-      await tester.tap(find.text('Harassment'));
-      await tester.pumpAndSettle();
-
-      // Verify it's selected (implementation detail: selected categories
-      // have white text color)
-      expect(find.text('Harassment'), findsOneWidget);
-    });
-
     testWidgets('validates title field is required', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
@@ -149,15 +108,13 @@ void main() {
       IncidentCategory? submittedCategory;
       String? submittedTitle;
       String? submittedDescription;
-      List<String>? submittedMediaPaths;
       bool? submittedNotifyNearby;
 
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {
+        onSubmit: (category, title, description, notifyNearby) {
           submittedCategory = category;
           submittedTitle = title;
           submittedDescription = description;
-          submittedMediaPaths = mediaPaths;
           submittedNotifyNearby = notifyNearby;
         },
       );
@@ -165,13 +122,16 @@ void main() {
 
       // Enter title
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Brief description of the incident'),
-        'Test Incident',
+        find.widgetWithText(TextFormField, 'Brief description of the accident'),
+        'Test Accident',
       );
 
       // Enter description
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Add more details about what happened...'),
+        find.widgetWithText(
+          TextFormField,
+          'Add more details about what happened...',
+        ),
         'Test Description',
       );
 
@@ -179,16 +139,15 @@ void main() {
       await tester.tap(find.text('Submit Report'));
       await tester.pumpAndSettle();
 
-      expect(submittedCategory, IncidentCategory.theft);
-      expect(submittedTitle, 'Test Incident');
+      expect(submittedCategory, IncidentCategory.accident);
+      expect(submittedTitle, 'Test Accident');
       expect(submittedDescription, 'Test Description');
-      expect(submittedMediaPaths, isEmpty);
       expect(submittedNotifyNearby, isTrue);
     });
 
     testWidgets('displays info banner', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 
@@ -201,7 +160,7 @@ void main() {
 
     testWidgets('has close button in app bar', (tester) async {
       await tester.pumpReportIncidentApp(
-        onSubmit: (category, title, description, mediaPaths, notifyNearby) {},
+        onSubmit: (category, title, description, notifyNearby) {},
       );
       await tester.pumpAndSettle();
 

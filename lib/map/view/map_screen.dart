@@ -56,50 +56,50 @@ class _MapScreenViewState extends State<_MapScreenView> {
     _allIncidents = [
       Incident(
         id: '1',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7580, -73.9855), // Times Square area
         timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        title: 'Theft reported',
+        title: 'Car accident',
         confirmedBy: 3,
       ),
       Incident(
         id: '2',
-        category: IncidentCategory.assault,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7489, -73.9680), // East side
         timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-        title: 'Assault reported',
+        title: 'Bicycle accident',
         confirmedBy: 2,
       ),
       Incident(
         id: '3',
-        category: IncidentCategory.suspicious,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7614, -73.9776), // Central Park South
         timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
-        title: 'Suspicious activity',
+        title: 'Pedestrian accident',
         confirmedBy: 1,
       ),
       Incident(
         id: '4',
-        category: IncidentCategory.lighting,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7282, -74.0776), // West Village
         timestamp: DateTime.now().subtract(const Duration(hours: 12)),
-        title: 'Poor lighting',
+        title: 'Minor collision',
         confirmedBy: 4,
       ),
       Incident(
         id: '5',
-        category: IncidentCategory.theft,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7589, -73.9851), // Near Times Square
         timestamp: DateTime.now().subtract(const Duration(days: 3)),
-        title: 'Pickpocketing',
+        title: 'Traffic accident',
         confirmedBy: 5,
       ),
       Incident(
         id: '6',
-        category: IncidentCategory.assault,
+        category: IncidentCategory.accident,
         location: const LatLng(40.7128, -74.0134), // Downtown
         timestamp: DateTime.now().subtract(const Duration(days: 8)),
-        title: 'Physical altercation',
+        title: 'Motorcycle accident',
         confirmedBy: 2,
       ),
     ];
@@ -127,7 +127,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (context) => ReportIncidentScreen(
-          onSubmit: (category, title, description, mediaPaths, notifyNearby) {
+          onSubmit: (category, title, description, notifyNearby) {
             final newIncident = Incident(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               category: category,
@@ -136,7 +136,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
               title: title,
               description: description,
               confirmedBy: 1,
-              mediaUrls: mediaPaths,
               notifyNearby: notifyNearby,
             );
             _allIncidents.insert(0, newIncident);
@@ -149,8 +148,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
             // Show success message with notification status
             final message = notifyNearby
-                ? 'Incident reported and nearby users notified'
-                : 'Incident reported successfully';
+                ? 'Accident reported and nearby users notified'
+                : 'Accident reported successfully';
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -634,7 +633,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                               size: 20,
                             ),
                             label: const Text(
-                              'Report Incident',
+                              'Report Accident',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -858,45 +857,6 @@ class _IncidentDetailsSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-
-              // Media (if available)
-              if (incident.mediaUrls.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(
-                  'Photos',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: incident.mediaUrls.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            width: 100,
-                            height: 100,
-                            color: const Color(0xFFF5F5F5),
-                            child: const Icon(
-                              Icons.image,
-                              color: Color(0xFFCCCCCC),
-                              size: 40,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
               ],

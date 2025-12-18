@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 
-/// Enhanced incident reporting screen with media upload and nearby notification
+/// Simplified accident reporting screen
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({
     required this.onSubmit,
@@ -16,7 +13,6 @@ class ReportIncidentScreen extends StatefulWidget {
     IncidentCategory category,
     String title,
     String description,
-    List<String> mediaPaths,
     bool notifyNearby,
   ) onSubmit;
 
@@ -28,10 +24,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _imagePicker = ImagePicker();
 
-  IncidentCategory _selectedCategory = IncidentCategory.theft;
-  List<String> _selectedMediaPaths = [];
   bool _notifyNearby = true;
   bool _isSubmitting = false;
 
@@ -40,94 +33,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final pickedFile = await _imagePicker.pickImage(
-        source: source,
-        maxWidth: 1920,
-        maxHeight: 1080,
-        imageQuality: 85,
-      );
-
-      if (pickedFile != null) {
-        setState(() {
-          _selectedMediaPaths.add(pickedFile.path);
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to select image. Please try again.'),
-            backgroundColor: Color(0xFFFF4C4C),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _pickMultipleImages() async {
-    try {
-      final pickedFiles = await _imagePicker.pickMultiImage(
-        maxWidth: 1920,
-        maxHeight: 1080,
-        imageQuality: 85,
-      );
-
-      if (pickedFiles.isNotEmpty) {
-        setState(() {
-          _selectedMediaPaths.addAll(pickedFiles.map((e) => e.path));
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to select images. Please try again.'),
-            backgroundColor: Color(0xFFFF4C4C),
-          ),
-        );
-      }
-    }
-  }
-
-  void _removeMedia(int index) {
-    setState(() {
-      _selectedMediaPaths.removeAt(index);
-    });
-  }
-
-  void _showMediaSourceDialog() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take Photo'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImage(ImageSource.camera);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from Gallery'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickMultipleImages();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   Future<void> _handleSubmit() async {
@@ -141,10 +46,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
       if (mounted) {
         widget.onSubmit(
-          _selectedCategory,
+          IncidentCategory.accident,
           _titleController.text.trim(),
           _descriptionController.text.trim(),
-          _selectedMediaPaths,
           _notifyNearby,
         );
       }
@@ -165,7 +69,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Report Incident',
+          'Report Accident',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w700,
@@ -208,75 +112,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Category selection
-            Text(
-              'Incident Type',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: IncidentCategory.values.map((category) {
-                final isSelected = _selectedCategory == category;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedCategory = category;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected ? category.color : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected
-                            ? category.color
-                            : const Color(0xFFE5E5E5),
-                        width: 1.5,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: category.color.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          category.icon,
-                          color: isSelected ? Colors.white : category.color,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          category.displayName,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-
             // Title field
             Text(
               'Title',
@@ -289,7 +124,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
-                hintText: 'Brief description of the incident',
+                hintText: 'Brief description of the accident',
                 hintStyle: TextStyle(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                   fontSize: 15,
@@ -363,86 +198,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Media upload section
-            Text(
-              'Add Photos (Optional)',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Media preview grid
-            if (_selectedMediaPaths.isNotEmpty)
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemCount: _selectedMediaPaths.length,
-                itemBuilder: (context, index) {
-                  return Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          File(_selectedMediaPaths[index]),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                      ),
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: GestureDetector(
-                          onTap: () => _removeMedia(index),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            const SizedBox(height: 12),
-
-            // Add media button
-            OutlinedButton.icon(
-              onPressed: _showMediaSourceDialog,
-              icon: const Icon(Icons.add_photo_alternate),
-              label: Text(
-                _selectedMediaPaths.isEmpty
-                    ? 'Add Photos'
-                    : 'Add More Photos',
-              ),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: BorderSide(
-                  color: theme.colorScheme.primary,
-                  width: 1.5,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
