@@ -38,7 +38,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
   // User's current location (initialized to null, will be fetched)
   LatLng? _currentLocation;
   bool _isLoadingLocation = true;
+  bool _isRequestingLocation = false;
   String? _locationError;
+
+  // Default fallback location (center of world, will prompt for location)
+  static const LatLng _fallbackLocation = LatLng(0, 0);
 
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
@@ -62,7 +66,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
   /// Get the user's current location
   Future<void> _getCurrentLocation() async {
+    // Prevent concurrent location requests
+    if (_isRequestingLocation) return;
+    
     setState(() {
+      _isRequestingLocation = true;
       _isLoadingLocation = true;
       _locationError = null;
     });
@@ -72,8 +80,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
-          _locationError = 'Location services are disabled';
+          _locationError = 'Location services are disabled. Please enable '
+              'location services in your device settings.';
           _isLoadingLocation = false;
+          _isRequestingLocation = false;
         });
         return;
       }
@@ -84,8 +94,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           setState(() {
-            _locationError = 'Location permissions are denied';
+            _locationError = 'Location permissions are denied. Please grant '
+                'location permissions to use this feature.';
             _isLoadingLocation = false;
+            _isRequestingLocation = false;
           });
           return;
         }
@@ -93,8 +105,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
       if (permission == LocationPermission.deniedForever) {
         setState(() {
-          _locationError = 'Location permissions are permanently denied';
+          _locationError = 'Location permissions are permanently denied. '
+              'Please enable location permissions in your device settings.';
           _isLoadingLocation = false;
+          _isRequestingLocation = false;
         });
         return;
       }
@@ -107,11 +121,13 @@ class _MapScreenViewState extends State<_MapScreenView> {
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
         _isLoadingLocation = false;
+        _isRequestingLocation = false;
       });
     } catch (e) {
       setState(() {
         _locationError = 'Failed to get location: $e';
         _isLoadingLocation = false;
+        _isRequestingLocation = false;
       });
     }
   }
@@ -225,6 +241,19 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   void _showReportIncidentDialog() {
+    // Don't allow incident reporting if location is not available
+    if (_currentLocation == null) {
+      ShadToaster.of(context).show(
+        const ShadToast(
+          title: Text('Location Required'),
+          description: Text(
+            'Please enable location services to report an incident.',
+          ),
+        ),
+      );
+      return;
+    }
+
     Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (context) => ReportIncidentScreen(
@@ -232,7 +261,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
             final newIncident = Incident(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               category: category,
-              location: _currentLocation ?? const LatLng(0, 0),
+              location: _currentLocation!,
               timestamp: DateTime.now(),
               title: title,
               description: description,
@@ -269,11 +298,23 @@ class _MapScreenViewState extends State<_MapScreenView> {
   Future<void> _centerOnUserLocation(double defaultZoom) async {
     if (_currentLocation != null) {
       _mapController.move(_currentLocation!, defaultZoom);
-    } else {
-      // Try to get location again if it's not available
+    } else if (!_isRequestingLocation) {
+      // Try to get location again only if not already requesting
       await _getCurrentLocation();
       if (_currentLocation != null) {
         _mapController.move(_currentLocation!, defaultZoom);
+      } else {
+        // Show message if location is still not available
+        if (mounted) {
+          ShadToaster.of(context).show(
+            ShadToast(
+              title: const Text('Location Unavailable'),
+              description: Text(
+                _locationError ?? 'Unable to get your current location',
+              ),
+            ),
+          );
+        }
       }
     }
   }
@@ -380,7 +421,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                       FlutterMap(
                         mapController: _mapController,
                         options: MapOptions(
-                          initialCenter: _currentLocation ?? const LatLng(0, 0),
+                          initialCenter: _currentLocation ?? _fallbackLocation,
                           initialZoom: profileState.defaultZoom,
                           minZoom: 10,
                           maxZoom: 18,
@@ -612,6 +653,58 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           ),
                         ),
                       ),
+
+                      // Location unavailable banner
+                      if (_currentLocation == null && _locationError != null)
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            color: theme.colorScheme.error,
+                            child: SafeArea(
+                              bottom: false,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_off,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Location unavailable. Enable location '
+                                      'to see nearby incidents.',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _dataLoadingFuture = _initializeData();
+                                      });
+                                    },
+                                    child: const Text(
+                                      'Retry',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
 
                       // Risk level indicator
                       Positioned(
