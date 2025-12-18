@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -208,6 +210,30 @@ class _MapScreenViewState extends State<_MapScreenView> {
     return hoursSinceIncident < 1;
   }
 
+  /// Generate circle points for a polygon
+  List<LatLng> _generateCirclePoints(LatLng center, double radiusInMeters) {
+    const earthRadius = 6371000.0; // Earth's radius in meters
+    const numberOfPoints = 64; // Number of points to approximate the circle
+    
+    final points = <LatLng>[];
+    for (var i = 0; i <= numberOfPoints; i++) {
+      final angle = (i * 360 / numberOfPoints) * (3.14159265359 / 180);
+      
+      final dx = radiusInMeters * cos(angle);
+      final dy = radiusInMeters * sin(angle);
+      
+      final deltaLat = dy / earthRadius;
+      final deltaLon = dx / (earthRadius * cos(center.latitude * 3.14159265359 / 180));
+      
+      final lat = center.latitude + (deltaLat * 180 / 3.14159265359);
+      final lon = center.longitude + (deltaLon * 180 / 3.14159265359);
+      
+      points.add(LatLng(lat, lon));
+    }
+    
+    return points;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -249,19 +275,21 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           ),
 
                           // Safe zone circles
-                          CircleLayer(
-                            circles: safeZoneState.safeZones
+                          PolygonLayer(
+                            polygons: safeZoneState.safeZones
                                 .where((zone) => zone.isActive)
                                 .map((zone) {
-                              return CircleMarker(
-                                point: zone.location,
-                                radius: zone.radius,
-                                useRadiusInMeter: true,
+                              return Polygon(
+                                points: _generateCirclePoints(
+                                  zone.location,
+                                  zone.radius,
+                                ),
                                 color: theme.colorScheme.primary
                                     .withValues(alpha: 0.1),
                                 borderColor: theme.colorScheme.primary
                                     .withValues(alpha: 0.5),
                                 borderStrokeWidth: 2,
+                                isFilled: true,
                               );
                             }).toList(),
                           ),
