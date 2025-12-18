@@ -32,18 +32,12 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   String _getDescriptionForCategory(IncidentCategory category) {
     switch (category) {
-      case IncidentCategory.accident:
-        return 'An accident has been reported in this area';
-      case IncidentCategory.fire:
-        return 'A fire incident has been reported in this area';
-      case IncidentCategory.theft:
-        return 'A theft incident has been reported in this area';
       case IncidentCategory.suspicious:
         return 'Suspicious activity has been reported in this area';
       case IncidentCategory.lighting:
         return 'Poor lighting has been reported in this area';
-      case IncidentCategory.assault:
-        return 'An assault has been reported in this area';
+      default:
+        return 'A ${category.displayName.toLowerCase()} incident has been reported in this area';
     }
   }
 
