@@ -362,153 +362,153 @@ class _MapScreenViewState extends State<_MapScreenView> {
                         ],
                       ),
 
-                      // Top overlay with search and filters
-                      SafeArea(
-                        child: Column(
-                          children: [
-                            // Avatar and search bar
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 5,
-                              ),
-                              child: Row(
-                                children: [
-                                  // Search bar
-                                  Expanded(
-                                    child: Container(
-                                      height: 48,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(24),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
-                                            ),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: TextField(
-                                        controller: _searchController,
-                                        onChanged: (value) {
-                                          _searchDebouncer.run(() {
-                                            context
-                                                .read<MapFilterCubit>()
-                                                .updateSearchQuery(value);
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          hintText: 'Search location or zone',
-                                          hintStyle: TextStyle(
-                                            color: theme.colorScheme.onSurface
-                                                .withValues(
-                                                  alpha: 0.4,
-                                                ),
-                                            fontSize: 15,
-                                          ),
-                                          prefixIcon: Icon(
-                                            Icons.search,
-                                            color: theme.colorScheme.onSurface
-                                                .withValues(
-                                                  alpha: 0.4,
-                                                ),
-                                          ),
-                                          suffixIcon:
-                                              filterState.searchQuery.isNotEmpty
-                                              ? IconButton(
-                                                  icon: const Icon(Icons.clear),
-                                                  onPressed: () {
-                                                    _searchController.clear();
-                                                    context
-                                                        .read<MapFilterCubit>()
-                                                        .clearSearch();
-                                                  },
-                                                )
-                                              : null,
-                                          border: InputBorder.none,
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 14,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                      // // Top overlay with search and filters
+                      // SafeArea(
+                      //   child: Column(
+                      //     children: [
+                      //       // Avatar and search bar
+                      //       Padding(
+                      //         padding: const EdgeInsets.symmetric(
+                      //           horizontal: 16,
+                      //           vertical: 5,
+                      //         ),
+                      //         child: Row(
+                      //           children: [
+                      //             // Search bar
+                      //             Expanded(
+                      //               child: Container(
+                      //                 height: 48,
+                      //                 decoration: BoxDecoration(
+                      //                   color: Colors.white,
+                      //                   borderRadius: BorderRadius.circular(24),
+                      //                   boxShadow: [
+                      //                     BoxShadow(
+                      //                       color: Colors.black.withValues(
+                      //                         alpha: 0.1,
+                      //                       ),
+                      //                       blurRadius: 8,
+                      //                       offset: const Offset(0, 2),
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //                 child: TextField(
+                      //                   controller: _searchController,
+                      //                   onChanged: (value) {
+                      //                     _searchDebouncer.run(() {
+                      //                       context
+                      //                           .read<MapFilterCubit>()
+                      //                           .updateSearchQuery(value);
+                      //                     });
+                      //                   },
+                      //                   decoration: InputDecoration(
+                      //                     hintText: 'Search location or zone',
+                      //                     hintStyle: TextStyle(
+                      //                       color: theme.colorScheme.onSurface
+                      //                           .withValues(
+                      //                             alpha: 0.4,
+                      //                           ),
+                      //                       fontSize: 15,
+                      //                     ),
+                      //                     prefixIcon: Icon(
+                      //                       Icons.search,
+                      //                       color: theme.colorScheme.onSurface
+                      //                           .withValues(
+                      //                             alpha: 0.4,
+                      //                           ),
+                      //                     ),
+                      //                     suffixIcon:
+                      //                         filterState.searchQuery.isNotEmpty
+                      //                         ? IconButton(
+                      //                             icon: const Icon(Icons.clear),
+                      //                             onPressed: () {
+                      //                               _searchController.clear();
+                      //                               context
+                      //                                   .read<MapFilterCubit>()
+                      //                                   .clearSearch();
+                      //                             },
+                      //                           )
+                      //                         : null,
+                      //                     border: InputBorder.none,
+                      //                     contentPadding:
+                      //                         const EdgeInsets.symmetric(
+                      //                           horizontal: 16,
+                      //                           vertical: 14,
+                      //                         ),
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
 
-                            // Time filter segments
-                            SegmentedButton<TimeFilter>(
-                              style: SegmentedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                selectedBackgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                                selectedForegroundColor: Colors.white,
-                              ),
-                              onSelectionChanged: (newSelection) {
-                                final selectedFilter = newSelection.first;
-                                context.read<MapFilterCubit>().updateTimeFilter(
-                                  selectedFilter,
-                                );
-                              },
-                              segments: const [
-                                ButtonSegment(
-                                  value: TimeFilter.twentyFourHours,
-                                  label: Text('24h'),
-                                ),
-                                ButtonSegment(
-                                  value: TimeFilter.sevenDays,
-                                  label: Text('7d'),
-                                ),
-                                ButtonSegment(
-                                  value: TimeFilter.thirtyDays,
-                                  label: Text('30d'),
-                                ),
-                              ],
-                              selected: {filterState.timeFilter},
-                            ),
+                      //       // Time filter segments
+                      //       SegmentedButton<TimeFilter>(
+                      //         style: SegmentedButton.styleFrom(
+                      //           backgroundColor: Colors.white,
+                      //           selectedBackgroundColor: Theme.of(
+                      //             context,
+                      //           ).colorScheme.primary,
+                      //           selectedForegroundColor: Colors.white,
+                      //         ),
+                      //         onSelectionChanged: (newSelection) {
+                      //           final selectedFilter = newSelection.first;
+                      //           context.read<MapFilterCubit>().updateTimeFilter(
+                      //             selectedFilter,
+                      //           );
+                      //         },
+                      //         segments: const [
+                      //           ButtonSegment(
+                      //             value: TimeFilter.twentyFourHours,
+                      //             label: Text('24h'),
+                      //           ),
+                      //           ButtonSegment(
+                      //             value: TimeFilter.sevenDays,
+                      //             label: Text('7d'),
+                      //           ),
+                      //           ButtonSegment(
+                      //             value: TimeFilter.thirtyDays,
+                      //             label: Text('30d'),
+                      //           ),
+                      //         ],
+                      //         selected: {filterState.timeFilter},
+                      //       ),
 
-                            const SizedBox(height: 12),
+                      //       const SizedBox(height: 12),
 
-                            // Category filter chips
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Row(
-                                children: IncidentCategory.values.map((
-                                  category,
-                                ) {
-                                  final isSelected = filterState
-                                      .selectedCategories
-                                      .contains(category);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: _buildCategoryFilterChip(
-                                      category,
-                                      isSelected: isSelected,
-                                      onTap: () {
-                                        context
-                                            .read<MapFilterCubit>()
-                                            .toggleCategory(
-                                              category,
-                                            );
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      //       // Category filter chips
+                      //       SingleChildScrollView(
+                      //         scrollDirection: Axis.horizontal,
+                      //         padding: const EdgeInsets.symmetric(
+                      //           horizontal: 16,
+                      //         ),
+                      //         child: Row(
+                      //           children: IncidentCategory.values.map((
+                      //             category,
+                      //           ) {
+                      //             final isSelected = filterState
+                      //                 .selectedCategories
+                      //                 .contains(category);
+                      //             return Padding(
+                      //               padding: const EdgeInsets.only(right: 8),
+                      //               child: _buildCategoryFilterChip(
+                      //                 category,
+                      //                 isSelected: isSelected,
+                      //                 onTap: () {
+                      //                   context
+                      //                       .read<MapFilterCubit>()
+                      //                       .toggleCategory(
+                      //                         category,
+                      //                       );
+                      //                 },
+                      //               ),
+                      //             );
+                      //           }).toList(),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
 
                       // Empty state for filtered results
                       if (filteredIncidents.isEmpty)
