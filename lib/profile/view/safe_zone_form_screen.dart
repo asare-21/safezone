@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
 import 'package:safe_zone/profile/models/safe_zone_model.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class SafeZoneFormScreen extends StatefulWidget {
   const SafeZoneFormScreen({this.safeZone, super.key});
@@ -86,8 +87,11 @@ class _SafeZoneFormScreenState extends State<SafeZoneFormScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to get location: $e')),
+        ShadToaster.of(context).show(
+          ShadToast(
+            title: const Text('Error'),
+            description: Text('Failed to get location: $e'),
+          ),
         );
       }
     } finally {
@@ -110,7 +114,8 @@ class _SafeZoneFormScreenState extends State<SafeZoneFormScreen> {
       }
 
       final safeZone = SafeZone(
-        id: widget.safeZone?.id ??
+        id:
+            widget.safeZone?.id ??
             DateTime.now().millisecondsSinceEpoch.toString(),
         name: _nameController.text,
         location: LatLng(latitude, longitude),
