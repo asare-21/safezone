@@ -59,9 +59,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking image: $e'),
-            backgroundColor: const Color(0xFFFF4C4C),
+          const SnackBar(
+            content: Text('Failed to select image. Please try again.'),
+            backgroundColor: Color(0xFFFF4C4C),
           ),
         );
       }
@@ -84,9 +84,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking images: $e'),
-            backgroundColor: const Color(0xFFFF4C4C),
+          const SnackBar(
+            content: Text('Failed to select images. Please try again.'),
+            backgroundColor: Color(0xFFFF4C4C),
           ),
         );
       }
