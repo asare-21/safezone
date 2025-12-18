@@ -81,7 +81,19 @@ class SafeZoneCubit extends Cubit<SafeZoneState> {
 
   /// Toggle safe zone active status
   Future<void> toggleSafeZone(String id) async {
-    final zone = state.safeZones.firstWhere((z) => z.id == id);
-    await updateSafeZone(zone.copyWith(isActive: !zone.isActive));
+    try {
+      final zone = state.safeZones.firstWhere(
+        (z) => z.id == id,
+        orElse: () => throw Exception('Safe zone not found'),
+      );
+      await updateSafeZone(zone.copyWith(isActive: !zone.isActive));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: SafeZoneStatus.error,
+          errorMessage: 'Failed to toggle safe zone: $e',
+        ),
+      );
+    }
   }
 }

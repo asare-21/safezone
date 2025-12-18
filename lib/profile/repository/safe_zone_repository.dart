@@ -15,7 +15,7 @@ class SafeZoneRepository {
 
   /// Get SharedPreferences instance (cached)
   Future<SharedPreferences> _getPreferences() async {
-    if (_sharedPreferences != null) return _sharedPreferences;
+    if (_sharedPreferences != null) return _sharedPreferences!;
     _cachedPreferences ??= await SharedPreferences.getInstance();
     return _cachedPreferences!;
   }
@@ -42,15 +42,10 @@ class SafeZoneRepository {
 
   /// Save all safe zones
   Future<void> saveSafeZones(List<SafeZone> safeZones) async {
-    try {
-      final prefs = await _getPreferences();
-      final jsonList = safeZones.map((zone) => zone.toJson()).toList();
-      final jsonString = json.encode(jsonList);
-      await prefs.setString(_safeZonesKey, jsonString);
-    } catch (e) {
-      // Fail silently
-      rethrow;
-    }
+    final prefs = await _getPreferences();
+    final jsonList = safeZones.map((zone) => zone.toJson()).toList();
+    final jsonString = json.encode(jsonList);
+    await prefs.setString(_safeZonesKey, jsonString);
   }
 
   /// Add a new safe zone
