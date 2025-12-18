@@ -148,9 +148,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
             Navigator.of(context).pop();
 
             // Show success message with notification status
+            final categoryName = category.displayName;
             final message = notifyNearby
-                ? 'Accident reported and nearby users notified'
-                : 'Accident reported successfully';
+                ? '$categoryName reported and nearby users notified'
+                : '$categoryName reported successfully';
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

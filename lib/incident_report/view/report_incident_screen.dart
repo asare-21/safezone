@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 
-/// Simplified accident reporting screen
-// TODO(joasare019): #67 Expand to support multiple incident categories. Dont allow user to type incident title or description. Just show a category for them to choose and submit to make the incident reporting as seamless as possible
+/// Simplified category-based incident reporting screen
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({
     required this.onSubmit,
@@ -23,37 +22,50 @@ class ReportIncidentScreen extends StatefulWidget {
 }
 
 class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
+  IncidentCategory? _selectedCategory;
   bool _notifyNearby = true;
   bool _isSubmitting = false;
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  String _getTitleForCategory(IncidentCategory category) {
+    return category.displayName;
+  }
+
+  String _getDescriptionForCategory(IncidentCategory category) {
+    switch (category) {
+      case IncidentCategory.accident:
+        return 'An accident has been reported in this area';
+      case IncidentCategory.fire:
+        return 'A fire incident has been reported in this area';
+      case IncidentCategory.theft:
+        return 'A theft incident has been reported in this area';
+      case IncidentCategory.suspicious:
+        return 'Suspicious activity has been reported in this area';
+      case IncidentCategory.lighting:
+        return 'Poor lighting has been reported in this area';
+      case IncidentCategory.assault:
+        return 'An assault has been reported in this area';
+    }
   }
 
   Future<void> _handleSubmit() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isSubmitting = true;
-      });
+    if (_selectedCategory == null) {
+      return;
+    }
 
-      // Simulate submission delay
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+    setState(() {
+      _isSubmitting = true;
+    });
 
-      if (mounted) {
-        widget.onSubmit(
-          IncidentCategory.accident,
-          _titleController.text.trim(),
-          _descriptionController.text.trim(),
-          _notifyNearby,
-        );
-      }
+    // Simulate submission delay
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    if (mounted) {
+      widget.onSubmit(
+        _selectedCategory!,
+        _getTitleForCategory(_selectedCategory!),
+        _getDescriptionForCategory(_selectedCategory!),
+        _notifyNearby,
+      );
     }
   }
 
@@ -71,7 +83,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Report Accident',
+          'Report Incident',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w700,
@@ -79,220 +91,212 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         ),
         centerTitle: true,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            // Quick info banner
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: theme.colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Your report helps keep the community safe',
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          // Quick info banner
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color: theme.colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Your report helps keep the community safe',
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 24),
 
-            // Title field
-            Text(
-              'Title',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
+          // Category selection
+          Text(
+            'Select Incident Category',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
             ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                hintText: 'Brief description of the accident',
-                hintStyle: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                  fontSize: 15,
-                ),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a title';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 12),
 
-            // Description field
-            Text(
-              'Description (Optional)',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _descriptionController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: 'Add more details about what happened...',
-                hintStyle: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                  fontSize: 15,
-                ),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Notify nearby toggle
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
+          // Category cards
+          ...IncidentCategory.values.map((category) {
+            final isSelected = _selectedCategory == category;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _selectedCategory = category;
+                  });
+                },
                 borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    LineIcons.bell,
-                    color: theme.colorScheme.primary,
-                    size: 24,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? category.color.withValues(alpha: 0.1)
+                        : const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected
+                          ? category.color
+                          : Colors.transparent,
+                      width: 2,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Notify Nearby Users',
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? category.color
+                              : category.color.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          category.icon,
+                          color: isSelected
+                              ? Colors.white
+                              : category.color,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          category.displayName,
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurface,
+                            fontSize: 16,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            color: isSelected
+                                ? category.color
+                                : theme.colorScheme.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Alert community members in this area',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.6,
-                            ),
+                      ),
+                      if (isSelected)
+                        Icon(
+                          Icons.check_circle,
+                          color: category.color,
+                          size: 24,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+
+          const SizedBox(height: 12),
+
+          // Notify nearby toggle
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  LineIcons.bell,
+                  color: theme.colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Notify Nearby Users',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Alert community members in this area',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Switch(
-                    value: _notifyNearby,
-                    onChanged: (value) {
-                      setState(() {
-                        _notifyNearby = value;
-                      });
-                    },
-                    activeThumbColor: theme.colorScheme.primary,
-                  ),
-                ],
-              ),
+                ),
+                Switch(
+                  value: _notifyNearby,
+                  onChanged: (value) {
+                    setState(() {
+                      _notifyNearby = value;
+                    });
+                  },
+                  activeThumbColor: theme.colorScheme.primary,
+                ),
+              ],
             ),
-            const SizedBox(height: 32),
+          ),
+          const SizedBox(height: 32),
 
-            // Submit button
-            ElevatedButton(
-              onPressed: _isSubmitting ? null : _handleSubmit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                disabledBackgroundColor: theme.colorScheme.primary.withValues(
-                  alpha: 0.5,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 2,
+          // Submit button
+          ElevatedButton(
+            onPressed: _isSubmitting || _selectedCategory == null
+                ? null
+                : _handleSubmit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              disabledBackgroundColor: theme.colorScheme.primary.withValues(
+                alpha: 0.5,
               ),
-              child: _isSubmitting
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'Submit Report',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
             ),
-          ],
-        ),
+            child: _isSubmitting
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Submit Report',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
