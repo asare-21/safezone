@@ -201,20 +201,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
     );
   }
 
-  void _zoomIn() {
-    _mapController.move(
-      _mapController.camera.center,
-      _mapController.camera.zoom + 1,
-    );
-  }
-
-  void _zoomOut() {
-    _mapController.move(
-      _mapController.camera.center,
-      _mapController.camera.zoom - 1,
-    );
-  }
-
   bool _isRecentIncident(Incident incident) {
     final hoursSinceIncident = DateTime.now()
         .difference(incident.timestamp)
@@ -590,41 +576,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           ),
                         ),
 
-                      // Zoom controls
-                      Positioned(
-                        right: 16,
-                        bottom: 180,
-                        child: Column(
-                          children: [
-                            FloatingActionButton.small(
-                              heroTag: 'zoom_in',
-                              onPressed: _zoomIn,
-                              backgroundColor: Colors.white,
-                              tooltip: 'Zoom in',
-                              child: Icon(
-                                Icons.add,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            FloatingActionButton.small(
-                              heroTag: 'zoom_out',
-                              onPressed: _zoomOut,
-                              backgroundColor: Colors.white,
-                              tooltip: 'Zoom out',
-                              child: Icon(
-                                Icons.remove,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
                       // Emergency Services button
                       Positioned(
-                        left: 16,
-                        bottom: 180,
+                        right: 16,
+                        bottom: 90,
                         child: FloatingActionButton(
                           heroTag: 'emergency_services',
                           onPressed: () {

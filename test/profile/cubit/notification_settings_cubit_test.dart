@@ -21,33 +21,39 @@ void main() {
       // Set up default mock behaviors
       when(() => mockSharedPreferences.getBool(any())).thenReturn(null);
       when(() => mockSharedPreferences.getDouble(any())).thenReturn(null);
-      when(() => mockSharedPreferences.setBool(any(), any()))
-          .thenAnswer((_) async => true);
-      when(() => mockSharedPreferences.setDouble(any(), any()))
-          .thenAnswer((_) async => true);
+      when(
+        () => mockSharedPreferences.setBool(any(), any()),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockSharedPreferences.setDouble(any(), any()),
+      ).thenAnswer((_) async => true);
       when(
         () => mockFirebaseMessaging.requestPermission(
           alert: any(named: 'alert'),
           badge: any(named: 'badge'),
           sound: any(named: 'sound'),
         ),
-      ).thenAnswer((_) async => const NotificationSettings(
-            authorizationStatus: AuthorizationStatus.authorized,
-            alert: AppleNotificationSetting.enabled,
-            badge: AppleNotificationSetting.enabled,
-            sound: AppleNotificationSetting.enabled,
-            announcement: AppleNotificationSetting.notSupported,
-            carPlay: AppleNotificationSetting.notSupported,
-            criticalAlert: AppleNotificationSetting.notSupported,
-            lockScreen: AppleNotificationSetting.enabled,
-            notificationCenter: AppleNotificationSetting.enabled,
-            showPreviews: AppleShowPreviewSetting.always,
-            timeSensitive: AppleNotificationSetting.notSupported,
-          ));
-      when(() => mockFirebaseMessaging.subscribeToTopic(any()))
-          .thenAnswer((_) async {});
-      when(() => mockFirebaseMessaging.unsubscribeFromTopic(any()))
-          .thenAnswer((_) async {});
+      ).thenAnswer(
+        (_) async => const NotificationSettings(
+          authorizationStatus: AuthorizationStatus.authorized,
+          alert: AppleNotificationSetting.enabled,
+          badge: AppleNotificationSetting.enabled,
+          sound: AppleNotificationSetting.enabled,
+          announcement: AppleNotificationSetting.notSupported,
+          carPlay: AppleNotificationSetting.notSupported,
+          criticalAlert: AppleNotificationSetting.notSupported,
+          lockScreen: AppleNotificationSetting.enabled,
+          notificationCenter: AppleNotificationSetting.enabled,
+          showPreviews: AppleShowPreviewSetting.always,
+          timeSensitive: AppleNotificationSetting.notSupported,
+        ),
+      );
+      when(
+        () => mockFirebaseMessaging.subscribeToTopic(any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => mockFirebaseMessaging.unsubscribeFromTopic(any()),
+      ).thenAnswer((_) async {});
     });
 
     test('initial state has default values', () {
@@ -100,9 +106,7 @@ void main() {
           () => mockSharedPreferences.setBool('push_notifications', true),
         ).called(1);
         verify(
-          () => mockFirebaseMessaging.requestPermission(
-            
-          ),
+          () => mockFirebaseMessaging.requestPermission(),
         ).called(1);
         verify(
           () => mockFirebaseMessaging.subscribeToTopic('all_users'),
@@ -176,8 +180,10 @@ void main() {
       ],
       verify: (_) {
         verify(
-          () =>
-              mockSharedPreferences.setBool('share_location_with_contacts', true),
+          () => mockSharedPreferences.setBool(
+            'share_location_with_contacts',
+            true,
+          ),
         ).called(1);
       },
     );
@@ -202,18 +208,24 @@ void main() {
     blocTest<NotificationSettingsCubit, NotificationSettingsState>(
       'loads settings from shared preferences on initialization',
       setUp: () {
-        when(() => mockSharedPreferences.getBool('push_notifications'))
-            .thenReturn(false);
-        when(() => mockSharedPreferences.getBool('proximity_alerts'))
-            .thenReturn(false);
-        when(() => mockSharedPreferences.getBool('sound_vibration'))
-            .thenReturn(true);
-        when(() => mockSharedPreferences.getBool('anonymous_reporting'))
-            .thenReturn(false);
-        when(() => mockSharedPreferences.getBool('share_location_with_contacts'))
-            .thenReturn(true);
-        when(() => mockSharedPreferences.getDouble('alert_radius'))
-            .thenReturn(7.5);
+        when(
+          () => mockSharedPreferences.getBool('push_notifications'),
+        ).thenReturn(false);
+        when(
+          () => mockSharedPreferences.getBool('proximity_alerts'),
+        ).thenReturn(false);
+        when(
+          () => mockSharedPreferences.getBool('sound_vibration'),
+        ).thenReturn(true);
+        when(
+          () => mockSharedPreferences.getBool('anonymous_reporting'),
+        ).thenReturn(false);
+        when(
+          () => mockSharedPreferences.getBool('share_location_with_contacts'),
+        ).thenReturn(true);
+        when(
+          () => mockSharedPreferences.getDouble('alert_radius'),
+        ).thenReturn(7.5);
       },
       build: () => NotificationSettingsCubit(
         sharedPreferences: mockSharedPreferences,
