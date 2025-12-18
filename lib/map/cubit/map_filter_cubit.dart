@@ -10,6 +10,8 @@ class MapFilterCubit extends Cubit<MapFilterState> {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
@@ -89,6 +91,8 @@ class MapFilterCubit extends Cubit<MapFilterState> {
     emit(
       state.copyWith(
         selectedCategories: {
+          IncidentCategory.accident,
+          IncidentCategory.fire,
           IncidentCategory.theft,
           IncidentCategory.assault,
           IncidentCategory.suspicious,

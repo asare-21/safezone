@@ -52,6 +52,8 @@ void main() {
       expect(
         cubit.state.selectedCategories,
         {
+          IncidentCategory.accident,
+          IncidentCategory.fire,
           IncidentCategory.theft,
           IncidentCategory.assault,
           IncidentCategory.suspicious,
@@ -70,6 +72,8 @@ void main() {
         const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
+            IncidentCategory.accident,
+            IncidentCategory.fire,
             IncidentCategory.theft,
             IncidentCategory.assault,
             IncidentCategory.suspicious,
@@ -92,6 +96,8 @@ void main() {
         const MapFilterState(
           timeFilter: TimeFilter.sevenDays,
           selectedCategories: {
+            IncidentCategory.accident,
+            IncidentCategory.fire,
             IncidentCategory.theft,
             IncidentCategory.assault,
             IncidentCategory.suspicious,
@@ -114,6 +120,8 @@ void main() {
         const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
+            IncidentCategory.accident,
+            IncidentCategory.fire,
             IncidentCategory.assault,
             IncidentCategory.suspicious,
             IncidentCategory.lighting,
@@ -137,6 +145,8 @@ void main() {
         const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
+            IncidentCategory.accident,
+            IncidentCategory.fire,
             IncidentCategory.assault,
             IncidentCategory.suspicious,
             IncidentCategory.lighting,
@@ -173,6 +183,8 @@ void main() {
         const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
+            IncidentCategory.accident,
+            IncidentCategory.fire,
             IncidentCategory.theft,
             IncidentCategory.assault,
             IncidentCategory.suspicious,
@@ -238,6 +250,8 @@ void main() {
         const MapFilterState(
           timeFilter: TimeFilter.twentyFourHours,
           selectedCategories: {
+            IncidentCategory.accident,
+            IncidentCategory.fire,
             IncidentCategory.theft,
             IncidentCategory.assault,
             IncidentCategory.suspicious,
@@ -257,6 +271,8 @@ void main() {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
@@ -283,6 +299,8 @@ void main() {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
@@ -316,6 +334,8 @@ void main() {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
@@ -342,6 +362,8 @@ void main() {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
@@ -396,6 +418,8 @@ void main() {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
@@ -436,6 +460,8 @@ void main() {
           const MapFilterState(
             timeFilter: TimeFilter.twentyFourHours,
             selectedCategories: {
+              IncidentCategory.accident,
+              IncidentCategory.fire,
               IncidentCategory.theft,
               IncidentCategory.assault,
               IncidentCategory.suspicious,
