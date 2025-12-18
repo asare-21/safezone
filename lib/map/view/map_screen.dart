@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
@@ -34,8 +35,14 @@ class _MapScreenViewState extends State<_MapScreenView> {
   final TextEditingController _searchController = TextEditingController();
   final Debouncer _searchDebouncer = Debouncer(milliseconds: 300);
 
-  // New York City center coordinates (example location)
-  final LatLng _center = const LatLng(40.7128, -74.0060);
+  // User's current location (initialized to null, will be fetched)
+  LatLng? _currentLocation;
+  bool _isLoadingLocation = true;
+  bool _isRequestingLocation = false;
+  String? _locationError;
+
+  // Default fallback location (center of world, will prompt for location)
+  static const LatLng _fallbackLocation = LatLng(0, 0);
 
   // Mock incidents for demonstration
   late List<Incident> _allIncidents;
@@ -50,18 +57,100 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   Future<void> _initializeData() async {
+    await _getCurrentLocation();
     await _initializeMockData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
     });
   }
 
+  /// Get the user's current location
+  Future<void> _getCurrentLocation() async {
+    // Prevent concurrent location requests
+    if (_isRequestingLocation) return;
+    
+    setState(() {
+      _isRequestingLocation = true;
+      _isLoadingLocation = true;
+      _locationError = null;
+    });
+
+    try {
+      // Check if location services are enabled
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationError = 'Location services are disabled. Please enable '
+              'location services in your device settings.';
+          _isLoadingLocation = false;
+          _isRequestingLocation = false;
+        });
+        return;
+      }
+
+      // Check location permission
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _locationError = 'Location permissions are denied. Please grant '
+                'location permissions to use this feature.';
+            _isLoadingLocation = false;
+            _isRequestingLocation = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _locationError = 'Location permissions are permanently denied. '
+              'Please enable location permissions in your device settings.';
+          _isLoadingLocation = false;
+          _isRequestingLocation = false;
+        });
+        return;
+      }
+
+      // Get current position
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        _isLoadingLocation = false;
+        _isRequestingLocation = false;
+      });
+    } catch (e) {
+      setState(() {
+        _locationError = 'Failed to get location: $e';
+        _isLoadingLocation = false;
+        _isRequestingLocation = false;
+      });
+    }
+  }
+
   Future<void> _initializeMockData() async {
+    // Only create mock incidents if we have a valid location
+    if (_currentLocation == null) {
+      _allIncidents = [];
+      return;
+    }
+
+    const distance = Distance();
+    
+    // Generate incidents near the user's current location
     _allIncidents = [
       Incident(
         id: '1',
         category: IncidentCategory.accident,
-        location: const LatLng(40.7580, -73.9855), // Times Square area
+        location: distance.offset(
+          _currentLocation!,
+          500, // 500 meters away
+          45, // 45 degrees bearing (NE)
+        ),
         timestamp: DateTime.now().subtract(const Duration(hours: 2)),
         title: 'Car accident',
         confirmedBy: 3,
@@ -69,7 +158,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
       Incident(
         id: '2',
         category: IncidentCategory.accident,
-        location: const LatLng(40.7489, -73.9680), // East side
+        location: distance.offset(
+          _currentLocation!,
+          800, // 800 meters away
+          120, // 120 degrees bearing (ESE)
+        ),
         timestamp: DateTime.now().subtract(const Duration(hours: 5)),
         title: 'Bicycle accident',
         confirmedBy: 2,
@@ -77,7 +170,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
       Incident(
         id: '3',
         category: IncidentCategory.accident,
-        location: const LatLng(40.7614, -73.9776), // Central Park South
+        location: distance.offset(
+          _currentLocation!,
+          300, // 300 meters away
+          350, // 350 degrees bearing (N-NW)
+        ),
         timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
         title: 'Pedestrian accident',
         confirmedBy: 1,
@@ -85,7 +182,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
       Incident(
         id: '4',
         category: IncidentCategory.accident,
-        location: const LatLng(40.7282, -74.0776), // West Village
+        location: distance.offset(
+          _currentLocation!,
+          1200, // 1.2 km away
+          200, // 200 degrees bearing (SSW)
+        ),
         timestamp: DateTime.now().subtract(const Duration(hours: 12)),
         title: 'Minor collision',
         confirmedBy: 4,
@@ -93,7 +194,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
       Incident(
         id: '5',
         category: IncidentCategory.accident,
-        location: const LatLng(40.7589, -73.9851), // Near Times Square
+        location: distance.offset(
+          _currentLocation!,
+          600, // 600 meters away
+          90, // 90 degrees bearing (E)
+        ),
         timestamp: DateTime.now().subtract(const Duration(days: 3)),
         title: 'Traffic accident',
         confirmedBy: 5,
@@ -101,7 +206,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
       Incident(
         id: '6',
         category: IncidentCategory.accident,
-        location: const LatLng(40.7128, -74.0134), // Downtown
+        location: distance.offset(
+          _currentLocation!,
+          1500, // 1.5 km away
+          270, // 270 degrees bearing (W)
+        ),
         timestamp: DateTime.now().subtract(const Duration(days: 8)),
         title: 'Motorcycle accident',
         confirmedBy: 2,
@@ -132,6 +241,19 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   void _showReportIncidentDialog() {
+    // Don't allow incident reporting if location is not available
+    if (_currentLocation == null) {
+      ShadToaster.of(context).show(
+        const ShadToast(
+          title: Text('Location Required'),
+          description: Text(
+            'Please enable location services to report an incident.',
+          ),
+        ),
+      );
+      return;
+    }
+
     Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (context) => ReportIncidentScreen(
@@ -139,7 +261,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
             final newIncident = Incident(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               category: category,
-              location: _center,
+              location: _currentLocation!,
               timestamp: DateTime.now(),
               title: title,
               description: description,
@@ -173,8 +295,28 @@ class _MapScreenViewState extends State<_MapScreenView> {
     );
   }
 
-  void _centerOnUserLocation(double defaultZoom) {
-    _mapController.move(_center, defaultZoom);
+  Future<void> _centerOnUserLocation(double defaultZoom) async {
+    if (_currentLocation != null) {
+      _mapController.move(_currentLocation!, defaultZoom);
+    } else if (!_isRequestingLocation) {
+      // Try to get location again only if not already requesting
+      await _getCurrentLocation();
+      if (_currentLocation != null) {
+        _mapController.move(_currentLocation!, defaultZoom);
+      } else {
+        // Show message if location is still not available
+        if (mounted) {
+          ShadToaster.of(context).show(
+            ShadToast(
+              title: const Text('Location Unavailable'),
+              description: Text(
+                _locationError ?? 'Unable to get your current location',
+              ),
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildLoadingScreen() {
@@ -188,13 +330,37 @@ class _MapScreenViewState extends State<_MapScreenView> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Loading incidents...',
+              _isLoadingLocation
+                  ? 'Getting your location...'
+                  : 'Loading incidents...',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
+            if (_locationError != null) ...[
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  _locationError!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _dataLoadingFuture = _initializeData();
+                  });
+                },
+                child: const Text('Retry'),
+              ),
+            ],
           ],
         ),
       ),
@@ -255,7 +421,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                       FlutterMap(
                         mapController: _mapController,
                         options: MapOptions(
-                          initialCenter: _center,
+                          initialCenter: _currentLocation ?? _fallbackLocation,
                           initialZoom: profileState.defaultZoom,
                           minZoom: 10,
                           maxZoom: 18,
@@ -344,62 +510,63 @@ class _MapScreenViewState extends State<_MapScreenView> {
                               );
                             }).toList(),
                           ),
-                          MarkerLayer(
-                            markers: [
-                              Marker(
-                                point: _center,
-                                width: 48,
-                                height: 48,
-                                child: Stack(
-                                  children: [
-                                    Positioned(
-                                      top: 0,
-                                      left: 0,
-                                      right: 0,
-                                      bottom: 0,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              theme.colorScheme.primary,
-                                            ),
-                                        strokeWidth: 5,
-                                        value: 1,
-                                      ),
-                                    ),
-                                    CircleAvatar(
-                                      radius: 30,
-                                      backgroundColor: Colors.white,
-                                      child: Image.asset(
-                                        profileState.locationIcon,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      bottom: 0,
-                                      child: Container(
-                                        width: 14,
-                                        height: 14,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          ),
+                          if (_currentLocation != null)
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: _currentLocation!,
+                                  width: 48,
+                                  height: 48,
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                theme.colorScheme.primary,
+                                              ),
+                                          strokeWidth: 5,
+                                          value: 1,
                                         ),
+                                      ),
+                                      CircleAvatar(
+                                        radius: 30,
+                                        backgroundColor: Colors.white,
+                                        child: Image.asset(
+                                          profileState.locationIcon,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        bottom: 0,
                                         child: Container(
+                                          width: 14,
+                                          height: 14,
                                           decoration: BoxDecoration(
-                                            color: theme.colorScheme.primary,
+                                            color: Colors.white,
                                             shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: theme.colorScheme.primary,
+                                              shape: BoxShape.circle,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                         ],
                       ),
 
@@ -486,6 +653,58 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           ),
                         ),
                       ),
+
+                      // Location unavailable banner
+                      if (_currentLocation == null && _locationError != null)
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            color: theme.colorScheme.error,
+                            child: SafeArea(
+                              bottom: false,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_off,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Location unavailable. Enable location '
+                                      'to see nearby incidents.',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _dataLoadingFuture = _initializeData();
+                                      });
+                                    },
+                                    child: const Text(
+                                      'Retry',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
 
                       // Risk level indicator
                       Positioned(
