@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:safe_zone/profile/models/safe_zone_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Repository for managing safe zones persistence
 class SafeZoneRepository {
   SafeZoneRepository({SharedPreferences? sharedPreferences})
-      : _sharedPreferences = sharedPreferences;
+    : _sharedPreferences = sharedPreferences;
 
   final SharedPreferences? _sharedPreferences;
   SharedPreferences? _cachedPreferences;
@@ -15,7 +16,7 @@ class SafeZoneRepository {
 
   /// Get SharedPreferences instance (cached)
   Future<SharedPreferences> _getPreferences() async {
-    if (_sharedPreferences != null) return _sharedPreferences!;
+    if (_sharedPreferences != null) return _sharedPreferences;
     _cachedPreferences ??= await SharedPreferences.getInstance();
     return _cachedPreferences!;
   }
@@ -34,8 +35,11 @@ class SafeZoneRepository {
       return jsonList
           .map((json) => SafeZone.fromJson(json as Map<String, dynamic>))
           .toList();
-    } catch (e) {
+    } on Exception catch (e) {
       // Return empty list on error
+      if (kDebugMode) {
+        print(e);
+      }
       return [];
     }
   }
