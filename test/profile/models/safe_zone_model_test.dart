@@ -5,7 +5,7 @@ import 'package:safe_zone/profile/models/safe_zone_model.dart';
 void main() {
   group('SafeZone', () {
     test('creates a safe zone with required fields', () {
-      final safeZone = SafeZone(
+      const safeZone = SafeZone(
         id: '1',
         name: 'Home',
         location: LatLng(37.7749, -122.4194),
@@ -24,7 +24,7 @@ void main() {
     });
 
     test('creates a safe zone with all fields', () {
-      final safeZone = SafeZone(
+      const safeZone = SafeZone(
         id: '2',
         name: 'Work',
         location: LatLng(37.7749, -122.4194),
@@ -32,7 +32,6 @@ void main() {
         type: SafeZoneType.work,
         isActive: false,
         notifyOnEnter: false,
-        notifyOnExit: true,
       );
 
       expect(safeZone.id, '2');
@@ -44,7 +43,7 @@ void main() {
     });
 
     test('copyWith updates specified fields', () {
-      final safeZone = SafeZone(
+      const safeZone = SafeZone(
         id: '1',
         name: 'Home',
         location: LatLng(37.7749, -122.4194),
@@ -65,7 +64,7 @@ void main() {
     });
 
     test('toJson serializes correctly', () {
-      final safeZone = SafeZone(
+      const safeZone = SafeZone(
         id: '1',
         name: 'School',
         location: LatLng(37.7749, -122.4194),
@@ -116,7 +115,7 @@ void main() {
     });
 
     test('contains returns true for position inside zone', () {
-      final safeZone = SafeZone(
+      const safeZone = SafeZone(
         id: '1',
         name: 'Home',
         location: LatLng(37.7749, -122.4194),
@@ -124,13 +123,13 @@ void main() {
       );
 
       // Position very close to center (within 500m)
-      final nearbyPosition = LatLng(37.7750, -122.4195);
+      const nearbyPosition = LatLng(37.7750, -122.4195);
 
       expect(safeZone.contains(nearbyPosition), true);
     });
 
     test('contains returns false for position outside zone', () {
-      final safeZone = SafeZone(
+      const safeZone = SafeZone(
         id: '1',
         name: 'Home',
         location: LatLng(37.7749, -122.4194),
@@ -138,7 +137,7 @@ void main() {
       );
 
       // Position far from center (more than 100m)
-      final farPosition = LatLng(37.7850, -122.4294);
+      const farPosition = LatLng(37.7850, -122.4294);
 
       expect(safeZone.contains(farPosition), false);
     });

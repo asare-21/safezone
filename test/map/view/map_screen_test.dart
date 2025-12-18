@@ -7,7 +7,6 @@ import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
 import 'package:safe_zone/profile/models/safe_zone_model.dart';
 import 'package:safe_zone/profile/profile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MockProfileCubit extends Mock implements ProfileCubit {}
 
@@ -21,14 +20,12 @@ extension MapPumpApp on WidgetTester {
     // Set up default mock behavior
     when(() => mockProfileCubit.state).thenReturn(
       const ProfileState(
-        defaultZoom: 13.0,
         locationIcon: 'assets/icons/user_avatar.png',
       ),
     );
     when(() => mockProfileCubit.stream).thenAnswer(
       (_) => Stream.value(
         const ProfileState(
-          defaultZoom: 13.0,
           locationIcon: 'assets/icons/user_avatar.png',
         ),
       ),
@@ -37,14 +34,12 @@ extension MapPumpApp on WidgetTester {
     when(() => mockSafeZoneCubit.state).thenReturn(
       const SafeZoneState(
         status: SafeZoneStatus.success,
-        safeZones: [],
       ),
     );
     when(() => mockSafeZoneCubit.stream).thenAnswer(
       (_) => Stream.value(
         const SafeZoneState(
           status: SafeZoneStatus.success,
-          safeZones: [],
         ),
       ),
     );
@@ -344,30 +339,28 @@ void main() {
 
       // Set up mock with active safe zones
       when(() => mockSafeZoneCubit.state).thenReturn(
-        SafeZoneState(
+        const SafeZoneState(
           status: SafeZoneStatus.success,
           safeZones: [
             SafeZone(
               id: '1',
               name: 'Home',
-              location: const LatLng(40.7128, -74.0060),
+              location: LatLng(40.7128, -74.0060),
               radius: 500,
-              isActive: true,
             ),
           ],
         ),
       );
       when(() => mockSafeZoneCubit.stream).thenAnswer(
         (_) => Stream.value(
-          SafeZoneState(
+          const SafeZoneState(
             status: SafeZoneStatus.success,
             safeZones: [
               SafeZone(
                 id: '1',
                 name: 'Home',
-                location: const LatLng(40.7128, -74.0060),
+                location: LatLng(40.7128, -74.0060),
                 radius: 500,
-                isActive: true,
               ),
             ],
           ),
@@ -386,13 +379,13 @@ void main() {
 
       // Set up mock with inactive safe zones
       when(() => mockSafeZoneCubit.state).thenReturn(
-        SafeZoneState(
+        const SafeZoneState(
           status: SafeZoneStatus.success,
           safeZones: [
             SafeZone(
               id: '1',
               name: 'Home',
-              location: const LatLng(40.7128, -74.0060),
+              location: LatLng(40.7128, -74.0060),
               radius: 500,
               isActive: false,
             ),
@@ -401,13 +394,13 @@ void main() {
       );
       when(() => mockSafeZoneCubit.stream).thenAnswer(
         (_) => Stream.value(
-          SafeZoneState(
+          const SafeZoneState(
             status: SafeZoneStatus.success,
             safeZones: [
               SafeZone(
                 id: '1',
                 name: 'Home',
-                location: const LatLng(40.7128, -74.0060),
+                location: LatLng(40.7128, -74.0060),
                 radius: 500,
                 isActive: false,
               ),

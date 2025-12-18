@@ -81,7 +81,7 @@ void main() {
     group('saveSafeZones', () {
       test('saves safe zones to shared preferences', () async {
         final zones = [
-          SafeZone(
+          const SafeZone(
             id: '1',
             name: 'Home',
             location: LatLng(37.7749, -122.4194),
@@ -126,7 +126,7 @@ void main() {
         when(() => mockSharedPreferences.setString(any(), any()))
             .thenAnswer((_) async => true);
 
-        final newZone = SafeZone(
+        const newZone = SafeZone(
           id: '2',
           name: 'Work',
           location: LatLng(37.7849, -122.4294),
@@ -164,7 +164,7 @@ void main() {
         when(() => mockSharedPreferences.setString(any(), any()))
             .thenAnswer((_) async => true);
 
-        final updatedZone = SafeZone(
+        const updatedZone = SafeZone(
           id: '1',
           name: 'Home Sweet Home',
           location: LatLng(37.7749, -122.4194),

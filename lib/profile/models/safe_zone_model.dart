@@ -14,6 +14,26 @@ class SafeZone extends Equatable {
     this.notifyOnExit = true,
   });
 
+  /// Creates from JSON
+  factory SafeZone.fromJson(Map<String, dynamic> json) {
+    return SafeZone(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      location: LatLng(
+        json['latitude'] as double,
+        json['longitude'] as double,
+      ),
+      radius: json['radius'] as double,
+      type: SafeZoneType.values.firstWhere(
+        (e) => e.name == json['type'],
+        orElse: () => SafeZoneType.custom,
+      ),
+      isActive: json['isActive'] as bool? ?? true,
+      notifyOnEnter: json['notifyOnEnter'] as bool? ?? true,
+      notifyOnExit: json['notifyOnExit'] as bool? ?? true,
+    );
+  }
+
   /// Unique identifier for the safe zone
   final String id;
 
@@ -74,26 +94,6 @@ class SafeZone extends Equatable {
       'notifyOnEnter': notifyOnEnter,
       'notifyOnExit': notifyOnExit,
     };
-  }
-
-  /// Creates from JSON
-  factory SafeZone.fromJson(Map<String, dynamic> json) {
-    return SafeZone(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      location: LatLng(
-        json['latitude'] as double,
-        json['longitude'] as double,
-      ),
-      radius: json['radius'] as double,
-      type: SafeZoneType.values.firstWhere(
-        (e) => e.name == json['type'],
-        orElse: () => SafeZoneType.custom,
-      ),
-      isActive: json['isActive'] as bool? ?? true,
-      notifyOnEnter: json['notifyOnEnter'] as bool? ?? true,
-      notifyOnExit: json['notifyOnExit'] as bool? ?? true,
-    );
   }
 
   /// Checks if a given location is within this safe zone

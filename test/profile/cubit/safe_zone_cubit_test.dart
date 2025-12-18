@@ -38,7 +38,6 @@ void main() {
         const SafeZoneState(status: SafeZoneStatus.loading),
         const SafeZoneState(
           status: SafeZoneStatus.success,
-          safeZones: [],
         ),
       ],
     );
@@ -47,7 +46,7 @@ void main() {
       'emits safe zones when loadSafeZones succeeds with data',
       setUp: () {
         final zones = [
-          SafeZone(
+          const SafeZone(
             id: '1',
             name: 'Home',
             location: LatLng(37.7749, -122.4194),
@@ -61,7 +60,7 @@ void main() {
       act: (cubit) => cubit.loadSafeZones(),
       expect: () => [
         const SafeZoneState(status: SafeZoneStatus.loading),
-        SafeZoneState(
+        const SafeZoneState(
           status: SafeZoneStatus.success,
           safeZones: [
             SafeZone(
@@ -95,7 +94,7 @@ void main() {
     blocTest<SafeZoneCubit, SafeZoneState>(
       'addSafeZone calls repository and reloads',
       setUp: () {
-        final zone = SafeZone(
+        const zone = SafeZone(
           id: '1',
           name: 'Home',
           location: LatLng(37.7749, -122.4194),
@@ -109,7 +108,7 @@ void main() {
       build: () => SafeZoneCubit(repository: mockRepository),
       act: (cubit) async {
         await cubit.addSafeZone(
-          SafeZone(
+          const SafeZone(
             id: '1',
             name: 'Home',
             location: LatLng(37.7749, -122.4194),
@@ -126,7 +125,7 @@ void main() {
     blocTest<SafeZoneCubit, SafeZoneState>(
       'updateSafeZone calls repository and reloads',
       setUp: () {
-        final zone = SafeZone(
+        const zone = SafeZone(
           id: '1',
           name: 'Home',
           location: LatLng(37.7749, -122.4194),
@@ -140,7 +139,7 @@ void main() {
       build: () => SafeZoneCubit(repository: mockRepository),
       act: (cubit) async {
         await cubit.updateSafeZone(
-          SafeZone(
+          const SafeZone(
             id: '1',
             name: 'Home',
             location: LatLng(37.7749, -122.4194),
@@ -175,12 +174,11 @@ void main() {
     blocTest<SafeZoneCubit, SafeZoneState>(
       'toggleSafeZone updates zone active status',
       setUp: () {
-        final zone = SafeZone(
+        const zone = SafeZone(
           id: '1',
           name: 'Home',
           location: LatLng(37.7749, -122.4194),
           radius: 500,
-          isActive: true,
         );
         final updatedZone = zone.copyWith(isActive: false);
 
@@ -190,7 +188,7 @@ void main() {
             .thenAnswer((_) async => {});
       },
       build: () => SafeZoneCubit(repository: mockRepository),
-      seed: () => SafeZoneState(
+      seed: () => const SafeZoneState(
         status: SafeZoneStatus.success,
         safeZones: [
           SafeZone(
@@ -198,7 +196,6 @@ void main() {
             name: 'Home',
             location: LatLng(37.7749, -122.4194),
             radius: 500,
-            isActive: true,
           ),
         ],
       ),
