@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:safe_zone/emergency_services/cubit/emergency_services_cubit.dart';
 import 'package:safe_zone/emergency_services/cubit/emergency_services_state.dart';
 import 'package:safe_zone/emergency_services/models/emergency_service_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EmergencyServicesScreen extends StatelessWidget {
   const EmergencyServicesScreen({super.key});
@@ -225,7 +225,7 @@ class _EmergencyServiceCard extends StatelessWidget {
   final EmergencyService service;
 
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
+    final launchUri = Uri(
       scheme: 'tel',
       path: phoneNumber,
     );

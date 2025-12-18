@@ -219,7 +219,7 @@ class EmergencyServicesRepository {
     double radiusKm = 10.0,
     String? countryCode,
   }) {
-    final distance = const Distance();
+    const distance = Distance();
     // Get services for the specific country if provided
     final services = countryCode != null 
         ? getServicesByCountry(countryCode)

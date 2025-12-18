@@ -65,7 +65,7 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
       emit(
         state.copyWith(
           status: EmergencyServicesStatus.error,
-          errorMessage: 'Failed to load emergency services: ${e.toString()}',
+          errorMessage: 'Failed to load emergency services: $e',
         ),
       );
     }
@@ -147,6 +147,6 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
     }
 
     // Get current position
-    return await Geolocator.getCurrentPosition();
+    return Geolocator.getCurrentPosition();
   }
 }

@@ -249,7 +249,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         _notifyNearby = value;
                       });
                     },
-                    activeColor: theme.colorScheme.primary,
+                    activeThumbColor: theme.colorScheme.primary,
                   ),
                 ],
               ),

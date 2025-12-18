@@ -59,7 +59,7 @@ void main() {
     });
 
     test('getServicesNearLocation returns services with distance', () {
-      final userLocation = const LatLng(40.7128, -74.0060);
+      const userLocation = LatLng(40.7128, -74.0060);
       final nearbyServices = repository.getServicesNearLocation(
         userLocation,
         countryCode: 'US',
@@ -73,8 +73,8 @@ void main() {
     });
 
     test('getServicesNearLocation filters by radius', () {
-      final userLocation = const LatLng(40.7128, -74.0060);
-      final radiusKm = 1.0;
+      const userLocation = LatLng(40.7128, -74.0060);
+      const radiusKm = 1.0;
       final nearbyServices = repository.getServicesNearLocation(
         userLocation,
         radiusKm: radiusKm,
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('getServicesNearLocation sorts by distance', () {
-      final userLocation = const LatLng(40.7128, -74.0060);
+      const userLocation = LatLng(40.7128, -74.0060);
       final nearbyServices = repository.getServicesNearLocation(
         userLocation,
         countryCode: 'US',
@@ -103,7 +103,7 @@ void main() {
     });
 
     test('getServicesNearLocation uses country-specific services', () {
-      final userLocation = const LatLng(5.6037, -0.1870); // Accra, Ghana
+      const userLocation = LatLng(5.6037, -0.1870); // Accra, Ghana
       final nearbyServices = repository.getServicesNearLocation(
         userLocation,
         countryCode: 'GH',

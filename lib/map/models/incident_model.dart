@@ -3,6 +3,11 @@ import 'package:latlong2/latlong.dart';
 
 enum IncidentCategory {
   accident,
+  fire,
+  theft,
+  suspicious,
+  lighting,
+  assault,
 }
 
 extension IncidentCategoryExtension on IncidentCategory {
@@ -10,6 +15,16 @@ extension IncidentCategoryExtension on IncidentCategory {
     switch (this) {
       case IncidentCategory.accident:
         return 'Accident';
+      case IncidentCategory.fire:
+        return 'Fire';
+      case IncidentCategory.theft:
+        return 'Theft';
+      case IncidentCategory.suspicious:
+        return 'Suspicious Activity';
+      case IncidentCategory.lighting:
+        return 'Lighting Issue';
+      case IncidentCategory.assault:
+        return 'Assault';
     }
   }
 
@@ -17,6 +32,16 @@ extension IncidentCategoryExtension on IncidentCategory {
     switch (this) {
       case IncidentCategory.accident:
         return Icons.car_crash;
+      case IncidentCategory.fire:
+        return Icons.local_fire_department;
+      case IncidentCategory.theft:
+        return Icons.security;
+      case IncidentCategory.suspicious:
+        return Icons.visibility;
+      case IncidentCategory.lighting:
+        return Icons.lightbulb;
+      case IncidentCategory.assault:
+        return Icons.warning;
     }
   }
 
@@ -24,6 +49,16 @@ extension IncidentCategoryExtension on IncidentCategory {
     switch (this) {
       case IncidentCategory.accident:
         return const Color(0xFFFF3B30);
+      case IncidentCategory.fire:
+        return const Color(0xFFFF9500);
+      case IncidentCategory.theft:
+        return const Color(0xFF5856D6);
+      case IncidentCategory.suspicious:
+        return const Color(0xFF5AC8FA);
+      case IncidentCategory.lighting:
+        return const Color(0xFFFFCC00);
+      case IncidentCategory.assault:
+        return const Color(0xFFAF52DE);
     }
   }
 }

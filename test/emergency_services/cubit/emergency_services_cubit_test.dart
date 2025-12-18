@@ -79,7 +79,7 @@ void main() {
           status: EmergencyServicesStatus.success,
           services: mockServices,
           filteredServices: [mockServices[0]],
-          selectedTypes: {EmergencyServiceType.police},
+          selectedTypes: const {EmergencyServiceType.police},
         ),
       ],
     );
@@ -90,7 +90,7 @@ void main() {
         status: EmergencyServicesStatus.success,
         services: mockServices,
         filteredServices: [mockServices[0]],
-        selectedTypes: {EmergencyServiceType.police},
+        selectedTypes: const {EmergencyServiceType.police},
       ),
       build: () => EmergencyServicesCubit(repository: mockRepository),
       act: (cubit) => cubit.toggleServiceType(EmergencyServiceType.police),
@@ -99,7 +99,6 @@ void main() {
           status: EmergencyServicesStatus.success,
           services: mockServices,
           filteredServices: mockServices,
-          selectedTypes: {},
         ),
       ],
     );
@@ -110,7 +109,7 @@ void main() {
         status: EmergencyServicesStatus.success,
         services: mockServices,
         filteredServices: [mockServices[0]],
-        selectedTypes: {EmergencyServiceType.police},
+        selectedTypes: const {EmergencyServiceType.police},
       ),
       build: () => EmergencyServicesCubit(repository: mockRepository),
       act: (cubit) => cubit.clearFilters(),
@@ -119,7 +118,6 @@ void main() {
           status: EmergencyServicesStatus.success,
           services: mockServices,
           filteredServices: mockServices,
-          selectedTypes: {},
         ),
       ],
     );
@@ -141,13 +139,13 @@ void main() {
           status: EmergencyServicesStatus.success,
           services: mockServices,
           filteredServices: [mockServices[0]],
-          selectedTypes: {EmergencyServiceType.police},
+          selectedTypes: const {EmergencyServiceType.police},
         ),
         EmergencyServicesState(
           status: EmergencyServicesStatus.success,
           services: mockServices,
           filteredServices: mockServices,
-          selectedTypes: {
+          selectedTypes: const {
             EmergencyServiceType.police,
             EmergencyServiceType.hospital,
           },
