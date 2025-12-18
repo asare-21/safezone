@@ -2,49 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 enum IncidentCategory {
-  theft,
-  assault,
-  suspicious,
-  lighting,
+  accident,
 }
 
 extension IncidentCategoryExtension on IncidentCategory {
   String get displayName {
     switch (this) {
-      case IncidentCategory.theft:
-        return 'Theft';
-      case IncidentCategory.assault:
-        return 'Assault';
-      case IncidentCategory.suspicious:
-        return 'Suspicious';
-      case IncidentCategory.lighting:
-        return 'Lighting';
+      case IncidentCategory.accident:
+        return 'Accident';
     }
   }
 
   IconData get icon {
     switch (this) {
-      case IncidentCategory.theft:
-        return Icons.error;
-      case IncidentCategory.assault:
-        return Icons.back_hand;
-      case IncidentCategory.suspicious:
-        return Icons.visibility;
-      case IncidentCategory.lighting:
-        return Icons.lightbulb;
+      case IncidentCategory.accident:
+        return Icons.car_crash;
     }
   }
 
   Color get color {
     switch (this) {
-      case IncidentCategory.theft:
-        return const Color(0xFFFF4C4C);
-      case IncidentCategory.assault:
-        return const Color(0xFFFF9500);
-      case IncidentCategory.suspicious:
-        return const Color(0xFFFFD60A);
-      case IncidentCategory.lighting:
-        return const Color(0xFF5856D6);
+      case IncidentCategory.accident:
+        return const Color(0xFFFF3B30);
     }
   }
 }
@@ -88,6 +67,7 @@ class Incident {
     required this.title,
     this.description,
     this.confirmedBy = 0,
+    this.notifyNearby = false,
   });
 
   final String id;
@@ -97,6 +77,7 @@ class Incident {
   final String title;
   final String? description;
   final int confirmedBy;
+  final bool notifyNearby;
 
   bool isWithinTimeFilter(TimeFilter filter) {
     final now = DateTime.now();
