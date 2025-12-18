@@ -76,7 +76,6 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.high,
-          searchQuery: '',
         ),
       ],
     );
@@ -99,7 +98,6 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.high,
-          searchQuery: '',
         ),
       ],
     );
@@ -121,7 +119,6 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.moderate,
-          searchQuery: '',
         ),
       ],
     );
@@ -146,7 +143,6 @@ void main() {
             IncidentCategory.theft,
           },
           riskLevel: RiskLevel.high,
-          searchQuery: '',
         ),
       ],
     );
@@ -208,7 +204,6 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.high,
-          searchQuery: '',
         ),
       ],
     );
@@ -249,7 +244,6 @@ void main() {
             IncidentCategory.lighting,
           },
           riskLevel: RiskLevel.high,
-          searchQuery: '',
         ),
       ],
     );
@@ -269,7 +263,6 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.safe,
-            searchQuery: '',
           ),
         ],
       );
@@ -296,7 +289,6 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.safe,
-            searchQuery: '',
           ),
         ],
       );
@@ -330,7 +322,6 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.moderate,
-            searchQuery: '',
           ),
         ],
       );
@@ -357,7 +348,6 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.moderate,
-            searchQuery: '',
           ),
         ],
       );
@@ -412,7 +402,6 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.high,
-            searchQuery: '',
           ),
         ],
       );
@@ -453,7 +442,6 @@ void main() {
               IncidentCategory.lighting,
             },
             riskLevel: RiskLevel.high,
-            searchQuery: '',
           ),
         ],
       );
@@ -466,7 +454,6 @@ void main() {
         timeFilter: TimeFilter.twentyFourHours,
         selectedCategories: {IncidentCategory.theft},
         riskLevel: RiskLevel.safe,
-        searchQuery: '',
       );
 
       final updated = original.copyWith(

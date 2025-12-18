@@ -48,7 +48,7 @@ void main() {
     testWidgets('displays safe zone status card', (tester) async {
       await tester.pumpAlertsApp(const AlertsScreen());
 
-      expect(find.text('You\'re in a Safe Zone'), findsOneWidget);
+      expect(find.text("You're in a Safe Zone"), findsOneWidget);
       expect(
         find.text('No immediate threats detected in your vicinity.'),
         findsOneWidget,

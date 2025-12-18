@@ -59,7 +59,7 @@ class _ProfileView extends StatelessWidget {
                 _buildAlertRadiusItem(theme),
                 const Divider(),
 
-                // TODO (joasare019): Add mapp settings here to manage default zoom, map location icon and alert radius. Use class FunIconLoader to load custom icons. Use a cubit to manage all of this.
+                // TODO(joasare019): Add mapp settings here to manage default zoom, map location icon and alert radius. Use class FunIconLoader to load custom icons. Use a cubit to manage all of this.
                 _buildLocationIconItem(theme, context),
                 const Divider(),
                 _buildDefaultZoomItem(theme),

@@ -565,7 +565,7 @@ class _AlertsScreenView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'You\'re in a Safe Zone',
+                    "You're in a Safe Zone",
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       fontSize: 18,
