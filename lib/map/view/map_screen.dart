@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -212,23 +210,18 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
   /// Generate circle points for a polygon
   List<LatLng> _generateCirclePoints(LatLng center, double radiusInMeters) {
-    const earthRadius = 6371000.0; // Earth's radius in meters
     const numberOfPoints = 64; // Number of points to approximate the circle
+    const distance = Distance();
     
     final points = <LatLng>[];
     for (var i = 0; i <= numberOfPoints; i++) {
-      final angle = (i * 360 / numberOfPoints) * (3.14159265359 / 180);
-      
-      final dx = radiusInMeters * cos(angle);
-      final dy = radiusInMeters * sin(angle);
-      
-      final deltaLat = dy / earthRadius;
-      final deltaLon = dx / (earthRadius * cos(center.latitude * 3.14159265359 / 180));
-      
-      final lat = center.latitude + (deltaLat * 180 / 3.14159265359);
-      final lon = center.longitude + (deltaLon * 180 / 3.14159265359);
-      
-      points.add(LatLng(lat, lon));
+      final bearing = (i * 360 / numberOfPoints).toDouble();
+      final point = distance.offset(
+        center,
+        radiusInMeters,
+        bearing,
+      );
+      points.add(point);
     }
     
     return points;

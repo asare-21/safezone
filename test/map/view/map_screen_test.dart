@@ -379,7 +379,7 @@ void main() {
       await tester.pumpMapApp(const MapScreen());
       await tester.pumpAndSettle();
 
-      // Verify MapScreen is rendered (the CircleLayer is part of it)
+      // Verify MapScreen is rendered (the PolygonLayer for circles is part of it)
       expect(find.byType(MapScreen), findsOneWidget);
     });
 
