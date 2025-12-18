@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
@@ -600,6 +601,24 @@ class _MapScreenViewState extends State<_MapScreenView> {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+
+                      // Emergency Services button
+                      Positioned(
+                        left: 16,
+                        bottom: 180,
+                        child: FloatingActionButton(
+                          heroTag: 'emergency_services',
+                          onPressed: () {
+                            context.push('/emergency-services');
+                          },
+                          backgroundColor: const Color(0xFFFF4C4C),
+                          tooltip: 'Emergency Services',
+                          child: const Icon(
+                            Icons.local_hospital,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
 
