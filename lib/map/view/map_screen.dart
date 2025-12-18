@@ -8,6 +8,8 @@ import 'package:safe_zone/incident_report/incident_report.dart';
 import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
+import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
+import 'package:safe_zone/profile/cubit/safe_zone_state.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -217,15 +219,17 @@ class _MapScreenViewState extends State<_MapScreenView> {
           return _buildLoadingScreen();
         }
 
-        return BlocBuilder<ProfileCubit, ProfileState>(
-          builder: (context, profileState) {
-            return BlocBuilder<MapFilterCubit, MapFilterState>(
-              builder: (context, filterState) {
-                final filteredIncidents = context
-                    .read<MapFilterCubit>()
-                    .getFilteredIncidents();
+        return BlocBuilder<SafeZoneCubit, SafeZoneState>(
+          builder: (context, safeZoneState) {
+            return BlocBuilder<ProfileCubit, ProfileState>(
+              builder: (context, profileState) {
+                return BlocBuilder<MapFilterCubit, MapFilterState>(
+                  builder: (context, filterState) {
+                    final filteredIncidents = context
+                        .read<MapFilterCubit>()
+                        .getFilteredIncidents();
 
-                return Scaffold(
+                    return Scaffold(
                   body: Stack(
                     children: [
                       // Map
@@ -242,6 +246,24 @@ class _MapScreenViewState extends State<_MapScreenView> {
                             urlTemplate:
                                 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             userAgentPackageName: 'com.safezone.app',
+                          ),
+
+                          // Safe zone circles
+                          CircleLayer(
+                            circles: safeZoneState.safeZones
+                                .where((zone) => zone.isActive)
+                                .map((zone) {
+                              return CircleMarker(
+                                point: zone.location,
+                                radius: zone.radius,
+                                useRadiusInMeter: true,
+                                color: theme.colorScheme.primary
+                                    .withValues(alpha: 0.1),
+                                borderColor: theme.colorScheme.primary
+                                    .withValues(alpha: 0.5),
+                                borderStrokeWidth: 2,
+                              );
+                            }).toList(),
                           ),
 
                           // Incident markers
