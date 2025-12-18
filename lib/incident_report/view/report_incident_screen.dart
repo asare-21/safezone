@@ -36,6 +36,30 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         return 'Suspicious activity has been reported in this area';
       case IncidentCategory.lighting:
         return 'Poor lighting has been reported in this area';
+      case IncidentCategory.vandalism:
+        return 'Vandalism has been reported in this area';
+      case IncidentCategory.harassment:
+        return 'Harassment has been reported in this area';
+      case IncidentCategory.roadHazard:
+        return 'A road hazard has been reported in this area';
+      case IncidentCategory.animalDanger:
+        return 'A dangerous animal has been reported in this area';
+      case IncidentCategory.medicalEmergency:
+        return 'A medical emergency has been reported in this area';
+      case IncidentCategory.naturalDisaster:
+        return 'A natural disaster has been reported in this area';
+      case IncidentCategory.powerOutage:
+        return 'A power outage has been reported in this area';
+      case IncidentCategory.waterIssue:
+        return 'A water issue has been reported in this area';
+      case IncidentCategory.noise:
+        return 'Excessive noise has been reported in this area';
+      case IncidentCategory.trespassing:
+        return 'Trespassing has been reported in this area';
+      case IncidentCategory.drugActivity:
+        return 'Drug activity has been reported in this area';
+      case IncidentCategory.weaponSighting:
+        return 'A weapon has been sighted in this area';
       default:
         return 'A ${category.displayName.toLowerCase()} incident has been reported in this area';
     }

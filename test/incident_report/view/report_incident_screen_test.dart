@@ -42,13 +42,25 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Select Incident Category'), findsOneWidget);
-      // Should display all 6 categories
+      // Should display all 18 categories
       expect(find.text('Accident'), findsOneWidget);
       expect(find.text('Fire'), findsOneWidget);
       expect(find.text('Theft'), findsOneWidget);
       expect(find.text('Suspicious Activity'), findsOneWidget);
       expect(find.text('Lighting Issue'), findsOneWidget);
       expect(find.text('Assault'), findsOneWidget);
+      expect(find.text('Vandalism'), findsOneWidget);
+      expect(find.text('Harassment'), findsOneWidget);
+      expect(find.text('Road Hazard'), findsOneWidget);
+      expect(find.text('Animal Danger'), findsOneWidget);
+      expect(find.text('Medical Emergency'), findsOneWidget);
+      expect(find.text('Natural Disaster'), findsOneWidget);
+      expect(find.text('Power Outage'), findsOneWidget);
+      expect(find.text('Water Issue'), findsOneWidget);
+      expect(find.text('Noise Complaint'), findsOneWidget);
+      expect(find.text('Trespassing'), findsOneWidget);
+      expect(find.text('Drug Activity'), findsOneWidget);
+      expect(find.text('Weapon Sighting'), findsOneWidget);
     });
 
     testWidgets('displays notify nearby toggle', (tester) async {
@@ -149,6 +161,38 @@ void main() {
       expect(submittedTitle, 'Theft');
       expect(submittedDescription, 
           'A theft incident has been reported in this area');
+      expect(submittedNotifyNearby, isTrue);
+    });
+
+    testWidgets('calls onSubmit with correct data for new categories', 
+        (tester) async {
+      IncidentCategory? submittedCategory;
+      String? submittedTitle;
+      String? submittedDescription;
+      bool? submittedNotifyNearby;
+
+      await tester.pumpReportIncidentApp(
+        onSubmit: (category, title, description, notifyNearby) {
+          submittedCategory = category;
+          submittedTitle = title;
+          submittedDescription = description;
+          submittedNotifyNearby = notifyNearby;
+        },
+      );
+      await tester.pumpAndSettle();
+
+      // Select Medical Emergency category
+      await tester.tap(find.text('Medical Emergency'));
+      await tester.pumpAndSettle();
+
+      // Submit
+      await tester.tap(find.text('Submit Report'));
+      await tester.pumpAndSettle();
+
+      expect(submittedCategory, IncidentCategory.medicalEmergency);
+      expect(submittedTitle, 'Medical Emergency');
+      expect(submittedDescription, 
+          'A medical emergency has been reported in this area');
       expect(submittedNotifyNearby, isTrue);
     });
 
