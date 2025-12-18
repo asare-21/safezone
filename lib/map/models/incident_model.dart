@@ -8,6 +8,18 @@ enum IncidentCategory {
   suspicious,
   lighting,
   assault,
+  vandalism,
+  harassment,
+  roadHazard,
+  animalDanger,
+  medicalEmergency,
+  naturalDisaster,
+  powerOutage,
+  waterIssue,
+  noise,
+  trespassing,
+  drugActivity,
+  weaponSighting,
 }
 
 extension IncidentCategoryExtension on IncidentCategory {
@@ -25,6 +37,30 @@ extension IncidentCategoryExtension on IncidentCategory {
         return 'Lighting Issue';
       case IncidentCategory.assault:
         return 'Assault';
+      case IncidentCategory.vandalism:
+        return 'Vandalism';
+      case IncidentCategory.harassment:
+        return 'Harassment';
+      case IncidentCategory.roadHazard:
+        return 'Road Hazard';
+      case IncidentCategory.animalDanger:
+        return 'Animal Danger';
+      case IncidentCategory.medicalEmergency:
+        return 'Medical Emergency';
+      case IncidentCategory.naturalDisaster:
+        return 'Natural Disaster';
+      case IncidentCategory.powerOutage:
+        return 'Power Outage';
+      case IncidentCategory.waterIssue:
+        return 'Water Issue';
+      case IncidentCategory.noise:
+        return 'Noise Complaint';
+      case IncidentCategory.trespassing:
+        return 'Trespassing';
+      case IncidentCategory.drugActivity:
+        return 'Drug Activity';
+      case IncidentCategory.weaponSighting:
+        return 'Weapon Sighting';
     }
   }
 
@@ -42,6 +78,30 @@ extension IncidentCategoryExtension on IncidentCategory {
         return Icons.lightbulb;
       case IncidentCategory.assault:
         return Icons.warning;
+      case IncidentCategory.vandalism:
+        return Icons.broken_image;
+      case IncidentCategory.harassment:
+        return Icons.person_off;
+      case IncidentCategory.roadHazard:
+        return Icons.warning_amber;
+      case IncidentCategory.animalDanger:
+        return Icons.pets;
+      case IncidentCategory.medicalEmergency:
+        return Icons.medical_services;
+      case IncidentCategory.naturalDisaster:
+        return Icons.storm;
+      case IncidentCategory.powerOutage:
+        return Icons.power_off;
+      case IncidentCategory.waterIssue:
+        return Icons.water_damage;
+      case IncidentCategory.noise:
+        return Icons.volume_up;
+      case IncidentCategory.trespassing:
+        return Icons.no_accounts;
+      case IncidentCategory.drugActivity:
+        return Icons.medication;
+      case IncidentCategory.weaponSighting:
+        return Icons.dangerous;
     }
   }
 
@@ -59,6 +119,30 @@ extension IncidentCategoryExtension on IncidentCategory {
         return const Color(0xFFFFCC00);
       case IncidentCategory.assault:
         return const Color(0xFFAF52DE);
+      case IncidentCategory.vandalism:
+        return const Color(0xFF8E8E93);
+      case IncidentCategory.harassment:
+        return const Color(0xFFFF2D55);
+      case IncidentCategory.roadHazard:
+        return const Color(0xFFFF9500);
+      case IncidentCategory.animalDanger:
+        return const Color(0xFF32ADE6);
+      case IncidentCategory.medicalEmergency:
+        return const Color(0xFFFF3B30);
+      case IncidentCategory.naturalDisaster:
+        return const Color(0xFF5856D6);
+      case IncidentCategory.powerOutage:
+        return const Color(0xFF000000);
+      case IncidentCategory.waterIssue:
+        return const Color(0xFF007AFF);
+      case IncidentCategory.noise:
+        return const Color(0xFFFFCC00);
+      case IncidentCategory.trespassing:
+        return const Color(0xFF8E8E93);
+      case IncidentCategory.drugActivity:
+        return const Color(0xFFAF52DE);
+      case IncidentCategory.weaponSighting:
+        return const Color(0xFFFF3B30);
     }
   }
 }
