@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/incident_report/incident_report.dart';
 import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
@@ -123,11 +124,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 
   void _showReportIncidentDialog() {
-    showDialog<void>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return _ReportIncidentDialog(
-          onSubmit: (category, title, description) {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (context) => ReportIncidentScreen(
+          onSubmit: (category, title, description, mediaPaths, notifyNearby) {
             final newIncident = Incident(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               category: category,
@@ -136,22 +136,40 @@ class _MapScreenViewState extends State<_MapScreenView> {
               title: title,
               description: description,
               confirmedBy: 1,
+              mediaUrls: mediaPaths,
+              notifyNearby: notifyNearby,
             );
             _allIncidents.insert(0, newIncident);
             // Update cubit with new incidents list
-            context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+            this.context.read<MapFilterCubit>().initializeIncidents(
+              _allIncidents,
+            );
 
-            Navigator.of(dialogContext).pop();
+            Navigator.of(context).pop();
+
+            // Show success message with notification status
+            final message = notifyNearby
+                ? 'Incident reported and nearby users notified'
+                : 'Incident reported successfully';
+
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Incident reported successfully'),
-                backgroundColor: Color(0xFF34C759),
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(message)),
+                  ],
+                ),
+                backgroundColor: const Color(0xFF34C759),
                 behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 3),
               ),
             );
           },
-        );
-      },
+        ),
+        fullscreenDialog: true,
+      ),
     );
   }
 
@@ -706,252 +724,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
 }
 
-class _ReportIncidentDialog extends StatefulWidget {
-  const _ReportIncidentDialog({
-    required this.onSubmit,
-  });
-
-  final void Function(
-    IncidentCategory category,
-    String title,
-    String description,
-  )
-  onSubmit;
-
-  @override
-  State<_ReportIncidentDialog> createState() => _ReportIncidentDialogState();
-}
-
-class _ReportIncidentDialogState extends State<_ReportIncidentDialog> {
-  final _formKey = GlobalKey<FormState>();
-  IncidentCategory _selectedCategory = IncidentCategory.theft;
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate()) {
-      widget.onSubmit(
-        _selectedCategory,
-        _titleController.text,
-        _descriptionController.text,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      title: const Row(
-        children: [
-          Icon(
-            LineIcons.bullhorn,
-            size: 24,
-          ),
-          SizedBox(width: 12),
-          Text(
-            'Report Incident',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Category selection
-              Text(
-                'Category',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: IncidentCategory.values.map((category) {
-                  final isSelected = _selectedCategory == category;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedCategory = category;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected ? category.color : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isSelected
-                              ? category.color
-                              : const Color(0xFFE5E5E5),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            category.icon,
-                            color: isSelected ? Colors.white : category.color,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            category.displayName,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-
-              // Title field
-              Text(
-                'Title',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: 'Brief description of the incident',
-                  hintStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                    fontSize: 14,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: theme.colorScheme.primary),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Description field
-              Text(
-                'Description (Optional)',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Additional details...',
-                  hintStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                    fontSize: 14,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: theme.colorScheme.primary),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            'Cancel',
-            style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: _handleSubmit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'Submit',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _IncidentDetailsSheet extends StatelessWidget {
   const _IncidentDetailsSheet({
     required this.incident,
@@ -1086,6 +858,45 @@ class _IncidentDetailsSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+
+              // Media (if available)
+              if (incident.mediaUrls.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Photos',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 100,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: incident.mediaUrls.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            color: const Color(0xFFF5F5F5),
+                            child: const Icon(
+                              Icons.image,
+                              color: Color(0xFFCCCCCC),
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
