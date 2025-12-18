@@ -46,8 +46,10 @@ void main() {
     blocTest<EmergencyServicesCubit, EmergencyServicesState>(
       'emits [loading, success] when loadServices succeeds',
       setUp: () {
-        when(() => mockRepository.getServicesNearLocation(any()))
-            .thenReturn(mockServices);
+        when(() => mockRepository.getServicesNearLocation(
+          any(),
+          countryCode: any(named: 'countryCode'),
+        )).thenReturn(mockServices);
       },
       build: () => EmergencyServicesCubit(repository: mockRepository),
       act: (cubit) => cubit.loadServices(
@@ -58,6 +60,10 @@ void main() {
         EmergencyServicesState(
           status: EmergencyServicesStatus.success,
           services: mockServices,
+          filteredServices: mockServices,
+        ),
+      ],
+    );
           filteredServices: mockServices,
         ),
       ],

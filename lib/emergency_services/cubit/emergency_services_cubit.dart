@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/emergency_services/cubit/emergency_services_state.dart';
@@ -18,16 +19,35 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
 
     try {
       List<EmergencyService> services;
+      String? countryCode;
 
       if (userLocation != null) {
-        // Load services near user location
-        services = _repository.getServicesNearLocation(userLocation);
+        // Get country code from provided location
+        countryCode = await _getCountryCode(
+          userLocation.latitude,
+          userLocation.longitude,
+        );
+        // Load services near user location with country code
+        services = _repository.getServicesNearLocation(
+          userLocation,
+          countryCode: countryCode,
+        );
       } else {
         // Try to get user's current location
         try {
           final position = await _getCurrentPosition();
           final location = LatLng(position.latitude, position.longitude);
-          services = _repository.getServicesNearLocation(location);
+          
+          // Get country code from current location
+          countryCode = await _getCountryCode(
+            position.latitude,
+            position.longitude,
+          );
+          
+          services = _repository.getServicesNearLocation(
+            location,
+            countryCode: countryCode,
+          );
         } catch (e) {
           // If location is not available, show all services
           services = _repository.getAllServices();
@@ -89,6 +109,19 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
         filteredServices: filtered,
       ),
     );
+  }
+
+  Future<String?> _getCountryCode(double latitude, double longitude) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        return placemarks.first.isoCountryCode;
+      }
+    } catch (e) {
+      // If geocoding fails, return null to use default services
+      return null;
+    }
+    return null;
   }
 
   Future<Position> _getCurrentPosition() async {
