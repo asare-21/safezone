@@ -552,54 +552,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
       },
     );
   }
-
-  // TODO(joasare019): #70 Show all incidents on the map. Dont just show filtered ones. Use different marker styles to indicate filtered vs unfiltered incidents. --- IGNORE ---g
-  Widget _buildCategoryFilterChip(
-    IncidentCategory category, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? category.color : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? category.color : const Color(0xFFE5E5E5),
-          ),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              category.icon,
-              color: isSelected ? Colors.white : category.color,
-              size: 18,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              category.displayName,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _IncidentDetailsSheet extends StatelessWidget {
