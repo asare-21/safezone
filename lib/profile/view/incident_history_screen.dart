@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:safe_zone/home/cubit/bottom_navigation_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/profile/models/user_incident_model.dart';
 
@@ -30,6 +33,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         id: '1',
         category: IncidentCategory.theft,
         locationName: 'Market St & 5th Ave, Downtown',
+        location: const LatLng(40.7580, -73.9855),
         timestamp: DateTime.now().subtract(const Duration(hours: 3)),
         title: 'Bike theft at shopping district',
         description:
@@ -42,6 +46,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         id: '2',
         category: IncidentCategory.suspicious,
         locationName: 'Central Park, North Entrance',
+        location: const LatLng(40.7614, -73.9776),
         timestamp: DateTime.now().subtract(const Duration(days: 2)),
         title: 'Suspicious activity near parking lot',
         description:
@@ -54,6 +59,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         id: '3',
         category: IncidentCategory.lighting,
         locationName: 'Oak Street Underpass',
+        location: const LatLng(40.7489, -73.9680),
         timestamp: DateTime.now().subtract(const Duration(days: 5)),
         title: 'Broken street lights in tunnel',
         description:
@@ -66,6 +72,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         id: '4',
         category: IncidentCategory.assault,
         locationName: 'University Campus, Building C',
+        location: const LatLng(40.7282, -74.0776),
         timestamp: DateTime.now().subtract(const Duration(days: 7)),
         title: 'Harassment incident reported',
         description:
@@ -78,6 +85,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         id: '5',
         category: IncidentCategory.theft,
         locationName: 'Transit Station, Platform 3',
+        location: const LatLng(40.7589, -73.9851),
         timestamp: DateTime.now().subtract(const Duration(days: 14)),
         title: 'Pickpocketing at subway station',
         description:
@@ -90,6 +98,7 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
         id: '6',
         category: IncidentCategory.suspicious,
         locationName: 'West End Shopping Mall',
+        location: const LatLng(40.7128, -74.0060),
         timestamp: DateTime.now().subtract(const Duration(days: 21)),
         title: 'Suspicious vehicle in parking lot',
         description:
@@ -1145,9 +1154,13 @@ class IncidentDetailScreen extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO #66 (joasare019): Implement View on map function. Use already existing cubit to do this.
-                      },
+                      onPressed: incident.location != null
+                          ? () {
+                              context
+                                  .read<BottomNavigationCubit>()
+                                  .navigateToMap();
+                            }
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
                         foregroundColor: Colors.white,
