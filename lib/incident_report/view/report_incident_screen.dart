@@ -3,6 +3,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 
 /// Simplified accident reporting screen
+// TODO(joasare019): Expand to support multiple incident categories. Dont allow user to type incident title or description. Just show a category for them to choose and submit to make the incident reporting as seamless as possible
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({
     required this.onSubmit,
@@ -14,7 +15,8 @@ class ReportIncidentScreen extends StatefulWidget {
     String title,
     String description,
     bool notifyNearby,
-  ) onSubmit;
+  )
+  onSubmit;
 
   @override
   State<ReportIncidentScreen> createState() => _ReportIncidentScreenState();
@@ -235,8 +237,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                           'Alert community members in this area',
                           style: TextStyle(
                             fontSize: 13,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                         ),
                       ],
@@ -261,8 +264,9 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               onPressed: _isSubmitting ? null : _handleSubmit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
-                disabledBackgroundColor:
-                    theme.colorScheme.primary.withValues(alpha: 0.5),
+                disabledBackgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.5,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
