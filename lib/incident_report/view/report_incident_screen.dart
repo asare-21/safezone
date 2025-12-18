@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 /// Simplified category-based incident reporting screen
 class ReportIncidentScreen extends StatefulWidget {
@@ -176,9 +177,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected
-                          ? category.color
-                          : Colors.transparent,
+                      color: isSelected ? category.color : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -194,9 +193,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                         ),
                         child: Icon(
                           category.icon,
-                          color: isSelected
-                              ? Colors.white
-                              : category.color,
+                          color: isSelected ? Colors.white : category.color,
                           size: 24,
                         ),
                       ),
@@ -282,43 +279,41 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 32),
-
-          // Submit button
-          ElevatedButton(
-            onPressed: _isSubmitting || _selectedCategory == null
-                ? null
-                : _handleSubmit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              disabledBackgroundColor: theme.colorScheme.primary.withValues(
-                alpha: 0.5,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 2,
-            ),
-            child: _isSubmitting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Text(
-                    'Submit Report',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-          ),
         ],
+      ),
+      bottomNavigationBar: // Submit button
+      IgnorePointer(
+        ignoring: _isSubmitting || _selectedCategory == null,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: _isSubmitting || _selectedCategory == null ? 0.5 : 1.0,
+          child: SafeArea(
+            minimum: const EdgeInsets.all(20),
+            child: ShadButton(
+              onPressed: _isSubmitting || _selectedCategory == null
+                  ? null
+                  : _handleSubmit,
+              height: 50,
+              child: _isSubmitting
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text(
+                      'Submit Report',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+            ),
+          ),
+        ),
       ),
     );
   }

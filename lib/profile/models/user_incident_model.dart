@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 
 enum IncidentStatus {
@@ -70,6 +71,7 @@ class UserIncident {
     required this.timestamp,
     required this.title,
     required this.status,
+    this.location,
     this.description,
     this.confirmedBy = 0,
     this.impactScore = 0,
@@ -78,6 +80,7 @@ class UserIncident {
   final String id;
   final IncidentCategory category;
   final String locationName;
+  final LatLng? location;
   final DateTime timestamp;
   final String title;
   final String? description;

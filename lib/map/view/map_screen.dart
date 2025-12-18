@@ -119,8 +119,12 @@ class _MapScreenViewState extends State<_MapScreenView> {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return _IncidentDetailsSheet(incident: incident);
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: _IncidentDetailsSheet(incident: incident),
+        );
       },
     );
   }
@@ -356,154 +360,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
                         ],
                       ),
 
-                      // // Top overlay with search and filters
-                      // SafeArea(
-                      //   child: Column(
-                      //     children: [
-                      //       // Avatar and search bar
-                      //       Padding(
-                      //         padding: const EdgeInsets.symmetric(
-                      //           horizontal: 16,
-                      //           vertical: 5,
-                      //         ),
-                      //         child: Row(
-                      //           children: [
-                      //             // Search bar
-                      //             Expanded(
-                      //               child: Container(
-                      //                 height: 48,
-                      //                 decoration: BoxDecoration(
-                      //                   color: Colors.white,
-                      //                   borderRadius: BorderRadius.circular(24),
-                      //                   boxShadow: [
-                      //                     BoxShadow(
-                      //                       color: Colors.black.withValues(
-                      //                         alpha: 0.1,
-                      //                       ),
-                      //                       blurRadius: 8,
-                      //                       offset: const Offset(0, 2),
-                      //                     ),
-                      //                   ],
-                      //                 ),
-                      //                 child: TextField(
-                      //                   controller: _searchController,
-                      //                   onChanged: (value) {
-                      //                     _searchDebouncer.run(() {
-                      //                       context
-                      //                           .read<MapFilterCubit>()
-                      //                           .updateSearchQuery(value);
-                      //                     });
-                      //                   },
-                      //                   decoration: InputDecoration(
-                      //                     hintText: 'Search location or zone',
-                      //                     hintStyle: TextStyle(
-                      //                       color: theme.colorScheme.onSurface
-                      //                           .withValues(
-                      //                             alpha: 0.4,
-                      //                           ),
-                      //                       fontSize: 15,
-                      //                     ),
-                      //                     prefixIcon: Icon(
-                      //                       Icons.search,
-                      //                       color: theme.colorScheme.onSurface
-                      //                           .withValues(
-                      //                             alpha: 0.4,
-                      //                           ),
-                      //                     ),
-                      //                     suffixIcon:
-                      //                         filterState.searchQuery.isNotEmpty
-                      //                         ? IconButton(
-                      //                             icon: const Icon(Icons.clear),
-                      //                             onPressed: () {
-                      //                               _searchController.clear();
-                      //                               context
-                      //                                   .read<MapFilterCubit>()
-                      //                                   .clearSearch();
-                      //                             },
-                      //                           )
-                      //                         : null,
-                      //                     border: InputBorder.none,
-                      //                     contentPadding:
-                      //                         const EdgeInsets.symmetric(
-                      //                           horizontal: 16,
-                      //                           vertical: 14,
-                      //                         ),
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-
-                      //       // Time filter segments
-                      //       SegmentedButton<TimeFilter>(
-                      //         style: SegmentedButton.styleFrom(
-                      //           backgroundColor: Colors.white,
-                      //           selectedBackgroundColor: Theme.of(
-                      //             context,
-                      //           ).colorScheme.primary,
-                      //           selectedForegroundColor: Colors.white,
-                      //         ),
-                      //         onSelectionChanged: (newSelection) {
-                      //           final selectedFilter = newSelection.first;
-                      //           context.read<MapFilterCubit>().updateTimeFilter(
-                      //             selectedFilter,
-                      //           );
-                      //         },
-                      //         segments: const [
-                      //           ButtonSegment(
-                      //             value: TimeFilter.twentyFourHours,
-                      //             label: Text('24h'),
-                      //           ),
-                      //           ButtonSegment(
-                      //             value: TimeFilter.sevenDays,
-                      //             label: Text('7d'),
-                      //           ),
-                      //           ButtonSegment(
-                      //             value: TimeFilter.thirtyDays,
-                      //             label: Text('30d'),
-                      //           ),
-                      //         ],
-                      //         selected: {filterState.timeFilter},
-                      //       ),
-
-                      //       const SizedBox(height: 12),
-
-                      //       // Category filter chips
-                      //       SingleChildScrollView(
-                      //         scrollDirection: Axis.horizontal,
-                      //         padding: const EdgeInsets.symmetric(
-                      //           horizontal: 16,
-                      //         ),
-                      //         child: Row(
-                      //           children: IncidentCategory.values.map((
-                      //             category,
-                      //           ) {
-                      //             final isSelected = filterState
-                      //                 .selectedCategories
-                      //                 .contains(category);
-                      //             return Padding(
-                      //               padding: const EdgeInsets.only(right: 8),
-                      //               child: _buildCategoryFilterChip(
-                      //                 category,
-                      //                 isSelected: isSelected,
-                      //                 onTap: () {
-                      //                   context
-                      //                       .read<MapFilterCubit>()
-                      //                       .toggleCategory(
-                      //                         category,
-                      //                       );
-                      //                 },
-                      //               ),
-                      //             );
-                      //           }).toList(),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-
                       // Empty state for filtered results
                       if (filteredIncidents.isEmpty)
                         Positioned.fill(
@@ -686,53 +542,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildCategoryFilterChip(
-    IncidentCategory category, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? category.color : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? category.color : const Color(0xFFE5E5E5),
-          ),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              category.icon,
-              color: isSelected ? Colors.white : category.color,
-              size: 18,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              category.displayName,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -970,10 +779,13 @@ class _IncidentDetailsSheet extends StatelessWidget {
                         // Confirm incident functionality
                         ShadToaster.of(context).show(
                           const ShadToast(
-                            description: Text('Incident confirmed'),
                             leading: Icon(Icons.check),
+                            
+
+                            description: Text('Incident confirmed'),
                           ),
                         );
+
                         Navigator.of(context).pop();
                       },
                       icon: const Icon(Icons.check),
