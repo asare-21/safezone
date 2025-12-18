@@ -36,7 +36,7 @@ class _SafeZoneFormScreenState extends State<SafeZoneFormScreen> {
     _longitudeController = TextEditingController(
       text: widget.safeZone?.location.longitude.toString() ?? '',
     );
-    _selectedType = widget.safeZone?.type ?? SafeZoneType.home;
+    _selectedType = widget.safeZone?.type ?? SafeZoneType.custom;
     _radius = widget.safeZone?.radius ?? 500;
     _notifyOnEnter = widget.safeZone?.notifyOnEnter ?? true;
     _notifyOnExit = widget.safeZone?.notifyOnExit ?? true;

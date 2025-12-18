@@ -67,8 +67,8 @@ class GeofencingService {
 
       // Start listening to position updates
       const locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10, // Update every 10 meters
+        accuracy: LocationAccuracy.medium,
+        distanceFilter: 50, // Update every 50 meters
       );
 
       _positionSubscription = Geolocator.getPositionStream(
