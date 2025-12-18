@@ -553,7 +553,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     );
   }
 
-  // TODO(joasare019): #70 Show all incidents on the map. Dont just show filtered ones. Use different marker styles to indicate filtered vs unfiltered incidents. --- IGNORE ---
+  // TODO(joasare019): #70 Show all incidents on the map. Dont just show filtered ones. Use different marker styles to indicate filtered vs unfiltered incidents. --- IGNORE ---g
   Widget _buildCategoryFilterChip(
     IncidentCategory category, {
     required bool isSelected,
