@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/profile.dart';
+import 'package:safe_zone/profile/view/safe_zones_screen.dart';
 import 'package:safe_zone/utils/global.dart';
 
 // Color constants for profile screen
@@ -172,6 +173,21 @@ class _ProfileView extends StatelessWidget {
             _buildSettingsCard(
               theme,
               children: [
+                _buildNavigationItem(
+                  theme,
+                  icon: LineIcons.mapMarked,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconBgColor: _lightBlueBackground,
+                  title: 'Safe Zones',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (context) => const SafeZonesScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const Divider(),
                 _buildNavigationItem(
                   theme,
                   icon: LineIcons.history,
