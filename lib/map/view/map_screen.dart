@@ -305,7 +305,53 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                 point: _center,
                                 width: 48,
                                 height: 48,
-                                child: Image.asset(profileState.locationIcon),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              theme.colorScheme.primary,
+                                            ),
+                                        strokeWidth: 5,
+                                        value: 1,
+                                      ),
+                                    ),
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: Colors.white,
+                                      child: Image.asset(
+                                        profileState.locationIcon,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      right: 0,
+                                      bottom: 0,
+                                      child: Container(
+                                        width: 14,
+                                        height: 14,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: theme.colorScheme.primary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
