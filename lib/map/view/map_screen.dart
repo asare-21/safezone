@@ -214,7 +214,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     const distance = Distance();
     
     final points = <LatLng>[];
-    for (var i = 0; i <= numberOfPoints; i++) {
+    for (var i = 0; i < numberOfPoints; i++) {
       final bearing = (i * 360 / numberOfPoints).toDouble();
       final point = distance.offset(
         center,
