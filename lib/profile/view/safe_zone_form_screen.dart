@@ -85,7 +85,7 @@ class _SafeZoneFormScreenState extends State<SafeZoneFormScreen> {
         _latitudeController.text = position.latitude.toString();
         _longitudeController.text = position.longitude.toString();
       });
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         ShadToaster.of(context).show(
           ShadToast(

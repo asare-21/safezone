@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
 import 'package:safe_zone/profile/cubit/safe_zone_state.dart';
@@ -96,8 +95,9 @@ class _SafeZonesView extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                     ),
                   ),
@@ -199,8 +199,9 @@ class _SafeZoneCard extends StatelessWidget {
                         '${zone.type.displayName} • ${(zone.radius / 1000).toStringAsFixed(1)} km radius',
                         style: TextStyle(
                           fontSize: 13,
-                          color:
-                              theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                     ],
