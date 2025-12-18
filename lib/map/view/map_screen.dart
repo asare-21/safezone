@@ -208,6 +208,25 @@ class _MapScreenViewState extends State<_MapScreenView> {
     return hoursSinceIncident < 1;
   }
 
+  /// Generate circle points for a polygon
+  List<LatLng> _generateCirclePoints(LatLng center, double radiusInMeters) {
+    const numberOfPoints = 64; // Number of points to approximate the circle
+    const distance = Distance();
+    
+    final points = <LatLng>[];
+    for (var i = 0; i < numberOfPoints; i++) {
+      final bearing = (i * 360 / numberOfPoints).toDouble();
+      final point = distance.offset(
+        center,
+        radiusInMeters,
+        bearing,
+      );
+      points.add(point);
+    }
+    
+    return points;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -249,19 +268,21 @@ class _MapScreenViewState extends State<_MapScreenView> {
                           ),
 
                           // Safe zone circles
-                          CircleLayer(
-                            circles: safeZoneState.safeZones
+                          PolygonLayer(
+                            polygons: safeZoneState.safeZones
                                 .where((zone) => zone.isActive)
                                 .map((zone) {
-                              return CircleMarker(
-                                point: zone.location,
-                                radius: zone.radius,
-                                useRadiusInMeter: true,
+                              return Polygon(
+                                points: _generateCirclePoints(
+                                  zone.location,
+                                  zone.radius,
+                                ),
                                 color: theme.colorScheme.primary
                                     .withValues(alpha: 0.1),
                                 borderColor: theme.colorScheme.primary
                                     .withValues(alpha: 0.5),
                                 borderStrokeWidth: 2,
+                                isFilled: true,
                               );
                             }).toList(),
                           ),
