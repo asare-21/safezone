@@ -185,14 +185,26 @@ class EmergencyServicesRepository {
   }
 
   List<EmergencyService> _getGenericServices() {
+    // Generic international emergency services
+    // Note: Using (0, 0) as placeholder location since these are
+    // general emergency numbers without specific physical locations
     return [
       EmergencyService(
         id: 'generic_emergency_1',
-        name: 'Local Emergency Services',
+        name: 'International Emergency Services',
         type: EmergencyServiceType.ambulance,
         location: const LatLng(0, 0),
         phoneNumber: '112',
         address: 'International Emergency Number',
+        hours: '24/7',
+      ),
+      EmergencyService(
+        id: 'generic_police_1',
+        name: 'Local Police',
+        type: EmergencyServiceType.police,
+        location: const LatLng(0, 0),
+        phoneNumber: '112',
+        address: 'Contact local emergency services',
         hours: '24/7',
       ),
     ];

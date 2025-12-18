@@ -64,10 +64,6 @@ void main() {
         ),
       ],
     );
-          filteredServices: mockServices,
-        ),
-      ],
-    );
 
     blocTest<EmergencyServicesCubit, EmergencyServicesState>(
       'toggleServiceType adds type to selectedTypes',
