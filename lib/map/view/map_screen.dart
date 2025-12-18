@@ -9,6 +9,7 @@ import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
 import 'package:safe_zone/profile/profile.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
@@ -153,18 +154,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ? '$categoryName reported and nearby users notified'
                 : '$categoryName reported successfully';
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(message)),
-                  ],
-                ),
-                backgroundColor: const Color(0xFF34C759),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 3),
+            ShadToaster.of(context).show(
+              ShadToast(
+                description: Text(message),
+                leading: const Icon(Icons.check_circle),
               ),
             );
           },
@@ -975,11 +968,10 @@ class _IncidentDetailsSheet extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         // Confirm incident functionality
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Incident confirmed'),
-                            backgroundColor: Color(0xFF34C759),
-                            behavior: SnackBarBehavior.floating,
+                        ShadToaster.of(context).show(
+                          const ShadToast(
+                            description: Text('Incident confirmed'),
+                            leading: Icon(Icons.check),
                           ),
                         );
                         Navigator.of(context).pop();
@@ -999,11 +991,10 @@ class _IncidentDetailsSheet extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         // Share incident functionality
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Sharing incident...'),
-                            backgroundColor: Color(0xFF007AFF),
-                            behavior: SnackBarBehavior.floating,
+                        ShadToaster.of(context).show(
+                          const ShadToast(
+                            description: Text('Sharing incident...'),
+                            leading: Icon(Icons.share),
                           ),
                         );
                       },

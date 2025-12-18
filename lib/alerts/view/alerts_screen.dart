@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/home/home.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AlertsScreen extends StatelessWidget {
   const AlertsScreen({super.key});
@@ -98,20 +99,18 @@ class _AlertsScreenView extends StatelessWidget {
 
   void _showAlertActions(BuildContext context, Alert alert) {
     // Placeholder for future implementation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Long press actions for ${alert.title}'),
-        duration: const Duration(seconds: 1),
+    ShadToaster.of(context).show(
+      ShadToast(
+        description: Text('Long press actions for ${alert.title}'),
       ),
     );
   }
 
   void _showSafeZoneDetails(BuildContext context) {
     // Placeholder for future implementation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Safe Zone details'),
-        duration: Duration(seconds: 1),
+    ShadToaster.of(context).show(
+      const ShadToast(
+        description: Text('Safe Zone details'),
       ),
     );
   }
