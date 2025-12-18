@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:safe_zone/home/cubit/bottom_navigation_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/profile/models/user_incident_model.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 
 class IncidentHistoryScreen extends StatefulWidget {
   const IncidentHistoryScreen({super.key});
