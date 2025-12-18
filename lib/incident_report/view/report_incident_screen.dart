@@ -32,6 +32,10 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
   String _getDescriptionForCategory(IncidentCategory category) {
     switch (category) {
+      case IncidentCategory.accident:
+        return 'An accident has been reported in this area';
+      case IncidentCategory.assault:
+        return 'An assault has been reported in this area';
       case IncidentCategory.suspicious:
         return 'Suspicious activity has been reported in this area';
       case IncidentCategory.lighting:

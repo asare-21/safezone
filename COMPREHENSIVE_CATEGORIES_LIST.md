@@ -8,7 +8,7 @@ The SafeZone app now supports **18 comprehensive incident categories** covering 
 ### 🚗 1. Accident
 - **Icon:** Car crash
 - **Color:** Red (#FF3B30)
-- **Description:** "A accident incident has been reported in this area"
+- **Description:** "An accident has been reported in this area"
 - **Use Cases:** Vehicle accidents, collisions, traffic incidents
 
 ### 🔥 2. Fire
@@ -38,7 +38,7 @@ The SafeZone app now supports **18 comprehensive incident categories** covering 
 ### ⚠️ 6. Assault
 - **Icon:** Warning
 - **Color:** Violet (#AF52DE)
-- **Description:** "A assault incident has been reported in this area"
+- **Description:** "An assault has been reported in this area"
 - **Use Cases:** Physical attacks, violent confrontations
 
 ### 🖼️ 7. Vandalism
