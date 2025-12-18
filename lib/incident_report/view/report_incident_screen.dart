@@ -3,7 +3,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 
 /// Simplified accident reporting screen
-// TODO(joasare019): Expand to support multiple incident categories. Dont allow user to type incident title or description. Just show a category for them to choose and submit to make the incident reporting as seamless as possible
+// TODO(joasare019): #67 Expand to support multiple incident categories. Dont allow user to type incident title or description. Just show a category for them to choose and submit to make the incident reporting as seamless as possible
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({
     required this.onSubmit,
