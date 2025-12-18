@@ -160,8 +160,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
             ShadToaster.of(context).show(
               ShadToast(
+                title: const Text('Report Submitted'),
                 description: Text(message),
-                leading: const Icon(Icons.check_circle),
               ),
             );
           },
@@ -779,9 +779,7 @@ class _IncidentDetailsSheet extends StatelessWidget {
                         // Confirm incident functionality
                         ShadToaster.of(context).show(
                           const ShadToast(
-                            leading: Icon(Icons.check),
-                            
-
+                            title: Text('Confirm Incident'),
                             description: Text('Incident confirmed'),
                           ),
                         );
@@ -805,8 +803,8 @@ class _IncidentDetailsSheet extends StatelessWidget {
                         // Share incident functionality
                         ShadToaster.of(context).show(
                           const ShadToast(
+                            title: Text('Share Incident'),
                             description: Text('Sharing incident...'),
-                            leading: Icon(Icons.share),
                           ),
                         );
                       },

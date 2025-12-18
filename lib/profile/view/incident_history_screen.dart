@@ -1125,27 +1125,6 @@ class IncidentDetailScreen extends StatelessWidget {
                 ),
 
               const SizedBox(height: 20),
-
-              // Action buttons
-              // ShadButton(
-              //   height: 50,
-              //   width: double.infinity,
-              //   onPressed: () {
-              //     print('clicked');
-              //     Navigator.of(context).pop();
-              //     Navigator.of(context).pop();
-              //     context.read<BottomNavigationCubit>().navigateToMap();
-              //   },
-
-              //   leading: const Icon(Icons.map),
-              //   child: const Text(
-              //     'View on Map',
-              //     style: TextStyle(
-              //       fontWeight: FontWeight.w600,
-              //       fontSize: 15,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
