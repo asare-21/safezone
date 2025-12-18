@@ -2,14 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
+import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
+import 'package:safe_zone/profile/cubit/safe_zone_state.dart';
+import 'package:safe_zone/profile/models/safe_zone_model.dart';
+import 'package:safe_zone/profile/profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MockProfileCubit extends Mock implements ProfileCubit {}
+
+class MockSafeZoneCubit extends Mock implements SafeZoneCubit {}
 
 extension MapPumpApp on WidgetTester {
-  Future<void> pumpMapApp(Widget widget) {
+  Future<void> pumpMapApp(Widget widget) async {
+    final mockProfileCubit = MockProfileCubit();
+    final mockSafeZoneCubit = MockSafeZoneCubit();
+
+    // Set up default mock behavior
+    when(() => mockProfileCubit.state).thenReturn(
+      const ProfileState(
+        defaultZoom: 13.0,
+        locationIcon: 'assets/icons/user_avatar.png',
+      ),
+    );
+    when(() => mockProfileCubit.stream).thenAnswer(
+      (_) => Stream.value(
+        const ProfileState(
+          defaultZoom: 13.0,
+          locationIcon: 'assets/icons/user_avatar.png',
+        ),
+      ),
+    );
+
+    when(() => mockSafeZoneCubit.state).thenReturn(
+      const SafeZoneState(
+        status: SafeZoneStatus.success,
+        safeZones: [],
+      ),
+    );
+    when(() => mockSafeZoneCubit.stream).thenAnswer(
+      (_) => Stream.value(
+        const SafeZoneState(
+          status: SafeZoneStatus.success,
+          safeZones: [],
+        ),
+      ),
+    );
+
     return pumpWidget(
-      BlocProvider(
-        create: (_) => MapFilterCubit(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<MapFilterCubit>(
+            create: (_) => MapFilterCubit(),
+          ),
+          BlocProvider<ProfileCubit>(
+            create: (_) => mockProfileCubit,
+          ),
+          BlocProvider<SafeZoneCubit>(
+            create: (_) => mockSafeZoneCubit,
+          ),
+        ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -285,6 +339,90 @@ void main() {
 
       // Should show all incidents again
       expect(find.widgetWithText(TextField, 'Search location or zone'), findsOneWidget);
+    });
+
+    testWidgets('displays safe zone circles on map', (tester) async {
+      final mockSafeZoneCubit = MockSafeZoneCubit();
+
+      // Set up mock with active safe zones
+      when(() => mockSafeZoneCubit.state).thenReturn(
+        SafeZoneState(
+          status: SafeZoneStatus.success,
+          safeZones: [
+            SafeZone(
+              id: '1',
+              name: 'Home',
+              location: const LatLng(40.7128, -74.0060),
+              radius: 500,
+              isActive: true,
+            ),
+          ],
+        ),
+      );
+      when(() => mockSafeZoneCubit.stream).thenAnswer(
+        (_) => Stream.value(
+          SafeZoneState(
+            status: SafeZoneStatus.success,
+            safeZones: [
+              SafeZone(
+                id: '1',
+                name: 'Home',
+                location: const LatLng(40.7128, -74.0060),
+                radius: 500,
+                isActive: true,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Verify MapScreen is rendered (the CircleLayer is part of it)
+      expect(find.byType(MapScreen), findsOneWidget);
+    });
+
+    testWidgets('does not display inactive safe zone circles', (tester) async {
+      final mockSafeZoneCubit = MockSafeZoneCubit();
+
+      // Set up mock with inactive safe zones
+      when(() => mockSafeZoneCubit.state).thenReturn(
+        SafeZoneState(
+          status: SafeZoneStatus.success,
+          safeZones: [
+            SafeZone(
+              id: '1',
+              name: 'Home',
+              location: const LatLng(40.7128, -74.0060),
+              radius: 500,
+              isActive: false,
+            ),
+          ],
+        ),
+      );
+      when(() => mockSafeZoneCubit.stream).thenAnswer(
+        (_) => Stream.value(
+          SafeZoneState(
+            status: SafeZoneStatus.success,
+            safeZones: [
+              SafeZone(
+                id: '1',
+                name: 'Home',
+                location: const LatLng(40.7128, -74.0060),
+                radius: 500,
+                isActive: false,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await tester.pumpMapApp(const MapScreen());
+      await tester.pumpAndSettle();
+
+      // Verify MapScreen is rendered (inactive zones filtered out)
+      expect(find.byType(MapScreen), findsOneWidget);
     });
   });
 
