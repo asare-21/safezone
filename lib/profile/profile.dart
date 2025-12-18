@@ -2,6 +2,7 @@ export 'cubit/notification_settings_cubit.dart';
 export 'cubit/profile_cubit.dart';
 export 'cubit/profile_settings_cubit.dart';
 export 'cubit/proximity_alerts_settings_cubit.dart';
+export 'cubit/safe_zone_cubit.dart';
 export 'models/user_incident_model.dart';
 export 'repository/profile_settings_repository.dart';
 export 'repository/proximity_alerts_settings_repository.dart';

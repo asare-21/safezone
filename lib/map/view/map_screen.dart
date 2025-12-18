@@ -9,8 +9,6 @@ import 'package:safe_zone/incident_report/incident_report.dart';
 import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
-import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
-import 'package:safe_zone/profile/cubit/safe_zone_state.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -670,7 +668,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                               bottom: false,
                               child: Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.location_off,
                                     color: Colors.white,
                                     size: 20,
