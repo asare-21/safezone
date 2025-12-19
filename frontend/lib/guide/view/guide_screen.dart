@@ -61,11 +61,6 @@ class GuideScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Failed to load guides',
-                            style: theme.textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
                             state.message,
                             style: theme.textTheme.bodyMedium,
                             textAlign: TextAlign.center,

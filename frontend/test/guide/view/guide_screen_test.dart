@@ -92,15 +92,14 @@ void main() {
     testWidgets('displays error message when state is GuideError',
         (tester) async {
       when(() => mockGuideCubit.state)
-          .thenReturn(const GuideError('Failed to load guides'));
+          .thenReturn(const GuideError('Failed to load guides: Network error'));
 
       await tester.pumpGuideApp(
         const GuideScreen(),
         guideCubit: mockGuideCubit,
       );
 
-      expect(find.text('Failed to load guides'), findsOneWidget);
-      expect(find.text('Failed to load guides: Failed to load guides'), findsOneWidget);
+      expect(find.text('Failed to load guides: Network error'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 
