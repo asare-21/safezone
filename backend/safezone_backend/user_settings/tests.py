@@ -1,8 +1,16 @@
 from django.test import TestCase
 from django.utils import timezone
+from django.db import IntegrityError
 from datetime import timedelta
 from user_settings.models import UserDevice, SafeZone, UserPreferences
 from django.contrib.auth.models import User
+from incident_reporting.models import Incident
+from safezone_backend.security_utils import (
+    cleanup_expired_incidents,
+    cleanup_inactive_user_preferences,
+    export_user_data,
+    delete_user_data
+)
 
 
 class EncryptedFieldsTestCase(TestCase):
@@ -67,7 +75,6 @@ class EncryptedFieldsTestCase(TestCase):
         )
         
         # Attempting to create duplicate should raise error
-        from django.db import IntegrityError
         with self.assertRaises(IntegrityError):
             UserDevice.objects.create(
                 device_id=self.test_device_id,
@@ -131,9 +138,6 @@ class DataRetentionTestCase(TestCase):
     
     def test_cleanup_expired_incidents(self):
         """Test that old incidents are cleaned up."""
-        from safezone_backend.security_utils import cleanup_expired_incidents
-        from incident_reporting.models import Incident
-        
         # Should delete the old incident (>90 days)
         deleted = cleanup_expired_incidents()
         self.assertEqual(deleted, 1)
@@ -144,7 +148,6 @@ class DataRetentionTestCase(TestCase):
     
     def test_cleanup_inactive_preferences(self):
         """Test that inactive user preferences are cleaned up."""
-        from safezone_backend.security_utils import cleanup_inactive_user_preferences
         
         # Create old inactive preferences
         old_prefs = UserPreferences.objects.create(
@@ -201,8 +204,6 @@ class UserDataManagementTestCase(TestCase):
     
     def test_export_user_data(self):
         """Test exporting all user data."""
-        from safezone_backend.security_utils import export_user_data
-        
         data = export_user_data(self.device_id)
         
         # Verify all data is exported
@@ -218,8 +219,6 @@ class UserDataManagementTestCase(TestCase):
     
     def test_delete_user_data(self):
         """Test deleting all user data."""
-        from safezone_backend.security_utils import delete_user_data
-        
         # Delete all data for the device
         result = delete_user_data(self.device_id)
         

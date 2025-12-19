@@ -5,7 +5,12 @@ Usage:
     python manage.py cleanup_expired_data [--dry-run]
 """
 
+from datetime import timedelta
 from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django.conf import settings
+from incident_reporting.models import Incident
+from user_settings.models import UserPreferences, UserDevice
 from safezone_backend.security_utils import (
     cleanup_expired_incidents,
     cleanup_inactive_user_preferences,
@@ -40,11 +45,6 @@ class Command(BaseCommand):
             )
         else:
             # In dry-run, just count
-            from incident_reporting.models import Incident
-            from datetime import timedelta
-            from django.utils import timezone
-            from django.conf import settings
-            
             retention_days = getattr(settings, 'INCIDENT_RETENTION_DAYS', 90)
             cutoff_date = timezone.now() - timedelta(days=retention_days)
             count = Incident.objects.filter(timestamp__lt=cutoff_date).count()
@@ -60,11 +60,6 @@ class Command(BaseCommand):
                 self.style.SUCCESS(f'✓ Deleted {prefs_deleted} inactive preference(s)')
             )
         else:
-            from user_settings.models import UserPreferences
-            from datetime import timedelta
-            from django.utils import timezone
-            from django.conf import settings
-            
             inactive_days = getattr(settings, 'USER_PREFERENCES_INACTIVE_DAYS', 365)
             cutoff_date = timezone.now() - timedelta(days=inactive_days)
             count = UserPreferences.objects.filter(updated_at__lt=cutoff_date).count()
@@ -80,11 +75,6 @@ class Command(BaseCommand):
                 self.style.SUCCESS(f'✓ Deleted {devices_deleted} inactive device token(s)')
             )
         else:
-            from user_settings.models import UserDevice
-            from datetime import timedelta
-            from django.utils import timezone
-            from django.conf import settings
-            
             inactive_days = getattr(settings, 'DEVICE_TOKEN_INACTIVE_DAYS', 180)
             cutoff_date = timezone.now() - timedelta(days=inactive_days)
             count = UserDevice.objects.filter(

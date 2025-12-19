@@ -72,6 +72,8 @@ class SafeZone(models.Model):
         indexes = [
             models.Index(fields=['is_active']),
             models.Index(fields=['latitude', 'longitude']),
+            # Note: device_id index removed because encrypted fields cannot be efficiently indexed
+            # For frequent device_id lookups, consider adding a hash field if performance is critical
         ]
 
     def __str__(self):

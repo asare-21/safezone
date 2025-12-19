@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'encrypted_model_fields',
     'incident_reporting',
     'alerts',
     'authentication',
