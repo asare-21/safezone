@@ -1,5 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
 import logging
@@ -12,9 +13,10 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     List all incidents or create a new incident.
     
     GET: Returns list of all incidents ordered by timestamp (newest first)
-    POST: Creates a new incident report
+    POST: Creates a new incident report (requires authentication)
     """
     queryset = Incident.objects.all().order_by('-timestamp')
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -23,7 +25,12 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         """Save the incident and trigger push notifications."""
-        incident = serializer.save()
+        # Attach the authenticated user's ID if available
+        extra_data = {}
+        if hasattr(self.request.user, 'id'):
+            extra_data['user_id'] = self.request.user.id
+        
+        incident = serializer.save(**extra_data)
         
         # Trigger push notifications to users with matching safe zones
         try:
@@ -43,4 +50,6 @@ class IncidentRetrieveView(generics.RetrieveAPIView):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
 

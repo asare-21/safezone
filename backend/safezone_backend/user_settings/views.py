@@ -1,5 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import UserDevice, SafeZone, UserPreferences
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
@@ -8,10 +9,11 @@ class UserDeviceRegisterView(generics.CreateAPIView):
     """
     Register or update a user device for push notifications.
     
-    POST: Register device with FCM token
+    POST: Register device with FCM token (requires authentication)
     """
     queryset = UserDevice.objects.all()
     serializer_class = UserDeviceSerializer
+    permission_classes = [IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
         """Create or update device registration."""
@@ -41,10 +43,11 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
     """
     List all safe zones for a device or create a new safe zone.
     
-    GET: Returns list of safe zones for the device
-    POST: Creates a new safe zone
+    GET: Returns list of safe zones for the device (requires authentication)
+    POST: Creates a new safe zone (requires authentication)
     """
     serializer_class = SafeZoneSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter safe zones by device_id from query params."""
@@ -58,24 +61,26 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update, or delete a specific safe zone.
     
-    GET: Returns safe zone details
-    PUT/PATCH: Updates safe zone
-    DELETE: Deletes safe zone
+    GET: Returns safe zone details (requires authentication)
+    PUT/PATCH: Updates safe zone (requires authentication)
+    DELETE: Deletes safe zone (requires authentication)
     """
     queryset = SafeZone.objects.all()
     serializer_class = SafeZoneSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
 
 class UserPreferencesView(generics.RetrieveUpdateAPIView):
     """
     Retrieve or update user preferences for a device.
     
-    GET: Returns user preferences for the device
-    PUT/PATCH: Updates user preferences
+    GET: Returns user preferences for the device (requires authentication)
+    PUT/PATCH: Updates user preferences (requires authentication)
     """
     serializer_class = UserPreferencesSerializer
     lookup_field = 'device_id'
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Return preferences for all devices."""
@@ -98,5 +103,6 @@ class UserPreferencesView(generics.RetrieveUpdateAPIView):
             device_id=device_id
         )
         return preferences
+
 
 
