@@ -33,13 +33,25 @@ This project demonstrates practical engineering skills in mobile development, ge
 ### 📝 Crowdsourced Incident Reporting
 - Quick incident reporting in under 30 seconds
 - Auto-captures GPS location and timestamp
-- Multiple incident categories:
+- 18 comprehensive incident categories:
   - 🏃 Theft
   - 💥 Assault  
   - 😟 Harassment
   - 🚗 Accident
+  - 🔥 Fire
   - 🔍 Suspicious Activity
-  - 💡 Poor Lighting
+  - 💡 Lighting Issue
+  - 🔨 Vandalism
+  - ⚠️ Road Hazard
+  - 🐾 Animal Danger
+  - 🏥 Medical Emergency
+  - 🌪️ Natural Disaster
+  - ⚡ Power Outage
+  - 💧 Water Issue
+  - 🔊 Noise Complaint
+  - 🚫 Trespassing
+  - 💊 Drug Activity
+  - 🔫 Weapon Sighting
 - Optional anonymous reporting
 - Notify nearby users feature
 
@@ -459,11 +471,12 @@ User Report → Frontend Validation → Backend API → Database Storage
 - Incident details bottom sheet
 
 ### 4. **Report Incident Screen**
-- Category selection (6 categories)
+- Category selection (18 comprehensive categories)
 - Title and description fields
 - Auto-location capture
 - Notify nearby users toggle
 - Quick submission
+- Media upload support (planned)
 
 ### 5. **Alerts Screen**
 - List of active proximity alerts
