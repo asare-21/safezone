@@ -1,7 +1,10 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import '../cubit/authentication_cubit.dart';
+import '../cubit/authentication_state.dart';
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({super.key});
@@ -54,37 +57,56 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     super.dispose();
   }
 
+  void _handleLogin(BuildContext context) {
+    context.read<AuthenticationCubit>().login();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLastPage = _currentPage == _pages.length - 1;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header with skip button
-              if (!isLastPage) ...[
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      pageController.animateToPage(
-                        _pages.length - 1,
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+    return BlocListener<AuthenticationCubit, AuthenticationState>(
+      listener: (context, state) {
+        if (state is AuthenticationAuthenticated) {
+          // Navigate to home screen on successful authentication
+          context.go('/');
+        } else if (state is AuthenticationError) {
+          // Show error message
+          ShadToaster.of(context).show(
+            ShadToast(
+              title: const Text('Authentication Error'),
+              description: Text(state.message),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header with skip button
+                if (!isLastPage) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        pageController.animateToPage(
+                          _pages.length - 1,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.all(16),
+                      ),
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -118,32 +140,43 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
               // Action buttons
               Column(
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ShadButton(
-                      onPressed: isLastPage
-                          ? () {
-                              // Navigate to auth
-                              context.go('/');
-                              // TODO(joasare019): Change to cubit/bloc that will manage authentication
-                            }
-                          : () {
-                              pageController.nextPage(
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-
-                      child: Text(
-                        isLastPage ? 'Get Started' : 'Continue',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
+                  BlocBuilder<AuthenticationCubit, AuthenticationState>(
+                    builder: (context, state) {
+                      final isLoading = state is AuthenticationLoading;
+                      
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ShadButton(
+                          onPressed: isLoading
+                              ? null
+                              : (isLastPage
+                                  ? () => _handleLogin(context)
+                                  : () {
+                                      pageController.nextPage(
+                                        duration: const Duration(milliseconds: 400),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    }),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  isLastPage ? 'Sign In with Auth0' : 'Continue',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
