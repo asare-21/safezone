@@ -33,6 +33,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
   final TextEditingController _searchController = TextEditingController();
   final Debouncer _searchDebouncer = Debouncer(milliseconds: 300);
 
+  // API service for incident reporting
+  late final IncidentApiService _apiService;
+
   // User's current location (initialized to null, will be fetched)
   LatLng? _currentLocation;
   bool _isLoadingLocation = true;
@@ -42,7 +45,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
   // Default fallback location (center of world, will prompt for location)
   static const LatLng _fallbackLocation = LatLng(0, 0);
 
-  // Mock incidents for demonstration
+  // Incidents loaded from API
   late List<Incident> _allIncidents;
 
   // Loading state
@@ -51,15 +54,25 @@ class _MapScreenViewState extends State<_MapScreenView> {
   @override
   void initState() {
     super.initState();
+    // Initialize API service
+    // TODO: Replace with your actual backend URL
+    // For Android emulator, use 10.0.2.2 instead of localhost
+    // For iOS simulator, use localhost or 127.0.0.1
+    _apiService = IncidentApiService(
+      baseUrl: 'http://10.0.2.2:8000', // Android emulator
+      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+    );
     _dataLoadingFuture = _initializeData();
   }
 
   Future<void> _initializeData() async {
     await _getCurrentLocation();
-    await _initializeMockData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
-    });
+    await _loadIncidentsFromApi();
+    if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+      });
+    }
   }
 
   /// Get the user's current location
@@ -135,7 +148,24 @@ class _MapScreenViewState extends State<_MapScreenView> {
     }
   }
 
-  Future<void> _initializeMockData() async {
+  /// Load incidents from the API
+  Future<void> _loadIncidentsFromApi() async {
+    try {
+      _allIncidents = await _apiService.getIncidents();
+    } catch (e) {
+      // If API fails, fall back to empty list or mock data
+      debugPrint('Failed to load incidents from API: $e');
+      _allIncidents = [];
+      
+      // Optionally fall back to mock data for development
+      if (_currentLocation != null) {
+        await _generateMockIncidentsForDevelopment();
+      }
+    }
+  }
+
+  /// Generate mock incidents for development/testing (fallback)
+  Future<void> _generateMockIncidentsForDevelopment() async {
     // Only create mock incidents if we have a valid location
     if (_currentLocation == null) {
       _allIncidents = [];
@@ -226,6 +256,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     _mapController.dispose();
     _searchController.dispose();
     _searchDebouncer.dispose();
+    _apiService.dispose();
     super.dispose();
   }
 
@@ -260,37 +291,49 @@ class _MapScreenViewState extends State<_MapScreenView> {
     Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (context) => ReportIncidentScreen(
-          onSubmit: (category, title, description, notifyNearby) {
-            final newIncident = Incident(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              category: category,
-              location: _currentLocation!,
-              timestamp: DateTime.now(),
-              title: title,
-              description: description,
-              confirmedBy: 1,
-              notifyNearby: notifyNearby,
-            );
-            _allIncidents.insert(0, newIncident);
-            // Update cubit with new incidents list
-            this.context.read<MapFilterCubit>().initializeIncidents(
-              _allIncidents,
-            );
+          onSubmit: (category, title, description, notifyNearby) async {
+            try {
+              // Create incident via API
+              final newIncident = await _apiService.createIncident(
+                category: category,
+                location: _currentLocation!,
+                title: title,
+                description: description,
+                notifyNearby: notifyNearby,
+              );
+              
+              // Add to local list and update UI
+              _allIncidents.insert(0, newIncident);
+              // Update cubit with new incidents list
+              this.context.read<MapFilterCubit>().initializeIncidents(
+                _allIncidents,
+              );
 
-            Navigator.of(context).pop();
+              Navigator.of(context).pop();
 
-            // Show success message with notification status
-            final categoryName = category.displayName;
-            final message = notifyNearby
-                ? '$categoryName reported and nearby users notified'
-                : '$categoryName reported successfully';
+              // Show success message with notification status
+              final categoryName = category.displayName;
+              final message = notifyNearby
+                  ? '$categoryName reported and nearby users notified'
+                  : '$categoryName reported successfully';
 
-            ShadToaster.of(context).show(
-              ShadToast(
-                title: const Text('Report Submitted'),
-                description: Text(message),
-              ),
-            );
+              ShadToaster.of(context).show(
+                ShadToast(
+                  title: const Text('Report Submitted'),
+                  description: Text(message),
+                ),
+              );
+            } catch (e) {
+              // Show error message if API call fails
+              Navigator.of(context).pop();
+              
+              ShadToaster.of(context).show(
+                ShadToast(
+                  title: const Text('Error'),
+                  description: Text('Failed to submit report: $e'),
+                ),
+              );
+            }
           },
         ),
         fullscreenDialog: true,

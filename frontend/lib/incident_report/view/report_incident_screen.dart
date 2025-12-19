@@ -10,7 +10,7 @@ class ReportIncidentScreen extends StatefulWidget {
     super.key,
   });
 
-  final void Function(
+  final Future<void> Function(
     IncidentCategory category,
     String title,
     String description,
@@ -79,16 +79,20 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
       _isSubmitting = true;
     });
 
-    // Simulate submission delay
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-
-    if (mounted) {
-      widget.onSubmit(
+    try {
+      // Call the onSubmit callback (which now makes the API call)
+      await widget.onSubmit(
         _selectedCategory!,
         _getTitleForCategory(_selectedCategory!),
         _getDescriptionForCategory(_selectedCategory!),
         _notifyNearby,
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 
