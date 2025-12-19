@@ -11,7 +11,8 @@ extension ReportIncidentPumpApp on WidgetTester {
       String title,
       String description,
       bool notifyNearby,
-    ) onSubmit,
+    )
+    onSubmit,
   }) {
     return pumpWidget(
       MaterialApp(
@@ -119,8 +120,9 @@ void main() {
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
     });
 
-    testWidgets('submit button is disabled when no category selected', 
-        (tester) async {
+    testWidgets('submit button is disabled when no category selected', (
+      tester,
+    ) async {
       await tester.pumpReportIncidentApp(
         onSubmit: (category, title, description, notifyNearby) {},
       );
@@ -132,8 +134,9 @@ void main() {
       expect(submitButton.onPressed, isNull);
     });
 
-    testWidgets('calls onSubmit with correct auto-generated data', 
-        (tester) async {
+    testWidgets('calls onSubmit with correct auto-generated data', (
+      tester,
+    ) async {
       IncidentCategory? submittedCategory;
       String? submittedTitle;
       String? submittedDescription;
@@ -159,13 +162,16 @@ void main() {
 
       expect(submittedCategory, IncidentCategory.theft);
       expect(submittedTitle, 'Theft');
-      expect(submittedDescription, 
-          'A theft incident has been reported in this area');
+      expect(
+        submittedDescription,
+        'A theft incident has been reported in this area',
+      );
       expect(submittedNotifyNearby, isTrue);
     });
 
-    testWidgets('calls onSubmit with correct data for new categories', 
-        (tester) async {
+    testWidgets('calls onSubmit with correct data for new categories', (
+      tester,
+    ) async {
       IncidentCategory? submittedCategory;
       String? submittedTitle;
       String? submittedDescription;
@@ -191,8 +197,10 @@ void main() {
 
       expect(submittedCategory, IncidentCategory.medicalEmergency);
       expect(submittedTitle, 'Medical Emergency');
-      expect(submittedDescription, 
-          'A medical emergency has been reported in this area');
+      expect(
+        submittedDescription,
+        'A medical emergency has been reported in this area',
+      );
       expect(submittedNotifyNearby, isTrue);
     });
 

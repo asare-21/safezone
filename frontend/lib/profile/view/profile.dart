@@ -86,7 +86,7 @@ class _ProfileView extends StatelessWidget {
                       title: 'Push Notifications',
                       value: state.pushNotifications,
                       onChanged: (value) =>
-                          cubit.togglePushNotifications(value: value),
+                          cubit.togglePushNotifications(value, value: value),
                     ),
                     const Divider(height: 1),
                     _buildToggleItem(

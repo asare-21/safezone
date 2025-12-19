@@ -119,7 +119,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   /// Toggle push notifications setting
-  Future<void> togglePushNotifications({required bool value}) async {
+  Future<void> togglePushNotifications(bool bool, {required bool value}) async {
     emit(state.copyWith(pushNotifications: value));
     await _saveSetting(_pushNotificationsKey, value);
     
