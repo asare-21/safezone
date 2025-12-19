@@ -2,6 +2,9 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class IncidentListCreateView(generics.ListCreateAPIView):
@@ -17,6 +20,18 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return IncidentCreateSerializer
         return IncidentSerializer
+    
+    def perform_create(self, serializer):
+        """Save the incident and trigger push notifications."""
+        incident = serializer.save()
+        
+        # Trigger push notifications to users with matching safe zones
+        try:
+            from push_notifications.utils import send_incident_notifications
+            send_incident_notifications(incident)
+        except Exception as e:
+            # Don't fail the request if notifications fail
+            logger.error(f"Failed to send notifications for incident {incident.id}: {e}")
 
 
 class IncidentRetrieveView(generics.RetrieveAPIView):
