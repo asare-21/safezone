@@ -221,10 +221,10 @@ void main() {
     );
 
     test('getFilteredIncidents filters by search query', () {
-      cubit.initializeIncidents(mockIncidents);
-
-      // Search for "Theft"
-      cubit.updateSearchQuery('Theft');
+      cubit
+        ..initializeIncidents(mockIncidents)
+        // Search for "Theft"
+        ..updateSearchQuery('Theft');
       var filtered = cubit.getFilteredIncidents();
       expect(filtered.length, 1);
       expect(filtered.first.title, 'Theft 1');

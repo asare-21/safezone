@@ -132,7 +132,7 @@ class _AlertsScreenView extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   const Color(0xFFF8F9FA),
-                  const Color(0xFFF8F9FA).withOpacity(0.5),
+                  const Color(0xFFF8F9FA).withValues(alpha: 0.5),
                 ],
               ),
             ),
@@ -167,7 +167,7 @@ class _AlertsScreenView extends StatelessWidget {
                                   'Stay informed, stay safe',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurface
-                                        .withOpacity(0.6),
+                                        .withValues(alpha: 0.6),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -198,7 +198,7 @@ class _AlertsScreenView extends StatelessWidget {
                             border: Border.all(color: Colors.grey.shade200),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -217,7 +217,7 @@ class _AlertsScreenView extends StatelessWidget {
                                     BoxShadow(
                                       color: const Color(
                                         0xFF34C759,
-                                      ).withOpacity(0.5),
+                                      ).withValues(alpha: 0.5),
                                       blurRadius: 4,
                                       spreadRadius: 1,
                                     ),
@@ -464,8 +464,8 @@ class _AlertsScreenView extends StatelessWidget {
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: (color ?? theme.colorScheme.primary).withOpacity(
-                      0.3,
+                    color: (color ?? theme.colorScheme.primary).withValues(
+                      alpha: 0.3,
                     ),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
@@ -498,8 +498,10 @@ class _AlertsScreenView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: selected
-                      ? Colors.white.withOpacity(0.2)
-                      : (color ?? theme.colorScheme.primary).withOpacity(0.1),
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : (color ?? theme.colorScheme.primary).withValues(
+                          alpha: 0.1,
+                        ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -549,7 +551,7 @@ class _AlertsScreenView extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: const Color(0xFF34C759).withOpacity(0.2),
+                color: const Color(0xFF34C759).withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -575,7 +577,7 @@ class _AlertsScreenView extends StatelessWidget {
                   Text(
                     'No immediate threats detected in your vicinity.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF1A7F3A).withOpacity(0.8),
+                      color: const Color(0xFF1A7F3A).withValues(alpha: 0.8),
                       height: 1.4,
                     ),
                   ),
@@ -606,8 +608,8 @@ class _AlertsScreenView extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isCritical
-                ? alert.severityColor.withOpacity(0.15)
-                : Colors.black.withOpacity(0.05),
+                ? alert.severityColor.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
             spreadRadius: isCritical ? 1 : 0,
@@ -615,7 +617,7 @@ class _AlertsScreenView extends StatelessWidget {
         ],
         border: isCritical
             ? Border.all(
-                color: alert.severityColor.withOpacity(0.3),
+                color: alert.severityColor.withValues(alpha: 0.3),
                 width: 1.5,
               )
             : null,
@@ -751,7 +753,9 @@ class _AlertsScreenView extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: alert.severityColor.withOpacity(0.1),
+                                color: alert.severityColor.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -875,12 +879,12 @@ class _FilterBottomSheet extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
-                          ).colorScheme.primary.withOpacity(0.05),
+                          ).colorScheme.primary.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: Theme.of(
                               context,
-                            ).colorScheme.primary.withOpacity(0.2),
+                            ).colorScheme.primary.withValues(alpha: 0.2),
                           ),
                         ),
                         child: Row(

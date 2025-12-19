@@ -74,7 +74,7 @@ class GeofencingService {
       _positionSubscription = Geolocator.getPositionStream(
         locationSettings: locationSettings,
       ).listen(_onPositionUpdate);
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error starting geofencing: $e');
       }
@@ -122,7 +122,7 @@ class GeofencingService {
 
         _zoneStates[zone.id] = isInside;
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
         print('Error processing position update: $e');
       }

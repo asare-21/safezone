@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -9,8 +10,8 @@ import 'package:safe_zone/emergency_services/repository/emergency_services_repos
 class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
   EmergencyServicesCubit({
     EmergencyServicesRepository? repository,
-  })  : _repository = repository ?? EmergencyServicesRepository(),
-        super(const EmergencyServicesState());
+  }) : _repository = repository ?? EmergencyServicesRepository(),
+       super(const EmergencyServicesState());
 
   final EmergencyServicesRepository _repository;
 
@@ -37,20 +38,23 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
         try {
           final position = await _getCurrentPosition();
           final location = LatLng(position.latitude, position.longitude);
-          
+
           // Get country code from current location
           countryCode = await _getCountryCode(
             position.latitude,
             position.longitude,
           );
-          
+
           services = _repository.getServicesNearLocation(
             location,
             countryCode: countryCode,
           );
-        } catch (e) {
+        } on Exception catch (e) {
           // If location is not available, show all services
           services = _repository.getAllServices();
+          if (kDebugMode) {
+            print(e);
+          }
         }
       }
 
@@ -61,7 +65,7 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
           filteredServices: services,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: EmergencyServicesStatus.error,
@@ -72,8 +76,10 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
   }
 
   void toggleServiceType(EmergencyServiceType type) {
-    final newSelectedTypes = Set<EmergencyServiceType>.from(state.selectedTypes);
-    
+    final newSelectedTypes = Set<EmergencyServiceType>.from(
+      state.selectedTypes,
+    );
+
     if (newSelectedTypes.contains(type)) {
       newSelectedTypes.remove(type);
     } else {
@@ -117,8 +123,11 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
       if (placemarks.isNotEmpty) {
         return placemarks.first.isoCountryCode;
       }
-    } catch (e) {
+    } on Exception catch (e) {
       // If geocoding fails, return null to use default services
+      if (kDebugMode) {
+        print(e);
+      }
       return null;
     }
     return null;

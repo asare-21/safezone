@@ -52,12 +52,12 @@ void main() {
       final debouncer = Debouncer(milliseconds: 100);
       var executed = false;
 
-      debouncer.run(() {
-        executed = true;
-      });
-
-      // Dispose before execution
-      debouncer.dispose();
+      debouncer
+        ..run(() {
+          executed = true;
+        })
+        // Dispose before execution
+        ..dispose();
 
       // Wait longer than delay
       await Future<void>.delayed(const Duration(milliseconds: 150));

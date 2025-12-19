@@ -4,7 +4,6 @@ import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
-import 'package:safe_zone/profile/cubit/safe_zone_cubit.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/repository/safe_zone_repository.dart';
 import 'package:safe_zone/utils/router_config.dart';

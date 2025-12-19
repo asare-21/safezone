@@ -5,8 +5,8 @@ import 'package:safe_zone/profile/repository/safe_zone_repository.dart';
 
 class SafeZoneCubit extends Cubit<SafeZoneState> {
   SafeZoneCubit({SafeZoneRepository? repository})
-      : _repository = repository ?? SafeZoneRepository(),
-        super(const SafeZoneState()) {
+    : _repository = repository ?? SafeZoneRepository(),
+      super(const SafeZoneState()) {
     loadSafeZones();
   }
 
@@ -24,7 +24,7 @@ class SafeZoneCubit extends Cubit<SafeZoneState> {
           safeZones: zones,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: SafeZoneStatus.error,
@@ -39,7 +39,7 @@ class SafeZoneCubit extends Cubit<SafeZoneState> {
     try {
       await _repository.addSafeZone(safeZone);
       await loadSafeZones();
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: SafeZoneStatus.error,
@@ -54,7 +54,7 @@ class SafeZoneCubit extends Cubit<SafeZoneState> {
     try {
       await _repository.updateSafeZone(safeZone);
       await loadSafeZones();
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: SafeZoneStatus.error,
@@ -69,7 +69,7 @@ class SafeZoneCubit extends Cubit<SafeZoneState> {
     try {
       await _repository.deleteSafeZone(id);
       await loadSafeZones();
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: SafeZoneStatus.error,
@@ -87,7 +87,7 @@ class SafeZoneCubit extends Cubit<SafeZoneState> {
         orElse: () => throw Exception('Safe zone not found'),
       );
       await updateSafeZone(zone.copyWith(isActive: !zone.isActive));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: SafeZoneStatus.error,

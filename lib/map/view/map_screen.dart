@@ -116,7 +116,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
       // Get current position
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.bestForNavigation,
+        ),
       );
 
       setState(() {
@@ -124,7 +126,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
         _isLoadingLocation = false;
         _isRequestingLocation = false;
       });
-    } catch (e) {
+    } on Exception catch (e) {
       setState(() {
         _locationError = 'Failed to get location: $e';
         _isLoadingLocation = false;
@@ -382,7 +384,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
     final points = <LatLng>[];
     for (var i = 0; i < numberOfPoints; i++) {
-      final bearing = (i * 360 / numberOfPoints).toDouble();
+      final bearing = i * 360 / numberOfPoints;
       final point = distance.offset(
         center,
         radiusInMeters,
@@ -450,7 +452,6 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                         borderColor: theme.colorScheme.primary
                                             .withValues(alpha: 0.5),
                                         borderStrokeWidth: 2,
-                                        isFilled: true,
                                       );
                                     })
                                     .toList(),
@@ -692,11 +693,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                         size: 20,
                                       ),
                                       const SizedBox(width: 8),
-                                      Expanded(
+                                      const Expanded(
                                         child: Text(
                                           'Location unavailable. Enable location '
                                           'to see nearby incidents.',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 13,
                                           ),
