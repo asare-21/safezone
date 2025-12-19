@@ -269,6 +269,181 @@ The frontend already has safe zone models and repositories. To integrate:
    - Parse incident_id from data payload
    - Show incident on map or in alerts list
 
+## Frontend Integration
+
+The frontend has been updated with services to handle device registration and safe zone synchronization.
+
+### Services Created
+
+1. **DeviceApiService** (`lib/user_settings/services/device_api_service.dart`)
+   - Registers device with FCM token
+   - Updates device registration when token refreshes
+
+2. **SafeZoneApiService** (`lib/user_settings/services/safe_zone_api_service.dart`)
+   - CRUD operations for safe zones
+   - Syncs local safe zones with backend
+
+3. **FirebaseInitService** (`lib/user_settings/services/firebase_init_service.dart`)
+   - Initializes Firebase Messaging
+   - Requests notification permissions
+   - Registers device on app start
+   - Handles token refresh
+   - Listens for incoming notifications
+
+### Integration Steps
+
+1. **Initialize Firebase on App Start**
+
+Add to `main.dart` or app initialization:
+
+```dart
+import 'package:safe_zone/user_settings/services/device_api_service.dart';
+import 'package:safe_zone/user_settings/services/firebase_init_service.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  
+  // Initialize device registration
+  final deviceService = DeviceApiService(
+    baseUrl: 'http://10.0.2.2:8000',  // Update for your environment
+  );
+  
+  final firebaseInit = FirebaseInitService(
+    deviceApiService: deviceService,
+  );
+  
+  await firebaseInit.initialize();
+  
+  runApp(MyApp());
+}
+```
+
+2. **Sync Safe Zones**
+
+When user creates/updates safe zones in the app, sync with backend:
+
+```dart
+import 'package:safe_zone/user_settings/services/safe_zone_api_service.dart';
+
+final safeZoneService = SafeZoneApiService(
+  baseUrl: 'http://10.0.2.2:8000',
+);
+
+// Create safe zone
+await safeZoneService.createSafeZone(
+  deviceId: deviceId,
+  safeZone: mySafeZone,
+);
+
+// Update safe zone
+await safeZoneService.updateSafeZone(
+  deviceId: deviceId,
+  safeZone: updatedSafeZone,
+);
+
+// Delete safe zone
+await safeZoneService.deleteSafeZone(safeZoneId);
+
+// Load safe zones from backend
+final safeZones = await safeZoneService.getSafeZones(deviceId);
+```
+
+3. **Handle Notifications**
+
+Notifications are automatically handled by `FirebaseInitService`. To customize:
+
+```dart
+FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  // Show in-app notification
+  final incidentId = message.data['incident_id'];
+  final category = message.data['category'];
+  
+  // Navigate to incident or show dialog
+  showIncidentAlert(incidentId, category);
+});
+```
+
+### Updating Safe Zone Repository
+
+The existing `SafeZoneRepository` should be updated to use `SafeZoneApiService`:
+
+```dart
+// In lib/profile/repository/safe_zone_repository.dart
+import 'package:safe_zone/user_settings/services/safe_zone_api_service.dart';
+
+class SafeZoneRepository {
+  final SafeZoneApiService _apiService;
+  final SharedPreferences _prefs;
+  
+  // Save safe zone (sync with backend)
+  Future<void> saveSafeZone(SafeZone safeZone) async {
+    // Save locally
+    await _saveToLocalStorage(safeZone);
+    
+    // Sync with backend
+    try {
+      final deviceId = _prefs.getString('device_id') ?? '';
+      if (safeZone.id == 'new') {
+        await _apiService.createSafeZone(
+          deviceId: deviceId,
+          safeZone: safeZone,
+        );
+      } else {
+        await _apiService.updateSafeZone(
+          deviceId: deviceId,
+          safeZone: safeZone,
+        );
+      }
+    } catch (e) {
+      // Handle sync error (queue for retry, etc.)
+      debugPrint('Failed to sync safe zone: $e');
+    }
+  }
+  
+  // Delete safe zone (sync with backend)
+  Future<void> deleteSafeZone(String id) async {
+    await _deleteFromLocalStorage(id);
+    
+    try {
+      await _apiService.deleteSafeZone(id);
+    } catch (e) {
+      debugPrint('Failed to delete safe zone from backend: $e');
+    }
+  }
+}
+```
+
+### Dependencies Added
+
+```yaml
+dependencies:
+  device_info_plus: ^11.2.0  # For device identification
+```
+
+### Notification Payload Structure
+
+When a notification arrives, it contains:
+
+```json
+{
+  "notification": {
+    "title": "⚠️ Theft Reported Nearby",
+    "body": "Theft incident description..."
+  },
+  "data": {
+    "incident_id": "123",
+    "category": "theft",
+    "latitude": "5.6040",
+    "longitude": "-0.1875",
+    "timestamp": "2025-12-19T15:00:00Z",
+    "type": "incident_alert"
+  }
+}
+```
+
+Use `message.data` to extract incident details and navigate to the incident on the map.
+
 ## Security Considerations
 
 - FCM tokens are sensitive - stored securely in database
