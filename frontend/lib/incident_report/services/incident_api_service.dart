@@ -26,7 +26,9 @@ class IncidentApiService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final results = data['results'] as List<dynamic>;
 
-        return results.map((json) => _incidentFromJson(json)).toList();
+        return results
+            .map((json) => _incidentFromJson(json as Map<String, dynamic>))
+            .toList();
       } else {
         throw Exception(
           'Failed to load incidents: ${response.statusCode}',

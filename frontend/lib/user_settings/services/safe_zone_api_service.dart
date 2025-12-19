@@ -25,7 +25,9 @@ class SafeZoneApiService {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final results = data['results'] as List<dynamic>;
 
-        return results.map((json) => _safeZoneFromJson(json)).toList();
+        return results
+            .map((json) => _safeZoneFromJson(json as Map<String, dynamic>))
+            .toList();
       } else {
         throw Exception(
           'Failed to load safe zones: ${response.statusCode}',
