@@ -141,7 +141,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   /// Toggle proximity alerts setting
-  Future<void> toggleProximityAlerts({required bool value}) async {
+  Future<void> toggleProximityAlerts(bool bool, {required bool value}) async {
     emit(state.copyWith(proximityAlerts: value));
     await _saveSetting(_proximityAlertsKey, value);
 
@@ -157,7 +157,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   /// Toggle sound and vibration setting
-  Future<void> toggleSoundVibration({required bool value}) async {
+  Future<void> toggleSoundVibration(bool bool, {required bool value}) async {
     emit(state.copyWith(soundVibration: value));
     await _saveSetting(_soundVibrationKey, value);
 
@@ -166,13 +166,19 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   /// Toggle anonymous reporting setting
-  Future<void> toggleAnonymousReporting({required bool value}) async {
+  Future<void> toggleAnonymousReporting(
+    bool bool, {
+    required bool value,
+  }) async {
     emit(state.copyWith(anonymousReporting: value));
     await _saveSetting(_anonymousReportingKey, value);
   }
 
   /// Toggle share location with contacts setting
-  Future<void> toggleShareLocationWithContacts({required bool value}) async {
+  Future<void> toggleShareLocationWithContacts(
+    bool bool, {
+    required bool value,
+  }) async {
     emit(state.copyWith(shareLocationWithContacts: value));
     await _saveSetting(_shareLocationKey, value);
   }
