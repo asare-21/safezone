@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'guides',
     'push_notifications',
     'user_settings',
-    'emergency_contacts',
+    'emergency_services',
 ]
 
 MIDDLEWARE = [

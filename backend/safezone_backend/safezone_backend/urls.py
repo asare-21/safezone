@@ -22,5 +22,5 @@ urlpatterns = [
     path('api/', include('incident_reporting.urls')),
     path('api/', include('user_settings.urls')),
     path('api/', include('guides.urls')),
-    path('api/', include('emergency_contacts.urls')),
+    path('api/', include('emergency_services.urls')),
 ]

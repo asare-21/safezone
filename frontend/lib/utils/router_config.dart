@@ -22,10 +22,5 @@ GoRouter routerConfig = GoRouter(
       name: 'emergency-services',
       builder: (context, state) => const EmergencyServicesScreen(),
     ),
-    GoRoute(
-      path: '/emergency-contacts',
-      name: 'emergency-contacts',
-      builder: (context, state) => const EmergencyContactsScreen(),
-    ),
   ],
 );

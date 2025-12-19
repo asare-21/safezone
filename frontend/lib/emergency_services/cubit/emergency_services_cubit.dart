@@ -28,8 +28,12 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
           userLocation.latitude,
           userLocation.longitude,
         );
+        
+        // Default to US if country code not found
+        countryCode ??= 'US';
+        
         // Load services near user location with country code
-        services = _repository.getServicesNearLocation(
+        services = await _repository.getServicesNearLocation(
           userLocation,
           countryCode: countryCode,
         );
@@ -44,14 +48,17 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
             position.latitude,
             position.longitude,
           );
+          
+          // Default to US if country code not found
+          countryCode ??= 'US';
 
-          services = _repository.getServicesNearLocation(
+          services = await _repository.getServicesNearLocation(
             location,
             countryCode: countryCode,
           );
         } on Exception catch (e) {
-          // If location is not available, show all services
-          services = _repository.getAllServices();
+          // If location is not available, show services for default country (US)
+          services = await _repository.getServicesByCountry('US');
           if (kDebugMode) {
             print(e);
           }

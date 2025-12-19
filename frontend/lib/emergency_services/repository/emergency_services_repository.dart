@@ -1,53 +1,89 @@
 import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/emergency_services/models/emergency_service_model.dart';
+import 'package:safe_zone/emergency_services/services/emergency_service_api_service.dart';
 
 class EmergencyServicesRepository {
-  // Get services based on country code
-  List<EmergencyService> getServicesByCountry(String countryCode) {
-    switch (countryCode.toUpperCase()) {
-      case 'US':
-        return _getUSServices();
-      case 'GB':
-      case 'UK':
-        return _getUKServices();
-      case 'GH':
-        return _getGhanaServices();
-      case 'NG':
-        return _getNigeriaServices();
-      case 'KE':
-        return _getKenyaServices();
-      default:
-        // Return a generic set of international emergency numbers
-        return _getGenericServices();
+  EmergencyServicesRepository({EmergencyServiceApiService? apiService})
+      : _apiService = apiService ?? EmergencyServiceApiService();
+  
+  final EmergencyServiceApiService _apiService;
+  
+  // Get services based on country code from backend API
+  Future<List<EmergencyService>> getServicesByCountry(
+    String countryCode,
+  ) async {
+    return _apiService.getEmergencyServices(countryCode: countryCode);
+  }
+
+  // Get all services for a country (kept for backwards compatibility)
+  Future<List<EmergencyService>> getAllServices(String countryCode) async {
+    return getServicesByCountry(countryCode);
+  }
+
+  Future<List<EmergencyService>> getServicesByType(
+    EmergencyServiceType type,
+    String countryCode,
+  ) async {
+    final serviceTypeStr = _serviceTypeToString(type);
+    return _apiService.getEmergencyServices(
+      countryCode: countryCode,
+      serviceType: serviceTypeStr,
+    );
+  }
+
+  Future<List<EmergencyService>> getServicesNearLocation(
+    LatLng userLocation, {
+    double radiusKm = 10.0,
+    required String countryCode,
+  }) async {
+    const distance = Distance();
+    
+    // Get all services for the country
+    final services = await getServicesByCountry(countryCode);
+    
+    // Calculate distance for each service
+    final servicesWithDistance = services.map((service) {
+      final distanceInMeters = distance.as(
+        LengthUnit.Meter,
+        userLocation,
+        service.location,
+      );
+      final distanceInKm = distanceInMeters / 1000;
+      
+      return EmergencyService(
+        id: service.id,
+        name: service.name,
+        type: service.type,
+        location: service.location,
+        phoneNumber: service.phoneNumber,
+        address: service.address,
+        hours: service.hours,
+        distance: distanceInKm,
+      );
+    }).toList();
+    
+    // Filter by radius and sort by distance
+    final nearbyServices = servicesWithDistance
+        .where((service) => service.distance! <= radiusKm)
+        .toList()
+      ..sort((a, b) => a.distance!.compareTo(b.distance!));
+    
+    return nearbyServices;
+  }
+  
+  String _serviceTypeToString(EmergencyServiceType type) {
+    switch (type) {
+      case EmergencyServiceType.police:
+        return 'police';
+      case EmergencyServiceType.hospital:
+        return 'hospital';
+      case EmergencyServiceType.fireStation:
+        return 'fireStation';
+      case EmergencyServiceType.ambulance:
+        return 'ambulance';
     }
   }
-
-  // Mock data - in a real app, this would fetch from an API or database
-  List<EmergencyService> getAllServices() {
-    // Default to US services for backwards compatibility
-    return _getUSServices();
-  }
-
-  List<EmergencyService> _getUSServices() {
-    return [
-      // Police Stations
-      EmergencyService(
-        id: 'us_police_1',
-        name: 'Central Police Precinct',
-        type: EmergencyServiceType.police,
-        location: const LatLng(40.7580, -73.9855),
-        phoneNumber: '911',
-        address: '350 5th Ave, New York, NY 10118',
-        hours: '24/7',
-      ),
-      EmergencyService(
-        id: 'us_police_2',
-        name: 'Downtown Police Station',
-        type: EmergencyServiceType.police,
-        location: const LatLng(40.7128, -74.0060),
-        phoneNumber: '911',
-        address: '1 Police Plaza, New York, NY 10038',
-        hours: '24/7',
+}
       ),
       
       // Hospitals
@@ -210,20 +246,27 @@ class EmergencyServicesRepository {
     ];
   }
 
-  List<EmergencyService> getServicesByType(EmergencyServiceType type) {
-    return getAllServices().where((service) => service.type == type).toList();
+
+  Future<List<EmergencyService>> getServicesByType(
+    EmergencyServiceType type,
+    String countryCode,
+  ) async {
+    final serviceTypeStr = _serviceTypeToString(type);
+    return _apiService.getEmergencyServices(
+      countryCode: countryCode,
+      serviceType: serviceTypeStr,
+    );
   }
 
-  List<EmergencyService> getServicesNearLocation(
+  Future<List<EmergencyService>> getServicesNearLocation(
     LatLng userLocation, {
     double radiusKm = 10.0,
-    String? countryCode,
-  }) {
+    required String countryCode,
+  }) async {
     const distance = Distance();
-    // Get services for the specific country if provided
-    final services = countryCode != null 
-        ? getServicesByCountry(countryCode)
-        : getAllServices();
+    
+    // Get all services for the country
+    final services = await getServicesByCountry(countryCode);
     
     // Calculate distance for each service
     final servicesWithDistance = services.map((service) {
@@ -253,5 +296,18 @@ class EmergencyServicesRepository {
       ..sort((a, b) => a.distance!.compareTo(b.distance!));
     
     return nearbyServices;
+  }
+  
+  String _serviceTypeToString(EmergencyServiceType type) {
+    switch (type) {
+      case EmergencyServiceType.police:
+        return 'police';
+      case EmergencyServiceType.hospital:
+        return 'hospital';
+      case EmergencyServiceType.fireStation:
+        return 'fireStation';
+      case EmergencyServiceType.ambulance:
+        return 'ambulance';
+    }
   }
 }

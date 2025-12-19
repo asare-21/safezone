@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:safe_zone/emergency_services/emergency_services.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/view/safe_zones_screen.dart';
 import 'package:safe_zone/utils/global.dart';
@@ -184,21 +183,6 @@ class _ProfileView extends StatelessWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (context) => const SafeZonesScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(),
-                _buildNavigationItem(
-                  theme,
-                  icon: LineIcons.addressBook,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  iconBgColor: _lightBlueBackground,
-                  title: 'Emergency Contacts',
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (context) => const EmergencyContactsScreen(),
                       ),
                     );
                   },
