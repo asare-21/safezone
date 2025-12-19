@@ -298,7 +298,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(
+                      child: CircularProgressIndicator.adaptive(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),

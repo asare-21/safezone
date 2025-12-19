@@ -46,7 +46,7 @@ class GeofencingNotificationHelper {
     // This is a placeholder for actual notification implementation
     // In production, this would use flutter_local_notifications or
     // firebase_messaging to show a notification
-    
+
     final title = event == GeofenceEvent.enter
         ? 'Welcome to ${zone.name}'
         : 'Left ${zone.name}';
@@ -59,7 +59,7 @@ class GeofencingNotificationHelper {
       print('Notification: $title - $body');
     }
 
-    // TODO: Implement actual notification using flutter_local_notifications
+    // TODO (joasare019): Implement actual notification using flutter_local_notifications
     // or integrate with existing Firebase notification system
   }
 

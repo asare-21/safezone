@@ -328,8 +328,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.primary,
+            CircularProgressIndicator.adaptive(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -534,14 +536,19 @@ class _MapScreenViewState extends State<_MapScreenView> {
                                             left: 0,
                                             right: 0,
                                             bottom: 0,
-                                            child: CircularProgressIndicator(
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                    theme.colorScheme.primary,
-                                                  ),
-                                              strokeWidth: 5,
-                                              value: 1,
-                                            ),
+                                            child:
+                                                CircularProgressIndicator.adaptive(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(
+                                                        theme
+                                                            .colorScheme
+                                                            .primary,
+                                                      ),
+                                                  strokeWidth: 5,
+                                                  value: 1,
+                                                ),
                                           ),
                                           CircleAvatar(
                                             radius: 30,

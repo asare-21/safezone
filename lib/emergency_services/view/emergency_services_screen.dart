@@ -40,7 +40,7 @@ class _EmergencyServicesView extends StatelessWidget {
       body: BlocBuilder<EmergencyServicesCubit, EmergencyServicesState>(
         builder: (context, state) {
           if (state.status == EmergencyServicesStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           if (state.status == EmergencyServicesStatus.error) {
@@ -83,17 +83,14 @@ class _EmergencyServicesView extends StatelessWidget {
                             Icon(
                               Icons.search_off,
                               size: 64,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.3),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'No services found',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: Theme.of(context)
                                         .colorScheme
@@ -104,9 +101,7 @@ class _EmergencyServicesView extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               'Try adjusting your filters',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: Theme.of(context)
                                         .colorScheme
@@ -145,10 +140,9 @@ class _FilterSection extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -161,8 +155,8 @@ class _FilterSection extends StatelessWidget {
                   Text(
                     'Filter by Type',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   if (state.selectedTypes.isNotEmpty)
                     TextButton(
@@ -194,9 +188,9 @@ class _FilterSection extends StatelessWidget {
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
-                      context
-                          .read<EmergencyServicesCubit>()
-                          .toggleServiceType(type);
+                      context.read<EmergencyServicesCubit>().toggleServiceType(
+                        type,
+                      );
                     },
                     backgroundColor: Colors.white,
                     selectedColor: type.color,
@@ -273,9 +267,7 @@ class _EmergencyServiceCard extends StatelessWidget {
                       children: [
                         Text(
                           service.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
+                          style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -306,17 +298,14 @@ class _EmergencyServiceCard extends StatelessWidget {
                               Icon(
                                 Icons.location_on,
                                 size: 14,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.6),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                               const SizedBox(width: 2),
                               Text(
                                 service.formattedDistance,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
+                                style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
@@ -339,21 +328,19 @@ class _EmergencyServiceCard extends StatelessWidget {
                     Icon(
                       Icons.place,
                       size: 16,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         service.address!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.7),
-                            ),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
                   ],
@@ -366,20 +353,18 @@ class _EmergencyServiceCard extends StatelessWidget {
                     Icon(
                       Icons.access_time,
                       size: 16,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       service.hours!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.7),
-                          ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
                     ),
                   ],
                 ),
@@ -578,19 +563,18 @@ class _DetailRow extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w500,
-                    ),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),

@@ -44,7 +44,7 @@ class _SafeZonesView extends StatelessWidget {
       body: BlocBuilder<SafeZoneCubit, SafeZoneState>(
         builder: (context, state) {
           if (state.status == SafeZoneStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           if (state.status == SafeZoneStatus.error) {
