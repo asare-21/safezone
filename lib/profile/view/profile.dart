@@ -212,7 +212,7 @@ class _ProfileView extends StatelessWidget {
               child: Center(
                 child: TextButton(
                   onPressed: () {
-                    // Handle log out
+                    //TODO (joasare019): Implement logout functioanloty. Route the user to the home screen when logout is completed.
                   },
                   child: Text(
                     'Log Out',

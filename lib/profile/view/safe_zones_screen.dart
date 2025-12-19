@@ -18,6 +18,8 @@ class SafeZonesScreen extends StatelessWidget {
   }
 }
 
+const Color _lightBlueBackground = Color(0xFFEFF6FF);
+
 class _SafeZonesView extends StatelessWidget {
   const _SafeZonesView();
 
@@ -106,14 +108,40 @@ class _SafeZonesView extends StatelessWidget {
             );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: state.safeZones.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final zone = state.safeZones[index];
-              return _SafeZoneCard(zone: zone);
-            },
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+
+                child: Card(
+                  elevation: 0.1,
+                  color: _lightBlueBackground,
+                  child: ListTile(
+                    title: Text(
+                      'Maximum Number of Safe Zones',
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'You are alowed a maximum of 5 safe zones',
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.safeZones.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final zone = state.safeZones[index];
+                    return _SafeZoneCard(zone: zone);
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
