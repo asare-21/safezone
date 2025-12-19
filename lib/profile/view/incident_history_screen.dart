@@ -424,15 +424,15 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
             fontSize: 20,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: _showFilterDialog,
-            icon: const Icon(
-              LineIcons.horizontalSliders,
-              color: Colors.black,
-            ),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: _showFilterDialog,
+        //     icon: const Icon(
+        //       LineIcons.horizontalSliders,
+        //       color: Colors.black,
+        //     ),
+        //   ),
+        // ],
       ),
       body: SafeArea(
         child: filteredIncidents.isEmpty
