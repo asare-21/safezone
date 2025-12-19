@@ -61,12 +61,18 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
       if (_apiService != null && deviceId != null) {
         try {
           final backendPrefs = await _apiService.getPreferences(deviceId);
-          
+
           // Update local cache with backend values
-          await prefs.setBool(_pushNotificationsKey, backendPrefs.pushNotifications);
-          await prefs.setBool(_proximityAlertsKey, backendPrefs.proximityAlerts);
+          await prefs.setBool(
+            _pushNotificationsKey,
+            backendPrefs.pushNotifications,
+          );
+          await prefs.setBool(
+            _proximityAlertsKey,
+            backendPrefs.proximityAlerts,
+          );
           await prefs.setBool(_soundVibrationKey, backendPrefs.soundVibration);
-          
+
           emit(
             NotificationSettingsState(
               pushNotifications: backendPrefs.pushNotifications,
@@ -122,7 +128,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   Future<void> togglePushNotifications(bool bool, {required bool value}) async {
     emit(state.copyWith(pushNotifications: value));
     await _saveSetting(_pushNotificationsKey, value);
-    
+
     // Sync with backend
     await _syncBooleanToBackend('pushNotifications', value);
 
@@ -138,7 +144,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   Future<void> toggleProximityAlerts({required bool value}) async {
     emit(state.copyWith(proximityAlerts: value));
     await _saveSetting(_proximityAlertsKey, value);
-    
+
     // Sync with backend
     await _syncBooleanToBackend('proximityAlerts', value);
 
@@ -154,7 +160,7 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   Future<void> toggleSoundVibration({required bool value}) async {
     emit(state.copyWith(soundVibration: value));
     await _saveSetting(_soundVibrationKey, value);
-    
+
     // Sync with backend
     await _syncBooleanToBackend('soundVibration', value);
   }
