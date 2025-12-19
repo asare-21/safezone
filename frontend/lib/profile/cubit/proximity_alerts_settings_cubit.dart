@@ -41,9 +41,9 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
   }
 
   /// Update push notifications setting
-  Future<void> updatePushNotifications({required bool value}) async {
+  Future<void> updatePushNotifications(bool bool, {required bool value}) async {
     try {
-      await _repository.setPushNotifications(value: value);
+      await _repository.setPushNotifications(value, value: value);
       emit(state.copyWith(pushNotifications: value));
     } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
@@ -55,9 +55,9 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
   }
 
   /// Update proximity alerts setting
-  Future<void> updateProximityAlerts({required bool value}) async {
+  Future<void> updateProximityAlerts(bool bool, {required bool value}) async {
     try {
-      await _repository.setProximityAlerts(value: value);
+      await _repository.setProximityAlerts(value, value: value);
       emit(state.copyWith(proximityAlerts: value));
     } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
@@ -69,9 +69,9 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
   }
 
   /// Update sound and vibration setting
-  Future<void> updateSoundVibration({required bool value}) async {
+  Future<void> updateSoundVibration(bool bool, {required bool value}) async {
     try {
-      await _repository.setSoundVibration(value: value);
+      await _repository.setSoundVibration(value, value: value);
       emit(state.copyWith(soundVibration: value));
     } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
@@ -83,9 +83,12 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
   }
 
   /// Update anonymous reporting setting
-  Future<void> updateAnonymousReporting({required bool value}) async {
+  Future<void> updateAnonymousReporting(
+    bool bool, {
+    required bool value,
+  }) async {
     try {
-      await _repository.setAnonymousReporting(value: value);
+      await _repository.setAnonymousReporting(value, value: value);
       emit(state.copyWith(anonymousReporting: value));
     } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync
@@ -97,9 +100,12 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
   }
 
   /// Update share location with contacts setting
-  Future<void> updateShareLocationWithContacts({required bool value}) async {
+  Future<void> updateShareLocationWithContacts(
+    bool bool, {
+    required bool value,
+  }) async {
     try {
-      await _repository.setShareLocationWithContacts(value: value);
+      await _repository.setShareLocationWithContacts(value, value: value);
       emit(state.copyWith(shareLocationWithContacts: value));
     } on Exception catch (e) {
       // If save fails, reload settings to ensure UI is in sync

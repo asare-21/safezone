@@ -46,6 +46,8 @@ void main() {
           notificationCenter: AppleNotificationSetting.enabled,
           showPreviews: AppleShowPreviewSetting.always,
           timeSensitive: AppleNotificationSetting.notSupported,
+          providesAppNotificationSettings:
+              AppleNotificationSetting.notSupported,
         ),
       );
       when(
@@ -76,7 +78,7 @@ void main() {
         sharedPreferences: mockSharedPreferences,
         firebaseMessaging: mockFirebaseMessaging,
       ),
-      act: (cubit) => cubit.togglePushNotifications(false),
+      act: (cubit) => cubit.togglePushNotifications(false, value: false),
       expect: () => [
         const NotificationSettingsState(),
       ],
@@ -97,7 +99,7 @@ void main() {
         firebaseMessaging: mockFirebaseMessaging,
       ),
       seed: () => const NotificationSettingsState(),
-      act: (cubit) => cubit.togglePushNotifications(true),
+      act: (cubit) => cubit.togglePushNotifications(true, value: true),
       expect: () => [
         const NotificationSettingsState(),
       ],
@@ -120,7 +122,7 @@ void main() {
         sharedPreferences: mockSharedPreferences,
         firebaseMessaging: mockFirebaseMessaging,
       ),
-      act: (cubit) => cubit.toggleProximityAlerts(false),
+      act: (cubit) => cubit.toggleProximityAlerts(false, value: false),
       expect: () => [
         const NotificationSettingsState(proximityAlerts: false),
       ],
@@ -140,7 +142,7 @@ void main() {
         sharedPreferences: mockSharedPreferences,
         firebaseMessaging: mockFirebaseMessaging,
       ),
-      act: (cubit) => cubit.toggleSoundVibration(true),
+      act: (cubit) => cubit.toggleSoundVibration(true, value: true),
       expect: () => [
         const NotificationSettingsState(soundVibration: true),
       ],
@@ -157,7 +159,7 @@ void main() {
         sharedPreferences: mockSharedPreferences,
         firebaseMessaging: mockFirebaseMessaging,
       ),
-      act: (cubit) => cubit.toggleAnonymousReporting(false),
+      act: (cubit) => cubit.toggleAnonymousReporting(false, value: false),
       expect: () => [
         const NotificationSettingsState(anonymousReporting: false),
       ],
@@ -174,7 +176,7 @@ void main() {
         sharedPreferences: mockSharedPreferences,
         firebaseMessaging: mockFirebaseMessaging,
       ),
-      act: (cubit) => cubit.toggleShareLocationWithContacts(true),
+      act: (cubit) => cubit.toggleShareLocationWithContacts(true, value: true),
       expect: () => [
         const NotificationSettingsState(shareLocationWithContacts: true),
       ],

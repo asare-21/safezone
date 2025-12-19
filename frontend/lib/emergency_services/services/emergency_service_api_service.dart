@@ -44,16 +44,12 @@ class EmergencyServiceApiService {
           switch (serviceJson['service_type'] as String) {
             case 'police':
               type = EmergencyServiceType.police;
-              break;
             case 'hospital':
               type = EmergencyServiceType.hospital;
-              break;
             case 'fireStation':
               type = EmergencyServiceType.fireStation;
-              break;
             case 'ambulance':
               type = EmergencyServiceType.ambulance;
-              break;
             default:
               type = EmergencyServiceType.police;
           }

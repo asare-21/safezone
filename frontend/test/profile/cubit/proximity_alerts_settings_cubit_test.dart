@@ -99,13 +99,14 @@ void main() {
               'alertRadius': 2.5,
             },
           );
-          when(() => repository.setPushNotifications(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => repository.setPushNotifications(any(), value: false),
+          ).thenAnswer((_) async {});
         },
         build: () => ProximityAlertsSettingsCubit(repository: repository),
         act: (cubit) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
-          await cubit.updatePushNotifications(false);
+          await cubit.updatePushNotifications(false, value: false);
         },
         skip: 1,
         expect: () => [
@@ -115,7 +116,9 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => repository.setPushNotifications(false)).called(1);
+          verify(
+            () => repository.setPushNotifications(any(), value: false),
+          ).called(1);
         },
       );
     });
@@ -134,13 +137,14 @@ void main() {
               'alertRadius': 2.5,
             },
           );
-          when(() => repository.setProximityAlerts(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => repository.setProximityAlerts(any(), value: false),
+          ).thenAnswer((_) async {});
         },
         build: () => ProximityAlertsSettingsCubit(repository: repository),
         act: (cubit) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
-          await cubit.updateProximityAlerts(false);
+          await cubit.updateProximityAlerts(false, value: false);
         },
         skip: 1,
         expect: () => [
@@ -150,7 +154,9 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => repository.setProximityAlerts(false)).called(1);
+          verify(
+            () => repository.setProximityAlerts(false, value: false),
+          ).called(1);
         },
       );
     });
@@ -169,13 +175,14 @@ void main() {
               'alertRadius': 2.5,
             },
           );
-          when(() => repository.setSoundVibration(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => repository.setSoundVibration(any(), value: true),
+          ).thenAnswer((_) async {});
         },
         build: () => ProximityAlertsSettingsCubit(repository: repository),
         act: (cubit) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
-          await cubit.updateSoundVibration(true);
+          await cubit.updateSoundVibration(true, value: true);
         },
         skip: 1,
         expect: () => [
@@ -185,7 +192,9 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => repository.setSoundVibration(true)).called(1);
+          verify(
+            () => repository.setSoundVibration(true, value: true),
+          ).called(1);
         },
       );
     });
@@ -204,13 +213,14 @@ void main() {
               'alertRadius': 2.5,
             },
           );
-          when(() => repository.setAnonymousReporting(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => repository.setAnonymousReporting(any(), value: false),
+          ).thenAnswer((_) async {});
         },
         build: () => ProximityAlertsSettingsCubit(repository: repository),
         act: (cubit) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
-          await cubit.updateAnonymousReporting(false);
+          await cubit.updateAnonymousReporting(false, value: false);
         },
         skip: 1,
         expect: () => [
@@ -220,7 +230,9 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => repository.setAnonymousReporting(false)).called(1);
+          verify(
+            () => repository.setAnonymousReporting(false, value: false),
+          ).called(1);
         },
       );
     });
@@ -239,13 +251,14 @@ void main() {
               'alertRadius': 2.5,
             },
           );
-          when(() => repository.setShareLocationWithContacts(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => repository.setShareLocationWithContacts(any(), value: true),
+          ).thenAnswer((_) async {});
         },
         build: () => ProximityAlertsSettingsCubit(repository: repository),
         act: (cubit) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
-          await cubit.updateShareLocationWithContacts(true);
+          await cubit.updateShareLocationWithContacts(true, value: true);
         },
         skip: 1,
         expect: () => [
@@ -255,8 +268,9 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => repository.setShareLocationWithContacts(true))
-              .called(1);
+          verify(
+            () => repository.setShareLocationWithContacts(true, value: true),
+          ).called(1);
         },
       );
     });

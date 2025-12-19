@@ -33,8 +33,7 @@ class EmergencyServicesRepository {
 
   Future<List<EmergencyService>> getServicesNearLocation(
     LatLng userLocation, {
-    double radiusKm = 10.0,
-    required String countryCode,
+    required String countryCode, double radiusKm = 10.0,
   }) async {
     const distance = Distance();
     

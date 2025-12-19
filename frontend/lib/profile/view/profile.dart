@@ -98,7 +98,7 @@ class _ProfileView extends StatelessWidget {
                       title: 'Proximity Alerts',
                       value: state.proximityAlerts,
                       onChanged: (value) =>
-                          cubit.toggleProximityAlerts(value: value),
+                          cubit.toggleProximityAlerts(value, value: value),
                     ),
 
                     const Divider(height: 1),
@@ -111,7 +111,7 @@ class _ProfileView extends StatelessWidget {
                       title: 'Sound & Vibration',
                       value: state.soundVibration,
                       onChanged: (value) =>
-                          cubit.toggleSoundVibration(value: value),
+                          cubit.toggleSoundVibration(value, value: value),
                     ),
                   ],
                 );

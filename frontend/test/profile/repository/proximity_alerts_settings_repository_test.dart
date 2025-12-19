@@ -21,7 +21,7 @@ void main() {
       });
 
       test('returns stored value when available', () async {
-        await repository.setPushNotifications(false);
+        await repository.setPushNotifications(false, value: false);
         final result = await repository.getPushNotifications();
         expect(result, false);
       });
@@ -34,7 +34,7 @@ void main() {
       });
 
       test('returns stored value when available', () async {
-        await repository.setProximityAlerts(false);
+        await repository.setProximityAlerts(false, value: false);
         final result = await repository.getProximityAlerts();
         expect(result, false);
       });
@@ -47,7 +47,7 @@ void main() {
       });
 
       test('returns stored value when available', () async {
-        await repository.setSoundVibration(true);
+        await repository.setSoundVibration(true, value: true);
         final result = await repository.getSoundVibration();
         expect(result, true);
       });
@@ -60,7 +60,7 @@ void main() {
       });
 
       test('returns stored value when available', () async {
-        await repository.setAnonymousReporting(false);
+        await repository.setAnonymousReporting(false, value: false);
         final result = await repository.getAnonymousReporting();
         expect(result, false);
       });
@@ -73,7 +73,7 @@ void main() {
       });
 
       test('returns stored value when available', () async {
-        await repository.setShareLocationWithContacts(true);
+        await repository.setShareLocationWithContacts(true, value: true);
         final result = await repository.getShareLocationWithContacts();
         expect(result, true);
       });
@@ -104,11 +104,11 @@ void main() {
       });
 
       test('returns all stored values when available', () async {
-        await repository.setPushNotifications(false);
-        await repository.setProximityAlerts(false);
-        await repository.setSoundVibration(true);
-        await repository.setAnonymousReporting(false);
-        await repository.setShareLocationWithContacts(true);
+        await repository.setPushNotifications(false, value: false);
+        await repository.setProximityAlerts(false, value: false);
+        await repository.setSoundVibration(true, value: true);
+        await repository.setAnonymousReporting(false, value: false);
+        await repository.setShareLocationWithContacts(true, value: true);
         await repository.setAlertRadius(7.5);
 
         final result = await repository.loadAllSettings();
