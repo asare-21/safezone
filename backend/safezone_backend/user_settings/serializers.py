@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserDevice, SafeZone
+from .models import UserDevice, SafeZone, UserPreferences
 
 
 class UserDeviceSerializer(serializers.ModelSerializer):
@@ -63,5 +63,42 @@ class SafeZoneSerializer(serializers.ModelSerializer):
         if value > 50000:  # 50km max
             raise serializers.ValidationError(
                 'Radius must be less than 50000 meters (50km)'
+            )
+        return value
+
+
+class UserPreferencesSerializer(serializers.ModelSerializer):
+    """Serializer for UserPreferences model."""
+    
+    class Meta:
+        model = UserPreferences
+        fields = [
+            'id',
+            'device_id',
+            'alert_radius',
+            'default_zoom',
+            'location_icon',
+            'push_notifications',
+            'proximity_alerts',
+            'sound_vibration',
+            'anonymous_reporting',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def validate_alert_radius(self, value):
+        """Validate alert radius is within valid range."""
+        if value < 0.5 or value > 10:
+            raise serializers.ValidationError(
+                'Alert radius must be between 0.5 and 10 km'
+            )
+        return value
+    
+    def validate_default_zoom(self, value):
+        """Validate default zoom is within valid range."""
+        if value < 10 or value > 18:
+            raise serializers.ValidationError(
+                'Default zoom must be between 10 and 18'
             )
         return value

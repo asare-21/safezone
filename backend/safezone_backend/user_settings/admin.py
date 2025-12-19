@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserDevice, SafeZone
+from .models import UserDevice, SafeZone, UserPreferences
 
 
 @admin.register(UserDevice)
@@ -33,4 +33,28 @@ class SafeZoneAdmin(admin.ModelAdmin):
     list_filter = ['zone_type', 'is_active', 'created_at']
     search_fields = ['name', 'device_id']
     readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(UserPreferences)
+class UserPreferencesAdmin(admin.ModelAdmin):
+    """Admin configuration for UserPreferences model."""
+    
+    list_display = [
+        'device_id',
+        'alert_radius',
+        'default_zoom',
+        'push_notifications',
+        'proximity_alerts',
+        'anonymous_reporting',
+        'updated_at',
+    ]
+    list_filter = [
+        'push_notifications',
+        'proximity_alerts',
+        'sound_vibration',
+        'anonymous_reporting',
+    ]
+    search_fields = ['device_id']
+    readonly_fields = ['created_at', 'updated_at']
+
 

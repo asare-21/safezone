@@ -92,3 +92,34 @@ class SafeZone(models.Model):
         distance = R * c
         
         return distance <= self.radius
+
+
+class UserPreferences(models.Model):
+    """Model to store user preferences and settings."""
+    
+    device_id = models.CharField(max_length=255, unique=True, db_index=True)
+    
+    # Map Settings
+    alert_radius = models.FloatField(default=5.0, help_text='Alert radius in kilometers')
+    default_zoom = models.FloatField(default=15.0, help_text='Default map zoom level')
+    location_icon = models.CharField(max_length=255, default='assets/fun_icons/icon1.png')
+    
+    # Notification Settings
+    push_notifications = models.BooleanField(default=True)
+    proximity_alerts = models.BooleanField(default=True)
+    sound_vibration = models.BooleanField(default=True)
+    
+    # Privacy Settings
+    anonymous_reporting = models.BooleanField(default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'User Preference'
+        verbose_name_plural = 'User Preferences'
+    
+    def __str__(self):
+        return f"Preferences for {self.device_id}"
