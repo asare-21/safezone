@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/authentication/cubit/authentication_cubit.dart';
+import 'package:safe_zone/authentication/services/auth0_service.dart';
 import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
@@ -72,6 +74,14 @@ class App extends StatelessWidget {
           create: (_) => GuideCubit(
             apiService: guideApiService,
           )..loadGuides(),
+        ),
+        BlocProvider(
+          create: (_) => AuthenticationCubit(
+            auth0Service: Auth0Service(
+              domain: const String.fromEnvironment('AUTH0_DOMAIN'),
+              clientId: const String.fromEnvironment('AUTH0_CLIENT_ID'),
+            ),
+          ),
         ),
       ],
       child: ShadApp.router(

@@ -107,81 +107,86 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-              ] else
-                const SizedBox(height: 40),
-
-              // Page content
-              Expanded(
-                flex: 3,
-                child: PageView.builder(
-                  controller: pageController,
-                  onPageChanged: (value) => setState(() {
-                    _currentPage = value;
-                  }),
-                  itemBuilder: (context, index) {
-                    final page = _pages[index];
-                    return _authenticationPageView(context, page, index);
-                  },
-                  itemCount: _pages.length,
-                ),
-              ),
-
-              // Progress indicator with page numbers
-              _buildPageIndicator(),
-              const SizedBox(height: 24),
-
-              // Action buttons
-              Column(
-                children: [
-                  BlocBuilder<AuthenticationCubit, AuthenticationState>(
-                    builder: (context, state) {
-                      final isLoading = state is AuthenticationLoading;
-                      
-                      return SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ShadButton(
-                          onPressed: isLoading
-                              ? null
-                              : (isLastPage
-                                  ? () => _handleLogin(context)
-                                  : () {
-                                      pageController.nextPage(
-                                        duration: const Duration(milliseconds: 400),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  isLastPage ? 'Sign In with Auth0' : 'Continue',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                        ),
-                      );
-                    },
+                  const SizedBox(
+                    height: 10,
                   ),
-                ],
-              ),
-              const SizedBox(height: 40),
-            ],
+                ] else
+                  const SizedBox(height: 40),
+
+                // Page content
+                Expanded(
+                  flex: 3,
+                  child: PageView.builder(
+                    controller: pageController,
+                    onPageChanged: (value) => setState(() {
+                      _currentPage = value;
+                    }),
+                    itemBuilder: (context, index) {
+                      final page = _pages[index];
+                      return _authenticationPageView(context, page, index);
+                    },
+                    itemCount: _pages.length,
+                  ),
+                ),
+
+                // Progress indicator with page numbers
+                _buildPageIndicator(),
+                const SizedBox(height: 24),
+
+                // Action buttons
+                Column(
+                  children: [
+                    BlocBuilder<AuthenticationCubit, AuthenticationState>(
+                      builder: (context, state) {
+                        final isLoading = state is AuthenticationLoading;
+
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ShadButton(
+                            onPressed: isLoading
+                                ? null
+                                : (isLastPage
+                                      ? () => _handleLogin(context)
+                                      : () {
+                                          pageController.nextPage(
+                                            duration: const Duration(
+                                              milliseconds: 400,
+                                            ),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        }),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    isLastPage
+                                        ? 'Sign In with Auth0'
+                                        : 'Continue',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
