@@ -34,7 +34,6 @@ This project demonstrates practical engineering skills in mobile development, ge
 ### 📝 Crowdsourced Incident Reporting
 - Quick incident reporting in under 30 seconds
 - Auto-captures GPS location and timestamp
-- Media upload support (photos from camera or gallery)
 - Multiple incident categories:
   - 🏃 Theft
   - 💥 Assault  
@@ -161,16 +160,22 @@ The frontend uses the **BLoC (Business Logic Component)** pattern for state mana
 | **flutter_bloc** | 9.1.1 | State management |
 | **flutter_map** | 7.0.2 | Interactive maps |
 | **go_router** | 17.0.1 | Navigation and routing |
-| **geolocator** | 13.0.2 | GPS and location services |
-| **geocoding** | 3.0.0 | Address geocoding |
-| **firebase_core** | 3.10.0 | Firebase SDK |
-| **firebase_messaging** | 15.1.6 | Push notifications |
-| **shared_preferences** | 2.3.4 | Local data persistence |
-| **shadcn_ui** | 0.42.0 | UI component library |
-| **image_picker** | 1.1.2 | Camera and gallery access |
-| **equatable** | 2.0.7 | Value equality |
-| **bloc_test** | 10.0.0 | BLoC testing utilities |
-| **mocktail** | 1.0.4 | Mocking for tests |
+| **geolocator** | ^13.0.2 | GPS and location services |
+| **geocoding** | ^3.0.0 | Address geocoding |
+| **firebase_core** | ^3.10.0 | Firebase SDK |
+| **firebase_messaging** | ^15.1.6 | Push notifications |
+| **shared_preferences** | ^2.3.4 | Local data persistence |
+| **shadcn_ui** | ^0.42.0 | UI component library |
+| **equatable** | ^2.0.7 | Value equality |
+| **intl** | ^0.20.2 | Internationalization |
+| **introduction_screen** | ^4.0.0 | Onboarding screens |
+| **latlong2** | ^0.9.1 | Latitude/longitude handling |
+| **line_icons** | ^2.0.3 | Icon library |
+| **url_launcher** | ^6.3.1 | URL and phone launching |
+| **dots_indicator** | ^4.0.1 | Page indicators |
+| **bloc_test** | ^10.0.0 | BLoC testing utilities |
+| **mocktail** | ^1.0.4 | Mocking for tests |
+| **very_good_analysis** | ^9.0.0 | Linting rules |
 
 ### Backend (API Server)
 | Technology | Version | Purpose |
@@ -457,9 +462,8 @@ User Report → Frontend Validation → Backend API → Database Storage
 ### 4. **Report Incident Screen**
 - Category selection (6 categories)
 - Title and description fields
-- Media upload (camera/gallery)
-- Notify nearby users toggle
 - Auto-location capture
+- Notify nearby users toggle
 - Quick submission
 
 ### 5. **Alerts Screen**
