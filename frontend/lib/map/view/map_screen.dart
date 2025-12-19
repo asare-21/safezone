@@ -152,11 +152,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
   Future<void> _loadIncidentsFromApi() async {
     try {
       _allIncidents = await _apiService.getIncidents();
-    } catch (e) {
+    } on Exception catch (e) {
       // If API fails, fall back to empty list or mock data
       debugPrint('Failed to load incidents from API: $e');
       _allIncidents = [];
-      
+
       // Optionally fall back to mock data for development
       if (_currentLocation != null) {
         await _generateMockIncidentsForDevelopment();
@@ -301,11 +301,11 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 description: description,
                 notifyNearby: notifyNearby,
               );
-              
+
               // Add to local list and update UI
               _allIncidents.insert(0, newIncident);
               // Update cubit with new incidents list
-              this.context.read<MapFilterCubit>().initializeIncidents(
+              context.read<MapFilterCubit>().initializeIncidents(
                 _allIncidents,
               );
 
@@ -323,10 +323,10 @@ class _MapScreenViewState extends State<_MapScreenView> {
                   description: Text(message),
                 ),
               );
-            } catch (e) {
+            } on Exception catch (e) {
               // Show error message if API call fails
               Navigator.of(context).pop();
-              
+
               ShadToaster.of(context).show(
                 ShadToast(
                   title: const Text('Error'),
@@ -450,6 +450,19 @@ class _MapScreenViewState extends State<_MapScreenView> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingScreen();
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text(
+                'Error loading data: ${snapshot.error}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ),
+          );
         }
 
         return BlocBuilder<SafeZoneCubit, SafeZoneState>(

@@ -45,7 +45,7 @@ class GuideScreen extends StatelessWidget {
                 builder: (context, state) {
                   if (state is GuideLoading) {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator.adaptive(),
                     );
                   }
 
