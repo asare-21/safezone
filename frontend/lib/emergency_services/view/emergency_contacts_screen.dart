@@ -161,7 +161,9 @@ class _EmergencyContactCard extends StatelessWidget {
   final EmergencyContact contact;
 
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final launchUri = Uri(scheme: 'tel', path: phoneNumber);
+    // Sanitize phone number - keep only digits and leading +
+    final sanitized = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final launchUri = Uri(scheme: 'tel', path: sanitized);
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     }

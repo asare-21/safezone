@@ -44,8 +44,13 @@ class EmergencyContactSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         """Validate email format if provided."""
         if value:
-            # Basic email validation
-            if '@' not in value or '.' not in value.split('@')[-1]:
+            from django.core.validators import EmailValidator
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            
+            validator = EmailValidator()
+            try:
+                validator(value)
+            except DjangoValidationError:
                 raise serializers.ValidationError(
                     'Please enter a valid email address'
                 )

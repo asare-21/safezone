@@ -49,9 +49,10 @@ class EmergencyContactCubit extends Cubit<EmergencyContactState> {
         priority: priority,
       );
 
-      final updatedContacts = List<EmergencyContact>.from(state.contacts)
-        ..add(contact)
-        ..sort((a, b) => a.priority.compareTo(b.priority));
+      // Add contact and sort by priority
+      final updatedContacts = List<EmergencyContact>.from(state.contacts);
+      updatedContacts.add(contact);
+      updatedContacts.sort((a, b) => a.priority.compareTo(b.priority));
 
       emit(
         state.copyWith(
@@ -89,10 +90,11 @@ class EmergencyContactCubit extends Cubit<EmergencyContactState> {
         priority: priority,
       );
 
+      // Update contact and sort by priority
       final updatedContacts = state.contacts.map((contact) {
         return contact.id == id ? updatedContact : contact;
-      }).toList()
-        ..sort((a, b) => a.priority.compareTo(b.priority));
+      }).toList();
+      updatedContacts.sort((a, b) => a.priority.compareTo(b.priority));
 
       emit(
         state.copyWith(

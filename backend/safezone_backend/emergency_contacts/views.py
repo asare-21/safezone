@@ -17,6 +17,12 @@ class EmergencyContactListCreateView(generics.ListCreateAPIView):
         """
         Filter emergency contacts by device_id from query params.
         Note: Since device_id is encrypted, we filter in Python rather than at DB level.
+        
+        Performance consideration: This approach loads all active contacts into memory
+        and filters them in Python. For production use with large datasets, consider:
+        1. Adding a non-encrypted hash field for lookup
+        2. Using a searchable encryption scheme
+        3. Implementing pagination to limit memory usage
         """
         device_id = self.request.query_params.get('device_id')
         queryset = EmergencyContact.objects.filter(is_active=True)
