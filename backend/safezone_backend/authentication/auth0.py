@@ -19,7 +19,7 @@ def get_jwks():
     """
     jwks_url = f'https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json'
     try:
-        response = requests.get(jwks_url, timeout=10)
+        response = requests.get(jwks_url, timeout=5)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:

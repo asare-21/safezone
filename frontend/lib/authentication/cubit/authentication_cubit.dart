@@ -67,6 +67,8 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
       }
     } catch (e) {
       emit(AuthenticationError('Login failed: $e'));
+      // Wait briefly to allow listeners to process error before clearing
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       emit(const AuthenticationUnauthenticated());
     }
   }
@@ -79,6 +81,8 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
       emit(const AuthenticationUnauthenticated());
     } catch (e) {
       emit(AuthenticationError('Logout failed: $e'));
+      // Wait briefly to allow listeners to process error before clearing
+      await Future<void>.delayed(const Duration(milliseconds: 100));
       emit(const AuthenticationUnauthenticated());
     }
   }

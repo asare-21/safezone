@@ -26,8 +26,15 @@ class Auth0Service {
       final credentials = await _auth0.webAuthentication().login();
       await _storeCredentials(credentials);
       return credentials;
+    } on WebAuthenticationException catch (e) {
+      if (e.code == 'a0.session.user_cancelled') {
+        throw Auth0Exception('Login was cancelled');
+      } else if (e.code == 'a0.session.invalid_credentials') {
+        throw Auth0Exception('Invalid credentials');
+      }
+      throw Auth0Exception('Login failed. Please try again.');
     } catch (e) {
-      throw Auth0Exception('Login failed: $e');
+      throw Auth0Exception('Login failed. Please try again.');
     }
   }
 
@@ -36,8 +43,14 @@ class Auth0Service {
     try {
       await _auth0.webAuthentication().logout();
       await _clearCredentials();
+    } on WebAuthenticationException catch (e) {
+      // Log the error but clear credentials anyway
+      await _clearCredentials();
+      throw Auth0Exception('Logout completed with errors');
     } catch (e) {
-      throw Auth0Exception('Logout failed: $e');
+      // Ensure credentials are cleared even if logout fails
+      await _clearCredentials();
+      throw Auth0Exception('Logout completed with errors');
     }
   }
 
