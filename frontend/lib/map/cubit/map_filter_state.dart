@@ -27,4 +27,28 @@ class MapFilterState {
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is MapFilterState &&
+        other.timeFilter == timeFilter &&
+        _setEquals(other.selectedCategories, selectedCategories) &&
+        other.riskLevel == riskLevel &&
+        other.searchQuery == searchQuery;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        timeFilter,
+        selectedCategories,
+        riskLevel,
+        searchQuery,
+      );
+
+  /// Helper method to compare sets for equality
+  bool _setEquals<T>(Set<T> a, Set<T> b) {
+    if (a.length != b.length) return false;
+    return a.every(b.contains);
+  }
 }
