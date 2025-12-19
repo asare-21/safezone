@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$*n3jo4@5%1#1h0y5be87rzw!hx&u#^@(eer$7u*l1xp4h6qwq'
+# In production, use environment variable: os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-$*n3jo4@5%1#1h0y5be87rzw!hx&u#^@(eer$7u*l1xp4h6qwq')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2').split(',')
 
 
 # Application definition
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'encrypted_model_fields',
     'incident_reporting',
     'alerts',
     'authentication',
@@ -144,7 +147,40 @@ REST_FRAMEWORK = {
 # WARNING: Allow all origins for DEVELOPMENT ONLY
 # In production, restrict to specific domains:
 # CORS_ALLOWED_ORIGINS = ['https://yourdomain.com']
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all in debug mode
 CORS_ALLOW_CREDENTIALS = True
+
+# Security Settings for Production
+# These are configured with safe defaults; override in production with environment variables
+
+# HTTPS/SSL Settings
+SECURE_SSL_REDIRECT = not DEBUG  # Redirect HTTP to HTTPS in production
+SESSION_COOKIE_SECURE = not DEBUG  # Send session cookie only over HTTPS
+CSRF_COOKIE_SECURE = not DEBUG  # Send CSRF cookie only over HTTPS
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0  # 1 year in production
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+
+# Security Headers
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
+SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+
+# Session Security
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+CSRF_COOKIE_HTTPONLY = True  # Prevent JavaScript access to CSRF cookie
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Data Retention Settings (in days)
+INCIDENT_RETENTION_DAYS = int(os.environ.get('INCIDENT_RETENTION_DAYS', '90'))
+USER_PREFERENCES_INACTIVE_DAYS = int(os.environ.get('USER_PREFERENCES_INACTIVE_DAYS', '365'))
+DEVICE_TOKEN_INACTIVE_DAYS = int(os.environ.get('DEVICE_TOKEN_INACTIVE_DAYS', '180'))
+
+# Field Encryption Key (for encrypted model fields)
+# In production, use a separate key from SECRET_KEY stored in secure key management
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY', SECRET_KEY)
 
 

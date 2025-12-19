@@ -133,16 +133,37 @@ guides_data = [
     {
         'section': 'privacy',
         'title': 'Your Data is Protected',
-        'content': 'SafeZone is committed to your privacy:\n\n• No personally identifiable information required\n• Anonymous reporting available\n• Location data used only for incidents and alerts\n• Data encrypted in transit and at rest\n• Not affiliated with law enforcement agencies',
+        'content': 'SafeZone is committed to your privacy:\n\n• No personally identifiable information required\n• Anonymous reporting available\n• Location data used only for incidents and alerts\n• Data encrypted in transit (HTTPS/TLS) and at rest (AES-256)\n• Sensitive fields (device IDs, FCM tokens) encrypted in database\n• Not affiliated with law enforcement agencies\n• GDPR and CCPA compliant privacy practices',
         'icon': 'lock',
         'order': 1,
     },
     {
         'section': 'privacy',
         'title': 'Anonymous Reporting',
-        'content': 'Enable anonymous reporting in Settings to hide your username on public maps. Admins can still verify your ID for safety and to prevent abuse.',
+        'content': 'Enable anonymous reporting in Settings to hide your username on public maps. Your device ID is encrypted and stored securely. Admins can still verify report authenticity to prevent abuse while protecting your privacy.',
         'icon': 'user_secret',
         'order': 2,
+    },
+    {
+        'section': 'privacy',
+        'title': 'Data Encryption',
+        'content': 'All data transmission uses HTTPS with TLS 1.2+ encryption. Sensitive database fields including device identifiers and notification tokens are encrypted using AES-256 encryption. Your data is protected both in transit and at rest.',
+        'icon': 'shield_check',
+        'order': 3,
+    },
+    {
+        'section': 'privacy',
+        'title': 'Data Retention',
+        'content': 'Incident reports are retained for 90 days, after which they are anonymized for trend analysis. Inactive user preferences are deleted after 12 months. You can request immediate deletion of your data at any time.',
+        'icon': 'clock',
+        'order': 4,
+    },
+    {
+        'section': 'privacy',
+        'title': 'Your Rights (GDPR/CCPA)',
+        'content': 'You have the right to:\n• Access your data\n• Correct inaccurate data\n• Request data deletion\n• Export your data\n• Opt-out of data processing\n\nContact us via GitHub to exercise these rights.',
+        'icon': 'user_shield',
+        'order': 5,
     },
     
     # Safety Best Practices

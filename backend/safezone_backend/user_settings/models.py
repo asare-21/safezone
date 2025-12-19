@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from encrypted_model_fields.fields import EncryptedCharField, EncryptedTextField
 
 
 class UserDevice(models.Model):
@@ -12,8 +13,10 @@ class UserDevice(models.Model):
         null=True,
         blank=True,
     )
-    device_id = models.CharField(max_length=255, unique=True)
-    fcm_token = models.TextField()
+    # Encrypted fields for sensitive data
+    device_id = EncryptedCharField(max_length=255, unique=True)
+    fcm_token = EncryptedTextField()
+    
     platform = models.CharField(
         max_length=10,
         choices=[('android', 'Android'), ('ios', 'iOS'), ('web', 'Web')],
@@ -47,7 +50,8 @@ class SafeZone(models.Model):
         null=True,
         blank=True,
     )
-    device_id = models.CharField(max_length=255)  # For anonymous users
+    # Encrypted device_id for anonymous users
+    device_id = EncryptedCharField(max_length=255)
     name = models.CharField(max_length=200)
     latitude = models.FloatField()
     longitude = models.FloatField()
@@ -66,8 +70,10 @@ class SafeZone(models.Model):
     class Meta:
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['device_id', 'is_active']),
+            models.Index(fields=['is_active']),
             models.Index(fields=['latitude', 'longitude']),
+            # Note: device_id index removed because encrypted fields cannot be efficiently indexed
+            # For frequent device_id lookups, consider adding a hash field if performance is critical
         ]
 
     def __str__(self):
@@ -97,7 +103,8 @@ class SafeZone(models.Model):
 class UserPreferences(models.Model):
     """Model to store user preferences and settings."""
     
-    device_id = models.CharField(max_length=255, unique=True, db_index=True)
+    # Encrypted device_id for privacy
+    device_id = EncryptedCharField(max_length=255, unique=True, db_index=True)
     
     # Map Settings
     alert_radius = models.FloatField(default=5.0, help_text='Alert radius in kilometers')

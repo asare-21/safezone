@@ -506,8 +506,10 @@ SafeZone is designed with privacy and ethical considerations at its core:
 - ✅ **No PII Required**: Anonymous reporting supported
 - ✅ **Location Privacy**: Location data only used for incident reporting and alerts
 - ✅ **Data Minimization**: Only essential data collected
+- ✅ **Strong Encryption**: AES-256 encryption for sensitive data at rest, TLS 1.2+ for data in transit
 - ✅ **Local Storage**: Settings stored locally with SharedPreferences
 - ✅ **User Control**: Granular privacy settings
+- ✅ **GDPR/CCPA Compliant**: Full compliance with international privacy regulations
 
 ### Ethical Considerations
 - 🚫 **Not Affiliated**: Not affiliated with law enforcement or government agencies
@@ -515,6 +517,13 @@ SafeZone is designed with privacy and ethical considerations at its core:
 - ✅ **Community Driven**: Crowdsourced, community-validated data
 - ✅ **Transparent**: Open-source codebase (portfolio project)
 - ✅ **Moderation**: Basic trust system to reduce false reporting
+
+### Security & Encryption
+- ✅ **Field-Level Encryption**: Device IDs and FCM tokens encrypted in database (AES-256)
+- ✅ **HTTPS/TLS**: All API communications encrypted in transit (TLS 1.2+)
+- ✅ **Security Headers**: HSTS, CSP, X-Frame-Options, XSS protection
+- ✅ **Data Retention**: Automatic cleanup of expired data (90 days for incidents)
+- ✅ **User Rights**: Full data export and deletion capabilities
 
 ### Data Stored
 - Incident location (GPS coordinates)
@@ -610,6 +619,13 @@ This is a portfolio project, but contributions, suggestions, and feedback are we
 
 Additional documentation is available in the repository:
 
+### Security & Privacy
+- **[PRIVACY_POLICY.md](PRIVACY_POLICY.md)** - Complete privacy policy with GDPR/CCPA compliance
+- **[DATA_ENCRYPTION.md](DATA_ENCRYPTION.md)** - Detailed encryption and security measures
+- **[SECURITY_GUIDE.md](SECURITY_GUIDE.md)** - Developer guide for security implementation
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Security and privacy implementation summary
+
+### Feature Documentation
 - **[IMPLEMENTATION_SUMMARY.md](frontend/IMPLEMENTATION_SUMMARY.md)** - Notification settings implementation
 - **[NOTIFICATION_SETTINGS.md](frontend/NOTIFICATION_SETTINGS.md)** - Firebase configuration guide
 - **[MAP_UI_FINAL_SUMMARY.md](frontend/MAP_UI_FINAL_SUMMARY.md)** - Map UI improvements
