@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_zone/alerts/alerts.dart';
+import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
@@ -21,6 +22,12 @@ class App extends StatelessWidget {
     // Initialize user preferences API service
     // Use Android emulator localhost address by default
     final userPreferencesApiService = UserPreferencesApiService(
+      baseUrl: 'http://10.0.2.2:8000', // Android emulator
+      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+    );
+
+    // Initialize guide API service
+    final guideApiService = GuideApiService(
       baseUrl: 'http://10.0.2.2:8000', // Android emulator
       // baseUrl: 'http://localhost:8000', // iOS simulator / web
     );
@@ -60,6 +67,11 @@ class App extends StatelessWidget {
           create: (_) => SafeZoneCubit(
             repository: SafeZoneRepository(sharedPreferences: prefs),
           ),
+        ),
+        BlocProvider(
+          create: (_) => GuideCubit(
+            apiService: guideApiService,
+          )..loadGuides(),
         ),
       ],
       child: ShadApp.router(
