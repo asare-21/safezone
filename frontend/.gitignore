@@ -1,0 +1,5 @@
+.vscode/launch.json
+pubspec.lock
+.dart_tool/
+build/
+.idea/
