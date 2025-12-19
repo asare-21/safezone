@@ -2,7 +2,6 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Django](https://img.shields.io/badge/Django-4.2.23-092E20?logo=django)](https://www.djangoproject.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 SafeZone is a **Waze-inspired, crowdsourced personal safety app** that alerts users when they are approaching areas with recent or frequent safety incidents. Built with **Flutter** for mobile and **Django** for the backend, it combines community reporting, real-time proximity alerts, and an interactive safety map to help users make safer, more informed decisions while moving through their environment.
 
@@ -509,7 +508,6 @@ SafeZone is designed with privacy and ethical considerations at its core:
 - Incident category and description
 - Timestamp
 - Optional: User ID (for reputation)
-- Optional: Media attachments
 
 ### Data NOT Stored
 - Real names (unless voluntarily provided)
@@ -536,6 +534,7 @@ SafeZone is designed with privacy and ethical considerations at its core:
 ### Planned Features 🚧
 - [ ] User authentication system
 - [ ] Backend API integration
+- [ ] Media upload for incident reports (camera/gallery)
 - [ ] Advanced reputation scoring
 - [ ] Route safety scoring
 - [ ] Offline incident caching
@@ -601,7 +600,7 @@ Additional documentation is available in the repository:
 - **[IMPLEMENTATION_SUMMARY.md](frontend/IMPLEMENTATION_SUMMARY.md)** - Notification settings implementation
 - **[NOTIFICATION_SETTINGS.md](frontend/NOTIFICATION_SETTINGS.md)** - Firebase configuration guide
 - **[MAP_UI_FINAL_SUMMARY.md](frontend/MAP_UI_FINAL_SUMMARY.md)** - Map UI improvements
-- **[INCIDENT_REPORTING_IMPLEMENTATION.md](frontend/INCIDENT_REPORTING_IMPLEMENTATION.md)** - Incident reporting features
+- **[INCIDENT_REPORTING_IMPLEMENTATION.md](frontend/INCIDENT_REPORTING_IMPLEMENTATION.md)** - Incident reporting features (includes planned media upload)
 - **[VISUAL_CHANGES.md](frontend/VISUAL_CHANGES.md)** - UI/UX improvements
 - **[CATEGORY_BASED_REPORTING_SUMMARY.md](frontend/CATEGORY_BASED_REPORTING_SUMMARY.md)** - Category system
 - **[GEOFENCING_IMPLEMENTATION.md](frontend/GEOFENCING_IMPLEMENTATION.md)** - Geofencing details
@@ -610,7 +609,7 @@ Additional documentation is available in the repository:
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is open source and available for educational purposes. See individual file headers for specific licensing information.
 
 ---
 
