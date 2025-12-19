@@ -44,8 +44,7 @@ class IncidentApiService {
     required IncidentCategory category,
     required LatLng location,
     required String title,
-    String? description,
-    required bool notifyNearby,
+    required bool notifyNearby, String? description,
   }) async {
     try {
       final body = json.encode({

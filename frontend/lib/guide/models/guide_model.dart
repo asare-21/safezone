@@ -29,22 +29,8 @@ class Guide extends Equatable {
     required this.section,
     required this.title,
     required this.content,
-    this.icon,
-    required this.order,
-    required this.isActive,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.order, required this.isActive, required this.createdAt, required this.updatedAt, this.icon,
   });
-
-  final int id;
-  final GuideSection section;
-  final String title;
-  final String content;
-  final String? icon;
-  final int order;
-  final bool isActive;
-  final DateTime createdAt;
-  final DateTime updatedAt;
 
   /// Create a Guide from JSON data
   factory Guide.fromJson(Map<String, dynamic> json) {
@@ -60,6 +46,16 @@ class Guide extends Equatable {
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
+
+  final int id;
+  final GuideSection section;
+  final String title;
+  final String content;
+  final String? icon;
+  final int order;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   /// Convert Guide to JSON
   Map<String, dynamic> toJson() {

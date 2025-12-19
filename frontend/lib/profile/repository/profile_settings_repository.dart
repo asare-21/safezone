@@ -1,5 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Repository for managing profile settings persistence
 class ProfileSettingsRepository {

@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'notification_settings_state.dart';
 
@@ -189,19 +189,16 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
             deviceId: deviceId,
             pushNotifications: value,
           );
-          break;
         case 'proximityAlerts':
           await _apiService.updatePreferences(
             deviceId: deviceId,
             proximityAlerts: value,
           );
-          break;
         case 'soundVibration':
           await _apiService.updatePreferences(
             deviceId: deviceId,
             soundVibration: value,
           );
-          break;
       }
     } catch (e) {
       // Continue if backend sync fails

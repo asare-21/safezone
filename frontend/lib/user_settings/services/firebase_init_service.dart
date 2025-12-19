@@ -1,9 +1,10 @@
 import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:safe_zone/user_settings/services/device_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service to initialize Firebase Cloud Messaging and register device with backend
 class FirebaseInitService {
@@ -19,9 +20,7 @@ class FirebaseInitService {
       // Request notification permissions
       final messaging = FirebaseMessaging.instance;
       final settings = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
+        
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {

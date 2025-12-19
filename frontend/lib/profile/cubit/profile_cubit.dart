@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'profile_state.dart';
 
