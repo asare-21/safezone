@@ -622,6 +622,8 @@ Additional documentation is available in the repository:
 ### Security & Privacy
 - **[PRIVACY_POLICY.md](PRIVACY_POLICY.md)** - Complete privacy policy with GDPR/CCPA compliance
 - **[DATA_ENCRYPTION.md](DATA_ENCRYPTION.md)** - Detailed encryption and security measures
+- **[SECURITY_GUIDE.md](SECURITY_GUIDE.md)** - Developer guide for security implementation
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Security and privacy implementation summary
 
 ### Feature Documentation
 - **[IMPLEMENTATION_SUMMARY.md](frontend/IMPLEMENTATION_SUMMARY.md)** - Notification settings implementation
