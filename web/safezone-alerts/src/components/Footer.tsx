@@ -12,13 +12,13 @@ const Footer = () => {
       { label: "Privacy", href: "#privacy" },
     ],
     resources: [
-      { label: "Documentation", href: "#" },
-      { label: "API Reference", href: "#" },
-      { label: "Contributing", href: "#" },
-      { label: "Changelog", href: "#" },
+      { label: "Documentation", href: "https://github.com/asare-21/safezone#readme" },
+      { label: "Quick Start", href: "https://github.com/asare-21/safezone/blob/main/QUICK_START.md" },
+      { label: "Backend Integration", href: "https://github.com/asare-21/safezone/blob/main/BACKEND_INTEGRATION.md" },
+      { label: "Changelog", href: "https://github.com/asare-21/safezone/commits/main" },
     ],
     social: [
-      { icon: Github, label: "GitHub", href: "https://github.com" },
+      { icon: Github, label: "GitHub", href: "https://github.com/asare-21/safezone" },
       { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
       { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
       { icon: Mail, label: "Email", href: "mailto:contact@safezone.app" },
@@ -110,7 +110,7 @@ const Footer = () => {
               Ready to contribute or explore the codebase?
             </p>
             <Button variant="hero" size="sm" asChild className="w-full">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/asare-21/safezone" target="_blank" rel="noopener noreferrer">
                 <Github className="w-4 h-4" />
                 Star on GitHub
               </a>
