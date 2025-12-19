@@ -6,6 +6,7 @@ import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/repository/safe_zone_repository.dart';
+import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
 import 'package:safe_zone/utils/router_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,11 +18,21 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize user preferences API service
+    // Use Android emulator localhost address by default
+    final userPreferencesApiService = UserPreferencesApiService(
+      baseUrl: 'http://10.0.2.2:8000', // Android emulator
+      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+    );
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => ProfileSettingsCubit(
-            ProfileSettingsRepository(prefs),
+            ProfileSettingsRepository(
+              prefs,
+              apiService: userPreferencesApiService,
+            ),
           ),
         ),
         BlocProvider(
@@ -34,11 +45,15 @@ class App extends StatelessWidget {
           create: (_) => AlertFilterCubit(),
         ),
         BlocProvider(
-          create: (_) => ProfileCubit(sharedPreferences: prefs)..loadSettings(),
+          create: (_) => ProfileCubit(
+            sharedPreferences: prefs,
+            apiService: userPreferencesApiService,
+          )..loadSettings(),
         ),
         BlocProvider(
           create: (_) => NotificationSettingsCubit(
             sharedPreferences: prefs,
+            apiService: userPreferencesApiService,
           ),
         ),
         BlocProvider(
