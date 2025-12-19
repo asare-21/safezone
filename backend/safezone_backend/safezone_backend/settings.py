@@ -141,7 +141,10 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings
-# Allow all origins for development (should be restricted in production)
+# WARNING: Allow all origins for DEVELOPMENT ONLY
+# In production, restrict to specific domains:
+# CORS_ALLOWED_ORIGINS = ['https://yourdomain.com']
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
 

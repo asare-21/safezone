@@ -11,7 +11,7 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     GET: Returns list of all incidents ordered by timestamp (newest first)
     POST: Creates a new incident report
     """
-    queryset = Incident.objects.all()
+    queryset = Incident.objects.all().order_by('-timestamp')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':

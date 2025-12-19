@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
@@ -193,6 +194,8 @@ class IncidentApiService {
       case 'weaponSighting':
         return IncidentCategory.weaponSighting;
       default:
+        // Log unrecognized category for debugging
+        debugPrint('Unknown incident category: $category');
         return IncidentCategory.suspicious;
     }
   }
