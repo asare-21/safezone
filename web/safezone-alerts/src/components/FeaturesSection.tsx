@@ -26,7 +26,7 @@ const features = [
   {
     icon: Users,
     title: "Community Validation",
-    description: "Reports are validated through community votes and AI moderation ensuring data accuracy and reliability.",
+    description: "Reports are validated through community confirmation system and user reputation tracking ensuring data accuracy and reliability.",
     color: "primary",
     emoji: "👥",
   },

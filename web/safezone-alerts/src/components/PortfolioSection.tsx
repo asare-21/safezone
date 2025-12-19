@@ -102,13 +102,13 @@ const PortfolioSection = () => {
               className="flex flex-wrap gap-4"
             >
               <Button variant="hero" size="lg" asChild>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/asare-21/safezone" target="_blank" rel="noopener noreferrer">
                   <Github className="w-5 h-5" />
                   View on GitHub
                 </a>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a href="#" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/asare-21/safezone#readme" target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-5 h-5" />
                   Live Documentation
                 </a>

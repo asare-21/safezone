@@ -60,13 +60,17 @@ const HeroSection = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <Button variant="hero" size="xl" className="group">
-                <span>Download App</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button variant="hero" size="xl" className="group" asChild>
+                <a href="https://github.com/asare-21/safezone#-getting-started" target="_blank" rel="noopener noreferrer">
+                  <span>Get Started</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </a>
               </Button>
-              <Button variant="outline" size="xl" className="group">
-                <Play className="w-5 h-5" />
-                <span>Watch Demo</span>
+              <Button variant="outline" size="xl" className="group" asChild>
+                <a href="https://github.com/asare-21/safezone#readme" target="_blank" rel="noopener noreferrer">
+                  <Play className="w-5 h-5" />
+                  <span>View Documentation</span>
+                </a>
               </Button>
             </motion.div>
 

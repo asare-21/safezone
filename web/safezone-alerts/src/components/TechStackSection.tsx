@@ -11,7 +11,7 @@ const techStack = {
       { name: "flutter_bloc", version: "State Management", icon: "🔄" },
       { name: "Firebase", version: "Push Notifications", icon: "🔔" },
       { name: "geolocator", version: "Location Services", icon: "📍" },
-      { name: "google_maps_flutter", version: "Maps Integration", icon: "🗺️" },
+      { name: "flutter_map", version: "Maps Integration", icon: "🗺️" },
     ],
   },
   backend: {
