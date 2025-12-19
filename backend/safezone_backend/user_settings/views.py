@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .models import UserDevice, SafeZone
-from .serializers import UserDeviceSerializer, SafeZoneSerializer
+from .models import UserDevice, SafeZone, UserPreferences
+from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
 
 class UserDeviceRegisterView(generics.CreateAPIView):
@@ -65,4 +65,38 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SafeZone.objects.all()
     serializer_class = SafeZoneSerializer
     lookup_field = 'id'
+
+
+class UserPreferencesView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve or update user preferences for a device.
+    
+    GET: Returns user preferences for the device
+    PUT/PATCH: Updates user preferences
+    """
+    serializer_class = UserPreferencesSerializer
+    lookup_field = 'device_id'
+    
+    def get_queryset(self):
+        """Return preferences for all devices."""
+        return UserPreferences.objects.all()
+    
+    def get_object(self):
+        """Get or create preferences for the device_id."""
+        device_id = self.kwargs.get('device_id')
+        if not device_id:
+            device_id = self.request.query_params.get('device_id')
+        
+        if not device_id:
+            return Response(
+                {'error': 'device_id is required'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        # Get or create preferences for this device
+        preferences, created = UserPreferences.objects.get_or_create(
+            device_id=device_id
+        )
+        return preferences
+
 
