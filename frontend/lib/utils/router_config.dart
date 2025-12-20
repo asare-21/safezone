@@ -16,7 +16,13 @@ GoRouter createRouter(BuildContext context) {
     redirect: (context, state) {
       final authState = context.read<AuthenticationCubit>().state;
       final isAuthenticated = authState is AuthenticationAuthenticated;
+      final isLoading = authState is AuthenticationLoading;
       final isAuthenticating = state.matchedLocation == '/authentication';
+
+      // Don't redirect while checking authentication to avoid flicker
+      if (isLoading) {
+        return null;
+      }
 
       // If user is authenticated and trying to access auth screen, redirect to home
       if (isAuthenticated && isAuthenticating) {
@@ -55,10 +61,12 @@ GoRouter createRouter(BuildContext context) {
 }
 
 /// Helper class to refresh GoRouter when authentication state changes
+/// Note: This is created once during app initialization and shares the lifecycle
+/// of the app itself, so no explicit disposal is needed.
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<AuthenticationState> stream) {
-    notifyListeners();
-    _subscription = stream.asBroadcastStream().listen((_) {
+    // Bloc streams are already broadcast streams, no need to convert
+    _subscription = stream.listen((_) {
       notifyListeners();
     });
   }
