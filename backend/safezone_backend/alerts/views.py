@@ -7,6 +7,7 @@ import logging
 
 from .models import Alert
 from .serializers import AlertSerializer, AlertListSerializer
+from .utils import haversine_distance
 from incident_reporting.models import Incident
 
 logger = logging.getLogger(__name__)
@@ -65,25 +66,11 @@ class AlertListView(generics.ListAPIView):
                 lon = float(longitude)
                 radius = min(float(radius_km), 50)  # Max 50km
                 
-                # Filter incidents within radius
-                # Note: This is a simple implementation. For production,
-                # use PostGIS for proper geospatial queries
-                from math import radians, cos, sin, asin, sqrt
-                
-                def haversine(lon1, lat1, lon2, lat2):
-                    """Calculate distance between two points in km."""
-                    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-                    dlon = lon2 - lon1
-                    dlat = lat2 - lat1
-                    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-                    c = 2 * asin(sqrt(a))
-                    km = 6371 * c
-                    return km
-                
-                # Filter alerts by distance
+                # Filter incidents within radius using the utility function
+                # Note: For production with large datasets, use PostGIS
                 nearby_alerts = []
                 for alert in queryset:
-                    distance = haversine(
+                    distance = haversine_distance(
                         lon, lat,
                         alert.incident.longitude,
                         alert.incident.latitude
@@ -157,21 +144,9 @@ class AlertGenerateView(generics.GenericAPIView):
             )
             
             # Calculate distance and generate alerts for nearby incidents
-            from math import radians, cos, sin, asin, sqrt
-            
-            def haversine(lon1, lat1, lon2, lat2):
-                """Calculate distance between two points in km."""
-                lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-                dlon = lon2 - lon1
-                dlat = lat2 - lat1
-                a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-                c = 2 * asin(sqrt(a))
-                km = 6371 * c
-                return km
-            
             generated_alerts = []
             for incident in recent_incidents:
-                distance = haversine(
+                distance = haversine_distance(
                     lon, lat,
                     incident.longitude,
                     incident.latitude
