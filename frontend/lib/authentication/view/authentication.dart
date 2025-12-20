@@ -1,7 +1,6 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:safe_zone/authentication/cubit/authentication_cubit.dart';
 import 'package:safe_zone/authentication/cubit/authentication_state.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -67,10 +66,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
 
     return BlocListener<AuthenticationCubit, AuthenticationState>(
       listener: (context, state) {
-        if (state is AuthenticationAuthenticated) {
-          // Navigate to home screen on successful authentication
-          context.go('/');
-        } else if (state is AuthenticationError) {
+        if (state is AuthenticationError) {
           // Show error message
           ShadToaster.of(context).show(
             ShadToast(
@@ -79,6 +75,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
             ),
           );
         }
+        // Router will automatically handle navigation when state becomes authenticated
       },
       child: Scaffold(
         body: SafeArea(

@@ -81,20 +81,24 @@ class App extends StatelessWidget {
               domain: const String.fromEnvironment('AUTH0_DOMAIN'),
               clientId: const String.fromEnvironment('AUTH0_CLIENT_ID'),
             ),
-          ),
+          )..checkAuthentication(),
         ),
       ],
-      child: ShadApp.router(
-        title: 'Safe Zone',
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        routerConfig: routerConfig,
-        theme: ShadThemeData(
-          colorScheme: const ShadBlueColorScheme.light(),
-        ),
-        darkTheme: ShadThemeData(
-          colorScheme: const ShadBlueColorScheme.dark(),
-        ),
+      child: Builder(
+        builder: (context) {
+          return ShadApp.router(
+            title: 'Safe Zone',
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            routerConfig: createRouter(context),
+            theme: ShadThemeData(
+              colorScheme: const ShadBlueColorScheme.light(),
+            ),
+            darkTheme: ShadThemeData(
+              colorScheme: const ShadBlueColorScheme.dark(),
+            ),
+          );
+        },
       ),
     );
   }
