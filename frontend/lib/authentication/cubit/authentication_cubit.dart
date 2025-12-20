@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import '../services/auth0_service.dart';
-import 'authentication_state.dart';
+import 'package:safe_zone/authentication/cubit/authentication_state.dart';
+import 'package:safe_zone/authentication/services/auth0_service.dart';
 
 /// Cubit to manage authentication state
 class AuthenticationCubit extends Cubit<AuthenticationState> {

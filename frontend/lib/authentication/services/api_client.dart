@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../services/auth0_service.dart';
+import 'package:safe_zone/authentication/services/auth0_service.dart';
 
 /// HTTP client that automatically adds Auth0 JWT token to requests
 class AuthenticatedHttpClient extends http.BaseClient {

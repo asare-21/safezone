@@ -2,9 +2,9 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:safe_zone/authentication/cubit/authentication_cubit.dart';
+import 'package:safe_zone/authentication/cubit/authentication_state.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import '../cubit/authentication_cubit.dart';
-import '../cubit/authentication_state.dart';
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({super.key});

@@ -43,7 +43,7 @@ class Auth0Service {
     try {
       await _auth0.webAuthentication().logout();
       await _clearCredentials();
-    } on WebAuthenticationException catch (e) {
+    } on WebAuthenticationException {
       // Log the error but clear credentials anyway
       await _clearCredentials();
       throw Auth0Exception('Logout completed with errors');
