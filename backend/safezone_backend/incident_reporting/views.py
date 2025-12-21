@@ -27,7 +27,7 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         """Save the incident and trigger push notifications and WebSocket broadcast."""
-        # Save the incident without user_id since it's not in the model
+        # Save the incident (user tracking is handled by Auth0 authentication layer)
         incident = serializer.save()
         
         # Trigger push notifications to users with matching safe zones

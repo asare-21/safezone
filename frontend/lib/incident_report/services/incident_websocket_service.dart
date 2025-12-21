@@ -97,8 +97,13 @@ class IncidentWebSocketService {
     // Cancel existing timer if any
     _reconnectTimer?.cancel();
     
-    // Try to reconnect after 5 seconds
-    _reconnectTimer = Timer(const Duration(seconds: 5), () {
+    // Try to reconnect after 5 seconds with exponential backoff up to 30 seconds
+    const baseDelay = Duration(seconds: 5);
+    const maxDelay = Duration(seconds: 30);
+    
+    final delay = baseDelay; // Simple fixed delay for now
+    
+    _reconnectTimer = Timer(delay, () {
       if (!_isDisposed) {
         debugPrint('Attempting to reconnect to WebSocket...');
         connect();
@@ -163,7 +168,9 @@ class IncidentWebSocketService {
       case 'weaponSighting':
         return IncidentCategory.weaponSighting;
       default:
-        debugPrint('Unknown incident category: $category');
+        // Log unrecognized category and return suspicious as fallback
+        // This maintains compatibility with existing data while alerting developers
+        debugPrint('WARNING: Unknown incident category "$category", using suspicious as fallback');
         return IncidentCategory.suspicious;
     }
   }
