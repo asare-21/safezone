@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/home/home.dart';
@@ -10,14 +13,73 @@ class AlertsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _AlertsScreenView();
+    return BlocProvider(
+      create: (context) {
+        // Initialize AlertApiService with the correct baseUrl
+        final baseUrl = kDebugMode
+            ? (defaultTargetPlatform == TargetPlatform.android
+                ? 'http://10.0.2.2:8000'
+                : 'http://localhost:8000')
+            : 'https://your-production-url.com';
+
+        final apiService = AlertApiService(baseUrl: baseUrl);
+        final cubit = AlertsCubit(alertApiService: apiService);
+
+        // Initial fetch
+        cubit.fetchAlerts(hours: 24);
+
+        return cubit;
+      },
+      child: const _AlertsScreenView(),
+    );
   }
 }
 
-class _AlertsScreenView extends StatelessWidget {
+class _AlertsScreenView extends StatefulWidget {
   const _AlertsScreenView();
 
-  // Mock data for demonstration
+  @override
+  State<_AlertsScreenView> createState() => _AlertsScreenViewState();
+}
+
+class _AlertsScreenViewState extends State<_AlertsScreenView> {
+  LatLng? _userLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserLocation();
+    // Start auto-refresh
+    context.read<AlertsCubit>().startAutoRefresh(hours: 24);
+  }
+
+  Future<void> _getUserLocation() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      setState(() {
+        _userLocation = LatLng(position.latitude, position.longitude);
+      });
+
+      // Fetch alerts with user location
+      if (mounted) {
+        context.read<AlertsCubit>().fetchAlerts(
+              hours: 24,
+              userLocation: _userLocation,
+              radiusKm: 10,
+            );
+      }
+    } catch (e) {
+      debugPrint('Error getting user location: $e');
+    }
+  }
+
+  // Mock data as fallback for demonstration
   static List<Alert> get _mockAlerts => [
     Alert(
       id: '1',
@@ -66,11 +128,18 @@ class _AlertsScreenView extends StatelessWidget {
     ),
   ];
 
-  List<Alert> _getFilteredAlerts(AlertFilterState filterState) {
-    return _mockAlerts.where((alert) {
-      return filterState.selectedSeverities.contains(alert.severity) &&
-          filterState.selectedTypes.contains(alert.type) &&
-          alert.isWithinTimeFilter(filterState.selectedTimeFilter);
+  List<Alert> _getFilteredAlerts(
+    List<Alert> alerts,
+    AlertFilterState filterState,
+  ) {
+    return alerts.where((alert) {
+      // Apply filters based on filter state
+      final severityMatch =
+          filterState.selectedSeverities.contains(alert.severity);
+      final typeMatch = filterState.selectedTypes.contains(alert.type);
+      final timeMatch = alert.isWithinTimeFilter(filterState.selectedTimeFilter);
+
+      return severityMatch && typeMatch && timeMatch;
     }).toList();
   }
 
@@ -119,318 +188,444 @@ class _AlertsScreenView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<AlertFilterCubit, AlertFilterState>(
-      builder: (context, filterState) {
-        final filteredAlerts = _getFilteredAlerts(filterState);
+    return BlocBuilder<AlertsCubit, AlertsState>(
+      builder: (context, alertsState) {
+        return BlocBuilder<AlertFilterCubit, AlertFilterState>(
+          builder: (context, filterState) {
+            // Determine which alerts to display
+            List<Alert> displayAlerts = [];
+            bool isLoading = false;
+            bool isRefreshing = false;
+            String? errorMessage;
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA),
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFFF8F9FA),
-                  const Color(0xFFF8F9FA).withValues(alpha: 0.5),
-                ],
-              ),
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  // Enhanced header with status
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
+            if (alertsState is AlertsLoaded) {
+              displayAlerts = _getFilteredAlerts(
+                alertsState.alerts,
+                filterState,
+              );
+              isRefreshing = alertsState.isRefreshing;
+              errorMessage = alertsState.errorMessage;
+            } else if (alertsState is AlertsLoading) {
+              isLoading = true;
+            } else if (alertsState is AlertsError) {
+              errorMessage = alertsState.message;
+              // Show mock data as fallback
+              displayAlerts = _getFilteredAlerts(_mockAlerts, filterState);
+            } else {
+              // Initial state - show mock data
+              displayAlerts = _getFilteredAlerts(_mockAlerts, filterState);
+            }
+
+            return Scaffold(
+              backgroundColor: const Color(0xFFF8F9FA),
+              body: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      const Color(0xFFF8F9FA),
+                      const Color(0xFFF8F9FA).withValues(alpha: 0.5),
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await context.read<AlertsCubit>().refreshAlerts(
+                            hours: 24,
+                            userLocation: _userLocation,
+                            radiusKm: 10,
+                          );
+                    },
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
+                        // Enhanced header with status
+                        _buildHeader(
+                          context,
+                          theme,
+                          alertsState,
+                          errorMessage,
+                        ),
+
+                        // Enhanced filter chips with counters
+                        _buildFilterChips(
+                          context,
+                          filterState,
+                          displayAlerts,
+                          _mockAlerts,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Scrollable content
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Safety Alerts',
-                                  style: theme.textTheme.headlineMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 32,
-                                      ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Stay informed, stay safe',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.6),
-                                    fontSize: 14,
+                                // Safe zone status card
+                                _buildSafeZoneCard(context),
+
+                                const SizedBox(height: 32),
+
+                                // Real-time alerts section
+                                _buildSectionHeader(context, theme),
+
+                                const SizedBox(height: 16),
+
+                                // Loading indicator
+                                if (isLoading && displayAlerts.isEmpty)
+                                  _buildLoadingState(),
+
+                                // Error message (if any)
+                                if (errorMessage != null &&
+                                    !isLoading &&
+                                    displayAlerts.isEmpty)
+                                  _buildErrorState(errorMessage),
+
+                                // Empty state
+                                if (!isLoading &&
+                                    errorMessage == null &&
+                                    displayAlerts.isEmpty)
+                                  _buildEmptyState(context, theme),
+
+                                // Alert list
+                                if (displayAlerts.isNotEmpty)
+                                  ...displayAlerts.map(
+                                    (alert) => _buildAlertCard(context, alert),
                                   ),
-                                ),
+                                const SizedBox(height: 80),
                               ],
                             ),
-                            Badge(
-                              backgroundColor: theme.colorScheme.primary,
-                              child: IconButton(
-                                onPressed: () => _showFilterDialog(context),
-                                icon: const Icon(
-                                  LineIcons.horizontalSliders,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // Live status indicator
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.grey.shade200),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF34C759),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF34C759,
-                                      ).withValues(alpha: 0.5),
-                                      blurRadius: 4,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'System Status: Active',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
+                ),
+              ),
 
-                  // Enhanced filter chips with counters
-                  SizedBox(
-                    height: 60,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: [
-                        _buildEnhancedFilterChip(
-                          context,
-                          'All Alerts',
-                          QuickFilter.all,
-                          filterState.selectedQuickFilter == QuickFilter.all,
-                          count: _mockAlerts.length,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildEnhancedFilterChip(
-                          context,
-                          'Critical',
-                          QuickFilter.highSeverity,
-                          filterState.selectedQuickFilter ==
-                              QuickFilter.highSeverity,
-                          count: _mockAlerts
-                              .where((a) => a.severity == AlertSeverity.high)
-                              .length,
-                          color: const Color(0xFFFF4C4C),
-                        ),
-                        const SizedBox(width: 8),
-                        _buildEnhancedFilterChip(
-                          context,
-                          'Recent',
-                          QuickFilter.recent,
-                          filterState.selectedQuickFilter == QuickFilter.recent,
-                          count: _mockAlerts
-                              .where(
-                                (a) => a.timestamp.isAfter(
-                                  DateTime.now().subtract(
-                                    const Duration(hours: 1),
-                                  ),
-                                ),
-                              )
-                              .length,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildEnhancedFilterChip(
-                          context,
-                          'Nearby',
-                          QuickFilter.nearby,
-                          filterState.selectedQuickFilter == QuickFilter.nearby,
-                          icon: Icons.location_on_outlined,
-                        ),
-                      ],
+              // Map View FAB
+              floatingActionButton: FloatingActionButton.extended(
+                onPressed: () {
+                  context.read<BottomNavigationCubit>().navigateToMap();
+                },
+                backgroundColor: theme.colorScheme.primary,
+                icon: const Icon(Icons.map, color: Colors.white),
+                label: const Text(
+                  'Map View',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader(
+    BuildContext context,
+    ThemeData theme,
+    AlertsState alertsState,
+    String? errorMessage,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 16,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Safety Alerts',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 32,
                     ),
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Scrollable content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Safe zone status card
-                          _buildSafeZoneCard(context),
-
-                          const SizedBox(height: 32),
-
-                          // Real-time alerts section
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Real-time Alerts',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 22,
-                                ),
-                              ),
-                              Text(
-                                'SORTED BY TIME',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Empty state
-                          if (filteredAlerts.isEmpty) ...[
-                            Container(
-                              margin: const EdgeInsets.symmetric(vertical: 32),
-                              padding: const EdgeInsets.all(32),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 120,
-                                    height: 120,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.notifications_off_outlined,
-                                      size: 48,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Text(
-                                    'No alerts match your filters',
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Try adjusting your filters or check back later',
-                                    textAlign: TextAlign.center,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  OutlinedButton(
-                                    onPressed: () => context
-                                        .read<AlertFilterCubit>()
-                                        .resetFilters(),
-                                    style: OutlinedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      side: BorderSide(
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Reset Filters',
-                                      style: TextStyle(
-                                        color: theme.colorScheme.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-
-                          // Alert list
-                          ...filteredAlerts.map(
-                            (alert) => _buildAlertCard(context, alert),
-                          ),
-                          const SizedBox(height: 80),
-                        ],
-                      ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Stay informed, stay safe',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 14,
                     ),
                   ),
                 ],
               ),
+              Badge(
+                backgroundColor: theme.colorScheme.primary,
+                child: IconButton(
+                  onPressed: () => _showFilterDialog(context),
+                  icon: const Icon(
+                    LineIcons.horizontalSliders,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Live status indicator
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: errorMessage != null
+                        ? Colors.orange
+                        : (alertsState is AlertsLoaded
+                            ? const Color(0xFF34C759)
+                            : Colors.grey),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      if (errorMessage == null && alertsState is AlertsLoaded)
+                        BoxShadow(
+                          color:
+                              const Color(0xFF34C759).withValues(alpha: 0.5),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  errorMessage != null
+                      ? 'Connection Issue'
+                      : (alertsState is AlertsLoaded
+                          ? 'System Status: Active'
+                          : 'Connecting...'),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          // Map View FAB
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              context.read<BottomNavigationCubit>().navigateToMap();
-            },
-            backgroundColor: theme.colorScheme.primary,
-            icon: const Icon(Icons.map, color: Colors.white),
-            label: const Text(
-              'Map View',
+  Widget _buildFilterChips(
+    BuildContext context,
+    AlertFilterState filterState,
+    List<Alert> displayAlerts,
+    List<Alert> allAlerts,
+  ) {
+    return SizedBox(
+      height: 60,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        children: [
+          _buildEnhancedFilterChip(
+            context,
+            'All Alerts',
+            QuickFilter.all,
+            filterState.selectedQuickFilter == QuickFilter.all,
+            count: displayAlerts.length,
+          ),
+          const SizedBox(width: 8),
+          _buildEnhancedFilterChip(
+            context,
+            'Critical',
+            QuickFilter.highSeverity,
+            filterState.selectedQuickFilter == QuickFilter.highSeverity,
+            count: displayAlerts
+                .where((a) => a.severity == AlertSeverity.high)
+                .length,
+            color: const Color(0xFFFF4C4C),
+          ),
+          const SizedBox(width: 8),
+          _buildEnhancedFilterChip(
+            context,
+            'Recent',
+            QuickFilter.recent,
+            filterState.selectedQuickFilter == QuickFilter.recent,
+            count: displayAlerts
+                .where(
+                  (a) => a.timestamp.isAfter(
+                    DateTime.now().subtract(const Duration(hours: 1)),
+                  ),
+                )
+                .length,
+          ),
+          const SizedBox(width: 8),
+          _buildEnhancedFilterChip(
+            context,
+            'Nearby',
+            QuickFilter.nearby,
+            filterState.selectedQuickFilter == QuickFilter.nearby,
+            icon: Icons.location_on_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Real-time Alerts',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+          ),
+        ),
+        Text(
+          'SORTED BY TIME',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.all(32),
+      child: const Center(
+        child: Column(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading alerts...'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String errorMessage) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            size: 48,
+            color: Colors.orange.shade400,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Connection Issue',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Showing cached data. Pull to refresh.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.notifications_off_outlined,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No alerts match your filters',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try adjusting your filters or check back later',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: () => context.read<AlertFilterCubit>().resetFilters(),
+            style: OutlinedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              side: BorderSide(color: theme.colorScheme.primary),
+            ),
+            child: Text(
+              'Reset Filters',
               style: TextStyle(
-                color: Colors.white,
+                color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w600,
-                fontSize: 15,
               ),
             ),
           ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-        );
-      },
+        ],
+      ),
     );
   }
 
