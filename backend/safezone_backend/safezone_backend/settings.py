@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'channels',
     'encrypted_model_fields',
     'incident_reporting',
     'alerts',
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'push_notifications',
     'user_settings',
     'emergency_services',
+    'daphne',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +87,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'safezone_backend.wsgi.application'
+ASGI_APPLICATION = 'safezone_backend.asgi.application'
+
+# Channels configuration
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 
 # Database

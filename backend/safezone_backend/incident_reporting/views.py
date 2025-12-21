@@ -1,6 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
 import logging
@@ -24,13 +26,9 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         return IncidentSerializer
     
     def perform_create(self, serializer):
-        """Save the incident and trigger push notifications."""
-        # Attach the authenticated user's ID if available
-        extra_data = {}
-        if hasattr(self.request.user, 'id'):
-            extra_data['user_id'] = self.request.user.id
-        
-        incident = serializer.save(**extra_data)
+        """Save the incident and trigger push notifications and WebSocket broadcast."""
+        # Save the incident (user tracking is handled by Auth0 authentication layer)
+        incident = serializer.save()
         
         # Trigger push notifications to users with matching safe zones
         try:
@@ -39,6 +37,21 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         except Exception as e:
             # Don't fail the request if notifications fail
             logger.error(f"Failed to send notifications for incident {incident.id}: {e}")
+        
+        # Broadcast the new incident via WebSocket
+        try:
+            channel_layer = get_channel_layer()
+            incident_data = IncidentSerializer(incident).data
+            async_to_sync(channel_layer.group_send)(
+                'incidents',
+                {
+                    'type': 'incident_update',
+                    'incident': incident_data
+                }
+            )
+        except Exception as e:
+            # Don't fail the request if WebSocket broadcast fails
+            logger.error(f"Failed to broadcast incident {incident.id} via WebSocket: {e}")
 
 
 class IncidentRetrieveView(generics.RetrieveAPIView):

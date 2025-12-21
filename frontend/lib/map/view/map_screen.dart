@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -35,6 +36,8 @@ class _MapScreenViewState extends State<_MapScreenView> {
 
   // API service for incident reporting
   late final IncidentApiService _apiService;
+  late final IncidentWebSocketService _webSocketService;
+  StreamSubscription<Incident>? _incidentSubscription;
 
   // User's current location (initialized to null, will be fetched)
   LatLng? _currentLocation;
@@ -62,6 +65,13 @@ class _MapScreenViewState extends State<_MapScreenView> {
       baseUrl: 'http://10.0.2.2:8000', // Android emulator
       // baseUrl: 'http://localhost:8000', // iOS simulator / web
     );
+    
+    // Initialize WebSocket service
+    _webSocketService = IncidentWebSocketService(
+      baseUrl: 'http://10.0.2.2:8000', // Android emulator
+      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+    );
+    
     _dataLoadingFuture = _initializeData();
   }
 
@@ -72,6 +82,15 @@ class _MapScreenViewState extends State<_MapScreenView> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
       });
+      
+      // Connect to WebSocket and listen for new incidents
+      _webSocketService.connect();
+      _incidentSubscription = _webSocketService.incidentStream.listen(
+        _handleNewIncident,
+        onError: (error) {
+          debugPrint('Error in incident stream: $error');
+        },
+      );
     }
   }
 
@@ -251,12 +270,40 @@ class _MapScreenViewState extends State<_MapScreenView> {
     ];
   }
 
+  /// Handle new incidents received via WebSocket
+  void _handleNewIncident(Incident incident) {
+    if (!mounted) return;
+    
+    setState(() {
+      // Check if incident already exists (by ID)
+      final existingIndex = _allIncidents.indexWhere((i) => i.id == incident.id);
+      
+      if (existingIndex == -1) {
+        // New incident - add to the beginning of the list
+        _allIncidents.insert(0, incident);
+        
+        // Update the cubit with the new incidents list
+        context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
+        
+        // Show a notification about the new incident
+        ShadToaster.of(context).show(
+          ShadToast(
+            title: const Text('New Incident Reported'),
+            description: Text('${incident.category.displayName}: ${incident.title}'),
+          ),
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     _mapController.dispose();
     _searchController.dispose();
     _searchDebouncer.dispose();
     _apiService.dispose();
+    _incidentSubscription?.cancel();
+    _webSocketService.dispose();
     super.dispose();
   }
 
