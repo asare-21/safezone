@@ -27,12 +27,8 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         """Save the incident and trigger push notifications and WebSocket broadcast."""
-        # Attach the authenticated user's ID if available
-        extra_data = {}
-        if hasattr(self.request.user, 'id'):
-            extra_data['user_id'] = self.request.user.id
-        
-        incident = serializer.save(**extra_data)
+        # Save the incident without user_id since it's not in the model
+        incident = serializer.save()
         
         # Trigger push notifications to users with matching safe zones
         try:
