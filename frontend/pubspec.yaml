@@ -32,6 +32,7 @@ dependencies:
   shadcn_ui: ^0.42.0
   shared_preferences: ^2.3.4
   url_launcher: ^6.3.1
+  web_socket_channel: ^3.0.1
 
 dev_dependencies:
   bloc_test: ^10.0.0
