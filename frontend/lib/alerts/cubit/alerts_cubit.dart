@@ -92,7 +92,6 @@ class AlertsCubit extends Cubit<AlertsState> {
       emit(AlertsLoaded(
         alerts: alerts,
         lastUpdated: DateTime.now(),
-        isRefreshing: false,
       ));
     } catch (e) {
       debugPrint('Error refreshing alerts: $e');
@@ -101,7 +100,7 @@ class AlertsCubit extends Cubit<AlertsState> {
         final currentState = state as AlertsLoaded;
         emit(currentState.copyWith(
           isRefreshing: false,
-          errorMessage: 'Failed to refresh: ${e.toString()}',
+          errorMessage: 'Failed to refresh: $e',
         ));
       } else {
         emit(AlertsError(message: e.toString()));

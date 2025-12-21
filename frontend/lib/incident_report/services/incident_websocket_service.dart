@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:safe_zone/map/models/incident_model.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Service for managing real-time incident updates via WebSocket
 class IncidentWebSocketService {
@@ -101,7 +102,7 @@ class IncidentWebSocketService {
     const baseDelay = Duration(seconds: 5);
     const maxDelay = Duration(seconds: 30);
     
-    final delay = baseDelay; // Simple fixed delay for now
+    const delay = baseDelay; // Simple fixed delay for now
     
     _reconnectTimer = Timer(delay, () {
       if (!_isDisposed) {

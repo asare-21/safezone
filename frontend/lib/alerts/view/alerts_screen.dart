@@ -193,9 +193,9 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
         return BlocBuilder<AlertFilterCubit, AlertFilterState>(
           builder: (context, filterState) {
             // Determine which alerts to display
-            List<Alert> displayAlerts = [];
-            bool isLoading = false;
-            bool isRefreshing = false;
+            var displayAlerts = <Alert>[];
+            var isLoading = false;
+            var isRefreshing = false;
             String? errorMessage;
 
             if (alertsState is AlertsLoaded) {

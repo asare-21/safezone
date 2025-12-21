@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
@@ -242,7 +241,7 @@ class AlertApiService {
       case 'medium':
         return (
           iconColor: const Color(0xFFFF9500),
-          backgroundColor: const Color(0xFFF4E5),
+          backgroundColor: const Color(0x00fff4e5),
         );
       case 'low':
         return (
