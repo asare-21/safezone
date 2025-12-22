@@ -5,10 +5,17 @@ import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/emergency_services/models/emergency_service_model.dart';
 
 class EmergencyServiceApiService {
-  // Use the same base URL pattern as other services
-  static const String baseUrl = kDebugMode
-      ? 'http://127.0.0.1:8000' // Android emulator
-      : 'https://your-production-url.com';
+  EmergencyServiceApiService({
+    String? baseUrl,
+    http.Client? httpClient,
+  })  : _baseUrl = baseUrl ??
+            (kDebugMode
+                ? 'http://127.0.0.1:8000' // Android emulator
+                : 'https://your-production-url.com'),
+        _httpClient = httpClient ?? http.Client();
+
+  final String _baseUrl;
+  final http.Client _httpClient;
 
   Future<List<EmergencyService>> getEmergencyServices({
     required String countryCode,
@@ -23,11 +30,11 @@ class EmergencyServiceApiService {
         queryParams['service_type'] = serviceType;
       }
 
-      final uri = Uri.parse('$baseUrl/api/emergency-services/').replace(
+      final uri = Uri.parse('$_baseUrl/api/emergency-services/').replace(
         queryParameters: queryParams,
       );
 
-      final response = await http.get(
+      final response = await _httpClient.get(
         uri,
         headers: {'Content-Type': 'application/json'},
       );
@@ -77,5 +84,9 @@ class EmergencyServiceApiService {
       debugPrint('Error loading emergency services: $e');
       rethrow;
     }
+  }
+
+  void dispose() {
+    _httpClient.close();
   }
 }

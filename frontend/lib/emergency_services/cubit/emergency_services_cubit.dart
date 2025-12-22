@@ -10,7 +10,8 @@ import 'package:safe_zone/emergency_services/repository/emergency_services_repos
 class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
   EmergencyServicesCubit({
     EmergencyServicesRepository? repository,
-  }) : _repository = repository ?? EmergencyServicesRepository(),
+    String? baseUrl,
+  }) : _repository = repository ?? EmergencyServicesRepository(baseUrl: baseUrl),
        super(const EmergencyServicesState());
 
   final EmergencyServicesRepository _repository;
