@@ -1,5 +1,7 @@
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from django.conf import settings
 from .models import Guide
 from .serializers import GuideSerializer
 
@@ -11,6 +13,14 @@ class GuideListView(generics.ListAPIView):
     GET: Returns list of all active guides ordered by section and order
     """
     serializer_class = GuideSerializer
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
     
     def get_queryset(self):
         """Return only active guides."""
@@ -43,3 +53,11 @@ class GuideRetrieveView(generics.RetrieveAPIView):
     queryset = Guide.objects.all()
     serializer_class = GuideSerializer
     lookup_field = 'id'
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
