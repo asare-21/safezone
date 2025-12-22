@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
+from alerts.models import Alert
 import logging
 
 logger = logging.getLogger(__name__)
@@ -57,6 +58,14 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         """Save the incident and trigger push notifications and WebSocket broadcast."""
         # Save the incident (user tracking is handled by Auth0 authentication layer)
         incident = serializer.save()
+        
+        # Generate alert for the reported incident
+        try:
+            Alert.generate_alert_from_incident(incident)
+            logger.info(f"Generated alert for incident {incident.id}")
+        except Exception as e:
+            # Don't fail the request if alert generation fails
+            logger.error(f"Failed to generate alert for incident {incident.id}: {e}")
         
         # Trigger push notifications to users with matching safe zones
         try:
