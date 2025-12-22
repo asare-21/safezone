@@ -137,12 +137,14 @@ class AlertApiService {
   /// Convert JSON to Alert model
   Alert _alertFromJson(Map<String, dynamic> json) {
     return Alert(
-      id: json['id'].toString(),
+      id: json['id']?.toString() ?? '',
       type: _alertTypeFromString(json['alert_type'] as String? ?? 'highRisk'),
       severity: _severityFromString(json['severity'] as String? ?? 'medium'),
-      title: json['title'] as String,
-      location: json['location'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      title: json['title'] as String? ?? '',
+      location: json['location'] as String? ?? '',
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp'] as String)
+          : DateTime.now(),
       confirmedBy: json['confirmed_by'] as int?,
       icon: _getIconForAlertType(
         json['alert_type'] as String? ?? 'highRisk',

@@ -21,13 +21,13 @@ class ProximityAlertsSettingsCubit extends Cubit<ProximityAlertsSettingsState> {
       final settings = await _repository.loadAllSettings();
       emit(
         ProximityAlertsSettingsState(
-          pushNotifications: settings['pushNotifications'] as bool,
-          proximityAlerts: settings['proximityAlerts'] as bool,
-          soundVibration: settings['soundVibration'] as bool,
-          anonymousReporting: settings['anonymousReporting'] as bool,
+          pushNotifications: settings['pushNotifications'] as bool? ?? true,
+          proximityAlerts: settings['proximityAlerts'] as bool? ?? true,
+          soundVibration: settings['soundVibration'] as bool? ?? true,
+          anonymousReporting: settings['anonymousReporting'] as bool? ?? false,
           shareLocationWithContacts:
-              settings['shareLocationWithContacts'] as bool,
-          alertRadius: settings['alertRadius'] as double,
+              settings['shareLocationWithContacts'] as bool? ?? false,
+          alertRadius: (settings['alertRadius'] as num?)?.toDouble() ?? 5.0,
           isLoading: false,
         ),
       );

@@ -132,15 +132,15 @@ class SafeZoneApiService {
   /// Convert API JSON to SafeZone model
   SafeZone _safeZoneFromJson(Map<String, dynamic> json) {
     return SafeZone.fromJson({
-      'id': json['id'].toString(),
-      'name': json['name'] as String,
-      'latitude': json['latitude'] as double,
-      'longitude': json['longitude'] as double,
-      'radius': json['radius'] as double,
-      'type': _zoneTypeFromString(json['zone_type'] as String),
-      'isActive': json['is_active'] as bool,
-      'notifyOnEnter': json['notify_on_enter'] as bool,
-      'notifyOnExit': json['notify_on_exit'] as bool,
+      'id': json['id']?.toString() ?? '',
+      'name': json['name'] as String? ?? '',
+      'latitude': (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      'longitude': (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      'radius': (json['radius'] as num?)?.toDouble() ?? 100.0,
+      'type': _zoneTypeFromString(json['zone_type'] as String? ?? 'custom'),
+      'isActive': json['is_active'] as bool? ?? true,
+      'notifyOnEnter': json['notify_on_enter'] as bool? ?? true,
+      'notifyOnExit': json['notify_on_exit'] as bool? ?? true,
     });
   }
 

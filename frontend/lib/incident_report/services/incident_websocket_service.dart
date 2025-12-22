@@ -115,14 +115,16 @@ class IncidentWebSocketService {
   /// Convert JSON to Incident model
   Incident _incidentFromJson(Map<String, dynamic> json) {
     return Incident(
-      id: json['id'].toString(),
-      category: _categoryFromString(json['category'] as String),
+      id: json['id']?.toString() ?? '',
+      category: _categoryFromString(json['category'] as String? ?? 'suspicious'),
       location: LatLng(
-        json['latitude'] as double,
-        json['longitude'] as double,
+        (json['latitude'] as num?)?.toDouble() ?? 0.0,
+        (json['longitude'] as num?)?.toDouble() ?? 0.0,
       ),
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      title: json['title'] as String,
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp'] as String)
+          : DateTime.now(),
+      title: json['title'] as String? ?? '',
       description: json['description'] as String?,
       confirmedBy: json['confirmed_by'] as int? ?? 1,
       notifyNearby: json['notify_nearby'] as bool? ?? false,

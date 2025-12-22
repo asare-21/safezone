@@ -17,13 +17,13 @@ class SafeZone extends Equatable {
   /// Creates from JSON
   factory SafeZone.fromJson(Map<String, dynamic> json) {
     return SafeZone(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
       location: LatLng(
-        json['latitude'] as double,
-        json['longitude'] as double,
+        (json['latitude'] as num?)?.toDouble() ?? 0.0,
+        (json['longitude'] as num?)?.toDouble() ?? 0.0,
       ),
-      radius: json['radius'] as double,
+      radius: (json['radius'] as num?)?.toDouble() ?? 100.0,
       type: SafeZoneType.values.firstWhere(
         (e) => e.name == json['type'],
         orElse: () => SafeZoneType.custom,

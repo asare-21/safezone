@@ -17,14 +17,14 @@ class UserPreferencesModel {
 
   factory UserPreferencesModel.fromJson(Map<String, dynamic> json) {
     return UserPreferencesModel(
-      deviceId: json['device_id'] as String,
-      alertRadius: (json['alert_radius'] as num).toDouble(),
-      defaultZoom: (json['default_zoom'] as num).toDouble(),
-      locationIcon: json['location_icon'] as String,
-      pushNotifications: json['push_notifications'] as bool,
-      proximityAlerts: json['proximity_alerts'] as bool,
-      soundVibration: json['sound_vibration'] as bool,
-      anonymousReporting: json['anonymous_reporting'] as bool,
+      deviceId: json['device_id'] as String? ?? '',
+      alertRadius: (json['alert_radius'] as num?)?.toDouble() ?? 5.0,
+      defaultZoom: (json['default_zoom'] as num?)?.toDouble() ?? 15.0,
+      locationIcon: json['location_icon'] as String? ?? 'default',
+      pushNotifications: json['push_notifications'] as bool? ?? true,
+      proximityAlerts: json['proximity_alerts'] as bool? ?? true,
+      soundVibration: json['sound_vibration'] as bool? ?? true,
+      anonymousReporting: json['anonymous_reporting'] as bool? ?? false,
     );
   }
 
