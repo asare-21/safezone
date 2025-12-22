@@ -6,10 +6,10 @@ import 'package:safe_zone/utils/global.dart';
 /// Repository for managing user scoring and achievements
 class ScoringRepository {
   final http.Client _httpClient;
-  final String baseUrl = apiUrl;
+  final String baseUrl;
 
-  ScoringRepository({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
+  ScoringRepository({http.Client? httpClient, required this.baseUrl})
+    : _httpClient = httpClient ?? http.Client();
 
   /// Get user profile and scoring information
   Future<UserScore> getUserProfile(String deviceId) async {
@@ -48,7 +48,9 @@ class ScoringRepository {
       final results = data is Map && data.containsKey('results')
           ? data['results'] as List
           : data as List;
-      return results.map((badge) => Badge.fromJson(badge)).toList();
+      return results
+          .map((badge) => Badge.fromJson(badge as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception(
         'Failed to load user badges: ${response.statusCode} ${response.body}',
@@ -77,7 +79,9 @@ class ScoringRepository {
       final results = data is Map && data.containsKey('results')
           ? data['results'] as List
           : data as List;
-      return results.map((user) => UserScore.fromJson(user)).toList();
+      return results
+          .map((user) => UserScore.fromJson(user as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception(
         'Failed to load leaderboard: ${response.statusCode} ${response.body}',
@@ -90,8 +94,9 @@ class ScoringRepository {
     int incidentId,
     String deviceId,
   ) async {
-    final url =
-        Uri.parse('$baseUrl/api/scoring/incidents/$incidentId/confirm/');
+    final url = Uri.parse(
+      '$baseUrl/api/scoring/incidents/$incidentId/confirm/',
+    );
 
     final response = await _httpClient.post(
       url,

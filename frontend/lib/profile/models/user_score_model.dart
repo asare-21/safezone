@@ -69,7 +69,9 @@ class UserScore {
       verifiedReports: json['verified_reports'] as int,
       accuracyPercentage: (json['accuracy_percentage'] as num).toDouble(),
       badges: json['badges'] != null
-          ? (json['badges'] as List).map((e) => Badge.fromJson(e)).toList()
+          ? (json['badges'] as List)
+                .map((e) => Badge.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)

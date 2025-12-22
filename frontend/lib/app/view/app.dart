@@ -44,6 +44,14 @@ class App extends StatelessWidget {
       ),
     );
 
+    final safeZoneApiService = SafeZoneApiService(
+      baseUrl: baseUrl,
+    );
+
+    final ScoringRepository scoringRepository = ScoringRepository(
+      baseUrl: baseUrl,
+    );
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(

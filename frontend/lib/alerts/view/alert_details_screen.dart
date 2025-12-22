@@ -271,11 +271,16 @@ class AlertDetailsScreen extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              Text(
-                value,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
+              // SizedBox(width: 16),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  value,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w100,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  maxLines: 2,
                 ),
               ),
             ],
