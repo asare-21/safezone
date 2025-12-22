@@ -33,6 +33,21 @@ class IncidentListCreateView(generics.ListCreateAPIView):
             return IncidentCreateSerializer
         return IncidentSerializer
     
+    def list(self, request, *args, **kwargs):
+        """Override list to ensure paginated response format."""
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'count': len(serializer.data),
+            'results': serializer.data
+        })
+    
     def perform_create(self, serializer):
         """Save the incident and trigger push notifications and WebSocket broadcast."""
         # Save the incident (user tracking is handled by Auth0 authentication layer)
