@@ -55,6 +55,23 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         if device_id:
             return SafeZone.objects.filter(device_id=device_id)
         return SafeZone.objects.all()
+    
+    def list(self, request, *args, **kwargs):
+        """Override list to ensure paginated response format."""
+        queryset = self.filter_queryset(self.get_queryset())
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'count': len(serializer.data),
+            'next': None,
+            'previous': None,
+            'results': serializer.data
+        })
 
 
 class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
