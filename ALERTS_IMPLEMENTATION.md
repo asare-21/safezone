@@ -17,7 +17,7 @@ class Alert(models.Model):
     alert_type = CharField           # highRisk, theft, eventCrowd, trafficCleared
     severity = CharField             # high, medium, low, info
     title = CharField
-    location = CharField
+    location = CharField             # Geocoded address (e.g., "Market St, Downtown, SF")
     timestamp = DateTimeField
     confirmed_by = IntegerField
     distance_meters = FloatField
@@ -25,9 +25,11 @@ class Alert(models.Model):
 
 **Key Features:**
 - Automatic severity mapping from incident categories
+- **Reverse geocoding**: Converts coordinates to readable addresses
 - Support for multiple alert types
 - Distance tracking from user location
 - Timestamp-based ordering (newest first)
+- Graceful fallback to coordinates if geocoding fails
 
 #### API Endpoints
 
@@ -104,6 +106,11 @@ Incidents are automatically mapped to alert severities:
    cd backend/safezone_backend
    pip install -r requirements.txt
    ```
+   
+   Dependencies include:
+   - Django 4.2.23
+   - djangorestframework 3.14.0
+   - geopy 2.4.1 (for reverse geocoding)
 
 2. **Configure Environment:**
    Create `.env` file with:
@@ -154,6 +161,8 @@ python manage.py test alerts.tests.AlertModelTest
 - Timestamp ordering
 - Severity mapping
 - String representation
+- **Reverse geocoding success and failure cases**
+- **Geocoding error handling and fallback**
 
 ### Manual Testing
 
@@ -187,6 +196,13 @@ python manage.py test alerts.tests.AlertModelTest
    ```
 
 ## Features
+
+### Geocoding Support
+- **Reverse Geocoding**: Automatically converts latitude/longitude coordinates to readable addresses
+- **Address Simplification**: Shows up to 3 address components (e.g., "Street, Neighborhood, City")
+- **Graceful Fallback**: Falls back to coordinates if geocoding service fails or times out
+- **Performance Optimized**: Reuses geolocator instance across requests
+- **Service**: Uses OpenStreetMap's Nominatim geocoder via geopy
 
 ### Real-time Updates
 - **Auto-refresh**: Every 30 seconds
@@ -240,7 +256,7 @@ python manage.py test alerts.tests.AlertModelTest
       "alert_type": "highRisk",
       "severity": "high",
       "title": "Assault Reported Nearby",
-      "location": "37.774900, -122.419400",
+      "location": "Market Street, Financial District, San Francisco",
       "timestamp": "2025-12-20T22:30:00Z",
       "confirmed_by": 3,
       "distance_meters": 450.0,
@@ -249,6 +265,8 @@ python manage.py test alerts.tests.AlertModelTest
   ]
 }
 ```
+
+**Note**: The `location` field now contains a human-readable address instead of raw coordinates. If geocoding fails, it falls back to coordinates in the format "37.774900, -122.419400".
 
 ## Troubleshooting
 
