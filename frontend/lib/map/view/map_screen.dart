@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -371,15 +372,16 @@ class _MapScreenViewState extends State<_MapScreenView> {
                   description: Text(message),
                 ),
               );
-            } on Exception catch (e) {
-              print(e);
+            } catch (e) {
               // Show error message if API call fails
               Navigator.of(context).pop();
 
               ShadToaster.of(context).show(
-                ShadToast.destructive(
-                  title: const Text('Error'),
-                  description: Text('Failed to submit report: $e'),
+                const ShadToast.destructive(
+                  title: Text('Error Submitting Report'),
+                  description: Text(
+                    'Failed to submit report. Something went wrong.',
+                  ),
                 ),
               );
             }

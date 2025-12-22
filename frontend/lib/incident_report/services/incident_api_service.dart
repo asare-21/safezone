@@ -73,7 +73,6 @@ class IncidentApiService {
         );
       }
     } catch (e) {
-      print(e);
       throw Exception('Error creating incident: $e');
     }
   }
