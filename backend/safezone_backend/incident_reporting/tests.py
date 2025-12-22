@@ -114,7 +114,3 @@ class IncidentAlertGenerationTestCase(TestCase):
                 expected_severity,
                 f"Alert severity for {category} should be {expected_severity}"
             )
-        
-        # Clean up for next test
-        Alert.objects.all().delete()
-        Incident.objects.all().delete()

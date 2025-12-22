@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
+from alerts.models import Alert
 import logging
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,6 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         
         # Generate alert for the reported incident
         try:
-            from alerts.models import Alert
             Alert.generate_alert_from_incident(incident)
             logger.info(f"Generated alert for incident {incident.id}")
         except Exception as e:
