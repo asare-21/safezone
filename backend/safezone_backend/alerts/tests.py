@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta
+from unittest.mock import patch, MagicMock
 from .models import Alert
 from incident_reporting.models import Incident
 
@@ -40,17 +41,26 @@ class AlertModelTest(TestCase):
 
     def test_generate_alert_from_incident(self):
         """Test generating an alert from an incident."""
-        alert = Alert.generate_alert_from_incident(
-            self.incident,
-            distance_meters=500.0,
-        )
-        
-        self.assertEqual(alert.incident, self.incident)
-        self.assertEqual(alert.severity, 'high')  # assault maps to high
-        self.assertEqual(alert.alert_type, 'highRisk')
-        self.assertEqual(alert.confirmed_by, 1)
-        self.assertEqual(alert.distance_meters, 500.0)
-        self.assertIn('Assault', alert.title)
+        # Mock the geocoding to avoid external API calls in tests
+        with patch.object(Alert, 'reverse_geocode') as mock_geocode:
+            mock_geocode.return_value = 'Market St, Downtown, San Francisco'
+            
+            alert = Alert.generate_alert_from_incident(
+                self.incident,
+                distance_meters=500.0,
+            )
+            
+            self.assertEqual(alert.incident, self.incident)
+            self.assertEqual(alert.severity, 'high')  # assault maps to high
+            self.assertEqual(alert.alert_type, 'highRisk')
+            self.assertEqual(alert.confirmed_by, 1)
+            self.assertEqual(alert.distance_meters, 500.0)
+            self.assertIn('Assault', alert.title)
+            # Verify geocoding was called with incident coordinates
+            mock_geocode.assert_called_once_with(
+                self.incident.latitude,
+                self.incident.longitude,
+            )
 
     def test_alert_ordering(self):
         """Test that alerts are ordered by timestamp (newest first)."""
@@ -90,20 +100,24 @@ class AlertModelTest(TestCase):
             ('powerOutage', 'info'),
         ]
         
-        for category, expected_severity in test_cases:
-            incident = Incident.objects.create(
-                category=category,
-                latitude=37.7749,
-                longitude=-122.4194,
-                title=f'Test {category}',
-            )
+        # Mock geocoding for all test cases
+        with patch.object(Alert, 'reverse_geocode') as mock_geocode:
+            mock_geocode.return_value = 'Test Location'
             
-            alert = Alert.generate_alert_from_incident(incident)
-            self.assertEqual(
-                alert.severity,
-                expected_severity,
-                f'Category {category} should map to severity {expected_severity}',
-            )
+            for category, expected_severity in test_cases:
+                incident = Incident.objects.create(
+                    category=category,
+                    latitude=37.7749,
+                    longitude=-122.4194,
+                    title=f'Test {category}',
+                )
+                
+                alert = Alert.generate_alert_from_incident(incident)
+                self.assertEqual(
+                    alert.severity,
+                    expected_severity,
+                    f'Category {category} should map to severity {expected_severity}',
+                )
 
     def test_alert_string_representation(self):
         """Test the string representation of an alert."""
@@ -117,3 +131,76 @@ class AlertModelTest(TestCase):
         
         self.assertIn('HIGH', str(alert))
         self.assertIn('Test Alert', str(alert))
+
+    def test_reverse_geocode_success(self):
+        """Test successful reverse geocoding."""
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
+            # Mock the geolocator and its response
+            mock_geolocator = MagicMock()
+            mock_get_geolocator.return_value = mock_geolocator
+            
+            # Create a mock location with address data
+            mock_location = MagicMock()
+            mock_location.raw = {
+                'address': {
+                    'road': 'Market Street',
+                    'neighbourhood': 'Financial District',
+                    'city': 'San Francisco',
+                }
+            }
+            mock_geolocator.reverse.return_value = mock_location
+            
+            result = Alert.reverse_geocode(37.7749, -122.4194)
+            
+            self.assertEqual(result, 'Market Street, Financial District, San Francisco')
+            mock_geolocator.reverse.assert_called_once()
+
+    def test_reverse_geocode_fallback_on_error(self):
+        """Test that reverse geocoding falls back to coordinates on error."""
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
+            mock_geolocator = MagicMock()
+            mock_get_geolocator.return_value = mock_geolocator
+            
+            # Simulate a geocoding timeout
+            from geopy.exc import GeocoderTimedOut
+            mock_geolocator.reverse.side_effect = GeocoderTimedOut()
+            
+            result = Alert.reverse_geocode(37.7749, -122.4194)
+            
+            # Should fallback to coordinates
+            self.assertEqual(result, '37.774900, -122.419400')
+
+    def test_reverse_geocode_partial_address(self):
+        """Test reverse geocoding with partial address data."""
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
+            mock_geolocator = MagicMock()
+            mock_get_geolocator.return_value = mock_geolocator
+            
+            # Mock location with only city
+            mock_location = MagicMock()
+            mock_location.raw = {
+                'address': {
+                    'city': 'San Francisco',
+                }
+            }
+            mock_geolocator.reverse.return_value = mock_location
+            
+            result = Alert.reverse_geocode(37.7749, -122.4194)
+            
+            self.assertEqual(result, 'San Francisco')
+
+    def test_reverse_geocode_no_address(self):
+        """Test reverse geocoding when no address is found."""
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
+            mock_geolocator = MagicMock()
+            mock_get_geolocator.return_value = mock_geolocator
+            
+            # Mock location with no address
+            mock_location = MagicMock()
+            mock_location.raw = {}
+            mock_geolocator.reverse.return_value = mock_location
+            
+            result = Alert.reverse_geocode(37.7749, -122.4194)
+            
+            # Should fallback to coordinates
+            self.assertEqual(result, '37.774900, -122.419400')
