@@ -1,6 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 import logging
@@ -25,8 +26,15 @@ class AlertListView(generics.ListAPIView):
     - longitude: User's longitude for distance-based alerts
     - radius_km: Maximum distance in km (default: 10, max: 50)
     """
-    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = AlertListSerializer
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
     
     def get_queryset(self):
         queryset = Alert.objects.select_related('incident').all()
@@ -104,8 +112,15 @@ class AlertRetrieveView(generics.RetrieveAPIView):
     """
     queryset = Alert.objects.select_related('incident').all()
     serializer_class = AlertSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = 'id'
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
 
 
 class AlertGenerateView(generics.GenericAPIView):
@@ -118,7 +133,14 @@ class AlertGenerateView(generics.GenericAPIView):
     - radius_km: Maximum distance in km (default: 5, max: 50)
     - hours: Look at incidents from last N hours (default: 24)
     """
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
     
     def post(self, request):
         latitude = request.data.get('latitude')

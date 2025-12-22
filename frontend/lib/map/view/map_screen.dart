@@ -12,6 +12,7 @@ import 'package:safe_zone/map/cubit/map_filter_cubit.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
 import 'package:safe_zone/profile/profile.dart';
+import 'package:safe_zone/utils/api_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class MapScreen extends StatelessWidget {
@@ -59,7 +60,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
   void initState() {
     super.initState();
     // Initialize API service with consistent baseUrl
-    const baseUrl = 'http://127.0.0.1:8000';
+    final baseUrl = ApiConfig.getBaseUrl();
 
     _apiService = IncidentApiService(
       baseUrl: baseUrl,

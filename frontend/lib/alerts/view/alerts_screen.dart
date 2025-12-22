@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/home/home.dart';
+import 'package:safe_zone/utils/api_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AlertsScreen extends StatelessWidget {
@@ -15,12 +16,8 @@ class AlertsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        // Initialize AlertApiService with the correct baseUrl
-        final baseUrl = kDebugMode
-            ? (defaultTargetPlatform == TargetPlatform.android
-                  ? 'http://127.0.0.1:8000'
-                  : 'http://localhost:8000')
-            : 'https://your-production-url.com';
+        // Initialize AlertApiService with platform-specific baseUrl
+        final baseUrl = ApiConfig.getBaseUrl();
 
         final apiService = AlertApiService(baseUrl: baseUrl);
         final cubit = AlertsCubit(alertApiService: apiService);

@@ -3,15 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:safe_zone/emergency_services/models/emergency_service_model.dart';
+import 'package:safe_zone/utils/api_config.dart';
 
 class EmergencyServiceApiService {
   EmergencyServiceApiService({
     String? baseUrl,
     http.Client? httpClient,
-  })  : _baseUrl = baseUrl ??
-            (kDebugMode
-                ? 'http://127.0.0.1:8000' // Android emulator
-                : 'https://your-production-url.com'),
+  })  : _baseUrl = baseUrl ?? ApiConfig.getBaseUrl(),
         _httpClient = httpClient ?? http.Client();
 
   final String _baseUrl;
