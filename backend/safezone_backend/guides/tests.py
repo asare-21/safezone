@@ -35,8 +35,9 @@ class GuideModelTest(TestCase):
             content='How to report incidents',
         )
         
-        self.assertIn('Reporting Incidents', str(guide))
-        self.assertIn('Reporting Guide', str(guide))
+        # The __str__ method returns "{section_display} - {title}"
+        expected = 'Reporting Incidents - Reporting Guide'
+        self.assertEqual(str(guide), expected)
 
 
 class GuideAPITest(APITestCase):
