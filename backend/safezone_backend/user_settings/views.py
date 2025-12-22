@@ -1,10 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from .models import UserDevice, SafeZone, UserPreferences
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserDeviceRegisterView(generics.CreateAPIView):
     """
     Register or update a user device for push notifications.
@@ -49,6 +52,10 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
     serializer_class = SafeZoneSerializer
     permission_classes = [IsAuthenticated]
     
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
     def get_queryset(self):
         """Filter safe zones by device_id from query params."""
         device_id = self.request.query_params.get('device_id')
@@ -86,6 +93,10 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SafeZoneSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticated]
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 class UserPreferencesView(generics.RetrieveUpdateAPIView):
@@ -98,6 +109,10 @@ class UserPreferencesView(generics.RetrieveUpdateAPIView):
     serializer_class = UserPreferencesSerializer
     lookup_field = 'device_id'
     permission_classes = [IsAuthenticated]
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
     
     def get_queryset(self):
         """Return preferences for all devices."""
