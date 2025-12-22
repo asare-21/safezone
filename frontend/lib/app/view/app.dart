@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/authentication/cubit/authentication_cubit.dart';
 import 'package:safe_zone/authentication/services/auth0_service.dart';
+import 'package:safe_zone/emergency_services/cubit/emergency_services_cubit.dart';
+import 'package:safe_zone/emergency_services/repository/emergency_services_repository.dart';
+import 'package:safe_zone/emergency_services/services/emergency_service_api_service.dart';
 import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/l10n/l10n.dart';
@@ -35,13 +38,20 @@ class App extends StatelessWidget {
       baseUrl: baseUrl,
     );
 
-    // Initialize safe zone API service
-    final safeZoneApiService = SafeZoneApiService(
-      baseUrl: baseUrl,
+    final emergencyServicesRepository = EmergencyServicesRepository(
+      apiService: EmergencyServiceApiService(
+        baseUrl: baseUrl,
+      ),
     );
 
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (_) => EmergencyServicesCubit(
+            baseUrl: baseUrl,
+            repository: emergencyServicesRepository,
+          ),
+        ),
         BlocProvider(
           create: (_) => ProfileSettingsCubit(
             ProfileSettingsRepository(
