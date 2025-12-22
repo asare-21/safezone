@@ -344,6 +344,10 @@ pip install django==4.2.23
 
 ```bash
 python manage.py migrate
+
+# Populate initial data
+python manage.py populate_guides
+python manage.py populate_emergency_services
 ```
 
 ### 5. Create Superuser (Optional)
