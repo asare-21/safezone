@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
 import logging
@@ -11,6 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class IncidentListCreateView(generics.ListCreateAPIView):
     """
     List all incidents or create a new incident.

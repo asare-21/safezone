@@ -1,10 +1,13 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from .models import UserDevice, SafeZone, UserPreferences
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserDeviceRegisterView(generics.CreateAPIView):
     """
     Register or update a user device for push notifications.
@@ -39,6 +42,7 @@ class UserDeviceRegisterView(generics.CreateAPIView):
             return super().create(request, *args, **kwargs)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SafeZoneListCreateView(generics.ListCreateAPIView):
     """
     List all safe zones for a device or create a new safe zone.
@@ -74,6 +78,7 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         })
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update, or delete a specific safe zone.
@@ -88,6 +93,7 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserPreferencesView(generics.RetrieveUpdateAPIView):
     """
     Retrieve or update user preferences for a device.

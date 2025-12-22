@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from django.conf import settings
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 import logging
 
@@ -123,6 +125,7 @@ class AlertRetrieveView(generics.RetrieveAPIView):
         return [IsAuthenticatedOrReadOnly()]
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class AlertGenerateView(generics.GenericAPIView):
     """
     Generate alerts from recent incidents based on user location.
