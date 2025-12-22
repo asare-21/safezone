@@ -56,8 +56,25 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         """Save the incident and trigger push notifications and WebSocket broadcast."""
+        # Extract device_id from serializer if provided
+        device_id = serializer.validated_data.pop('device_id', None)
+        
         # Save the incident (user tracking is handled by Auth0 authentication layer)
         incident = serializer.save()
+        
+        # Award scoring points if device_id provided
+        if device_id:
+            try:
+                from scoring.models import UserProfile, hash_device_id
+                device_id_hash = hash_device_id(device_id)
+                profile, _ = UserProfile.objects.get_or_create(
+                    device_id_hash=device_id_hash,
+                    defaults={'device_id': device_id}
+                )
+                scoring_result = profile.add_report_points(incident)
+                logger.info(f"Awarded {scoring_result['points_earned']} points to user for incident {incident.id}")
+            except Exception as e:
+                logger.error(f"Failed to award points for incident {incident.id}: {e}")
         
         # Generate alert for the reported incident
         try:

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'push_notifications',
     'user_settings',
     'emergency_services',
+    'scoring',
 ]
 
 MIDDLEWARE = [
