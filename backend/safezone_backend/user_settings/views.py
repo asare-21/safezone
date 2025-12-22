@@ -57,7 +57,7 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         """
         Use AllowAny in development without Auth0, otherwise require auth.
         """
-        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+        if settings.DEBUG and not getattr(settings, 'AUTH0_DOMAIN', None):
             return [AllowAny()]
         return [IsAuthenticated()]
     
@@ -103,7 +103,7 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
         """
         Use AllowAny in development without Auth0, otherwise require auth.
         """
-        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+        if settings.DEBUG and not getattr(settings, 'AUTH0_DOMAIN', None):
             return [AllowAny()]
         return [IsAuthenticated()]
 
