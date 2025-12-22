@@ -242,10 +242,10 @@ class Badge(models.Model):
     def badge_icon(self):
         """Get badge icon."""
         icons = {
-            'first_responder': '✅',
-            'truth_triangulator': '✅',
-            'night_owl': '✅',
-            'accuracy_ace': '✅',
+            'first_responder': '🚨',
+            'truth_triangulator': '🎯',
+            'night_owl': '🦉',
+            'accuracy_ace': '⭐',
         }
         return icons.get(self.badge_type, '✅')
     
