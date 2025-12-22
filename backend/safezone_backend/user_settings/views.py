@@ -42,6 +42,7 @@ class UserDeviceRegisterView(generics.CreateAPIView):
             return super().create(request, *args, **kwargs)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SafeZoneListCreateView(generics.ListCreateAPIView):
     """
     List all safe zones for a device or create a new safe zone.
@@ -51,10 +52,6 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
     """
     serializer_class = SafeZoneSerializer
     permission_classes = [IsAuthenticated]
-    
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
     
     def get_queryset(self):
         """Filter safe zones by device_id from query params."""
@@ -81,6 +78,7 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         })
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update, or delete a specific safe zone.
@@ -93,12 +91,9 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SafeZoneSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticated]
-    
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserPreferencesView(generics.RetrieveUpdateAPIView):
     """
     Retrieve or update user preferences for a device.
@@ -109,10 +104,6 @@ class UserPreferencesView(generics.RetrieveUpdateAPIView):
     serializer_class = UserPreferencesSerializer
     lookup_field = 'device_id'
     permission_classes = [IsAuthenticated]
-    
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
     
     def get_queryset(self):
         """Return preferences for all devices."""
