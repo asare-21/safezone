@@ -33,27 +33,6 @@ class SafeZoneRepository {
     return prefs.getString(_deviceIdKey);
   }
 
-  /// Get SharedPreferences instance (cached)
-  Future<SharedPreferences> _getPreferences() async {
-    if (_sharedPreferences != null) return _sharedPreferences;
-    _cachedPreferences ??= await SharedPreferences.getInstance();
-    return _cachedPreferences!;
-  }
-
-
-  /// Get SharedPreferences instance (cached)
-  Future<SharedPreferences> _getPreferences() async {
-    if (_sharedPreferences != null) return _sharedPreferences;
-    _cachedPreferences ??= await SharedPreferences.getInstance();
-    return _cachedPreferences!;
-  }
-
-  /// Get device ID from shared preferences
-  Future<String?> _getDeviceId() async {
-    final prefs = await _getPreferences();
-    return prefs.getString(_deviceIdKey);
-  }
-
   /// Load all safe zones
   /// Tries to load from backend first, falls back to local storage
   Future<List<SafeZone>> loadSafeZones() async {
