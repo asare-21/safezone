@@ -30,7 +30,7 @@ import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client';
  */
 export function useIncidents(accessToken?: string) {
   return useQuery({
-    queryKey: ['incidents', accessToken],
+    queryKey: ['incidents', !!accessToken], // Use boolean to avoid exposing token in cache
     queryFn: async () => {
       const response = await apiGet('/api/incidents/', accessToken);
       
@@ -143,7 +143,7 @@ export function useDeleteIncident(accessToken?: string) {
  */
 export function useAlerts(accessToken?: string) {
   return useQuery({
-    queryKey: ['alerts', accessToken],
+    queryKey: ['alerts', !!accessToken], // Use boolean to avoid exposing token in cache
     queryFn: async () => {
       const response = await apiGet('/api/alerts/', accessToken);
       
@@ -162,7 +162,7 @@ export function useAlerts(accessToken?: string) {
  */
 export function useGuides(accessToken?: string) {
   return useQuery({
-    queryKey: ['guides', accessToken],
+    queryKey: ['guides', !!accessToken], // Use boolean to avoid exposing token in cache
     queryFn: async () => {
       const response = await apiGet('/api/guides/', accessToken);
       

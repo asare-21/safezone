@@ -24,9 +24,17 @@ export async function authenticatedFetch(
 
   // Prepare headers with authentication
   const fetchHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
     ...headers,
   };
+
+  // Only set Content-Type if not already set and if we have a body
+  // This allows requests like file uploads to set their own Content-Type
+  if (!fetchHeaders['Content-Type'] && restOptions.body) {
+    // Only set to JSON if body is a string (assumed to be JSON.stringify'd)
+    if (typeof restOptions.body === 'string') {
+      fetchHeaders['Content-Type'] = 'application/json';
+    }
+  }
 
   // Add Authorization header if access token is provided
   if (accessToken) {
