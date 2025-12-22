@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -195,7 +194,6 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
             // Determine which alerts to display
             var displayAlerts = <Alert>[];
             var isLoading = false;
-            var isRefreshing = false;
             String? errorMessage;
 
             if (alertsState is AlertsLoaded) {
@@ -203,7 +201,6 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                 alertsState.alerts,
                 filterState,
               );
-              isRefreshing = alertsState.isRefreshing;
               errorMessage = alertsState.errorMessage;
             } else if (alertsState is AlertsLoading) {
               isLoading = true;

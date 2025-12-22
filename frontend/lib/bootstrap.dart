@@ -49,9 +49,9 @@ Future<void> bootstrap(
     final firebaseInitService = FirebaseInitService(
       deviceApiService: deviceApiService,
     );
-    
+
     // Initialize Firebase Messaging (non-blocking)
-    firebaseInitService.initialize().catchError((error) {
+    await firebaseInitService.initialize().catchError((Object error) {
       log('Firebase Messaging initialization failed: $error');
       // Continue app initialization even if FCM setup fails
     });

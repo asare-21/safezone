@@ -19,9 +19,7 @@ class FirebaseInitService {
     try {
       // Request notification permissions
       final messaging = FirebaseMessaging.instance;
-      final settings = await messaging.requestPermission(
-        
-      );
+      final settings = await messaging.requestPermission();
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         debugPrint('User granted permission');
@@ -67,13 +65,19 @@ class FirebaseInitService {
       messaging.onTokenRefresh.listen((newToken) {
         debugPrint('FCM token refreshed: $newToken');
         // Re-register with new token
-        deviceApiService.registerDevice(
-          deviceId: deviceId,
-          fcmToken: newToken,
-          platform: platform,
-        ).catchError((e) {
-          debugPrint('Failed to update token: $e');
-        });
+        deviceApiService
+            .registerDevice(
+              deviceId: deviceId,
+              fcmToken: newToken,
+              platform: platform,
+            )
+            .catchError((Object e) {
+              debugPrint('Failed to update token: $e');
+              return {
+                'success': false,
+                'error': e.toString(),
+              };
+            });
       });
 
       // Setup foreground message handler
@@ -89,8 +93,9 @@ class FirebaseInitService {
       });
 
       // Handle background messages
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
+      FirebaseMessaging.onBackgroundMessage(
+        _firebaseMessagingBackgroundHandler,
+      );
     } catch (e) {
       debugPrint('Error initializing Firebase Messaging: $e');
     }

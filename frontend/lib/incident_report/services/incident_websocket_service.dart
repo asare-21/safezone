@@ -28,21 +28,21 @@ class IncidentWebSocketService {
   /// Connect to the WebSocket server
   void connect() {
     if (_isDisposed || _isConnecting) return;
-    
+
     _isConnecting = true;
-    
+
     try {
       // Convert HTTP URL to WebSocket URL
       final wsUrl = baseUrl
           .replaceFirst('http://', 'ws://')
           .replaceFirst('https://', 'wss://');
-      
+
       final uri = Uri.parse('$wsUrl/ws/incidents/');
-      
+
       debugPrint('Connecting to WebSocket: $uri');
-      
+
       _channel = WebSocketChannel.connect(uri);
-      
+
       // Listen to messages from the WebSocket
       _channel!.stream.listen(
         _handleMessage,
@@ -50,7 +50,7 @@ class IncidentWebSocketService {
         onDone: _handleDone,
         cancelOnError: false,
       );
-      
+
       _isConnecting = false;
       debugPrint('WebSocket connected successfully');
     } catch (e) {
@@ -64,14 +64,14 @@ class IncidentWebSocketService {
   void _handleMessage(dynamic message) {
     try {
       final data = json.decode(message as String) as Map<String, dynamic>;
-      
+
       if (data['type'] == 'incident_update') {
         final incidentData = data['incident'] as Map<String, dynamic>;
         final incident = _incidentFromJson(incidentData);
-        
+
         // Emit the new incident to the stream
         _incidentController?.add(incident);
-        
+
         debugPrint('Received incident update: ${incident.title}');
       }
     } catch (e) {
@@ -94,16 +94,15 @@ class IncidentWebSocketService {
   /// Schedule a reconnection attempt
   void _scheduleReconnect() {
     if (_isDisposed) return;
-    
+
     // Cancel existing timer if any
     _reconnectTimer?.cancel();
-    
+
     // Try to reconnect after 5 seconds with exponential backoff up to 30 seconds
     const baseDelay = Duration(seconds: 5);
-    const maxDelay = Duration(seconds: 30);
-    
+
     const delay = baseDelay; // Simple fixed delay for now
-    
+
     _reconnectTimer = Timer(delay, () {
       if (!_isDisposed) {
         debugPrint('Attempting to reconnect to WebSocket...');
@@ -116,12 +115,14 @@ class IncidentWebSocketService {
   Incident _incidentFromJson(Map<String, dynamic> json) {
     return Incident(
       id: json['id']?.toString() ?? '',
-      category: _categoryFromString(json['category'] as String? ?? 'suspicious'),
+      category: _categoryFromString(
+        json['category'] as String? ?? 'suspicious',
+      ),
       location: LatLng(
         (json['latitude'] as num?)?.toDouble() ?? 0.0,
         (json['longitude'] as num?)?.toDouble() ?? 0.0,
       ),
-      timestamp: json['timestamp'] != null 
+      timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'] as String)
           : DateTime.now(),
       title: json['title'] as String? ?? '',
@@ -173,7 +174,9 @@ class IncidentWebSocketService {
       default:
         // Log unrecognized category and return suspicious as fallback
         // This maintains compatibility with existing data while alerting developers
-        debugPrint('WARNING: Unknown incident category "$category", using suspicious as fallback');
+        debugPrint(
+          'WARNING: Unknown incident category "$category", using suspicious as fallback',
+        );
         return IncidentCategory.suspicious;
     }
   }

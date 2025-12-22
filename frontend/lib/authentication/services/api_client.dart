@@ -7,8 +7,8 @@ class AuthenticatedHttpClient extends http.BaseClient {
   AuthenticatedHttpClient({
     required Auth0Service auth0Service,
     http.Client? innerClient,
-  })  : _auth0Service = auth0Service,
-        _innerClient = innerClient ?? http.Client();
+  }) : _auth0Service = auth0Service,
+       _innerClient = innerClient ?? http.Client();
 
   final Auth0Service _auth0Service;
   final http.Client _innerClient;
@@ -46,11 +46,9 @@ class ApiClient {
   ApiClient({
     required Auth0Service auth0Service,
     required String baseUrl,
-  })  : _auth0Service = auth0Service,
-        _baseUrl = baseUrl,
-        _client = AuthenticatedHttpClient(auth0Service: auth0Service);
+  }) : _baseUrl = baseUrl,
+       _client = AuthenticatedHttpClient(auth0Service: auth0Service);
 
-  final Auth0Service _auth0Service;
   final String _baseUrl;
   final AuthenticatedHttpClient _client;
 

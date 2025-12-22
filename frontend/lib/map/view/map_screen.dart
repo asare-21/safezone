@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -86,7 +85,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
       _webSocketService.connect();
       _incidentSubscription = _webSocketService.incidentStream.listen(
         _handleNewIncident,
-        onError: (error) {
+        onError: (Object error) {
           debugPrint('Error in incident stream: $error');
         },
       );
