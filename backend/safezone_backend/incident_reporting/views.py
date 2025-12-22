@@ -1,8 +1,9 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from django.conf import settings
 from .models import Incident
 from .serializers import IncidentSerializer, IncidentCreateSerializer
 import logging
@@ -15,10 +16,17 @@ class IncidentListCreateView(generics.ListCreateAPIView):
     List all incidents or create a new incident.
     
     GET: Returns list of all incidents ordered by timestamp (newest first)
-    POST: Creates a new incident report (requires authentication)
+    POST: Creates a new incident report (requires authentication in production)
     """
     queryset = Incident.objects.all().order_by('-timestamp')
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -63,6 +71,13 @@ class IncidentRetrieveView(generics.RetrieveAPIView):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth for writes.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticatedOrReadOnly()]
 
 

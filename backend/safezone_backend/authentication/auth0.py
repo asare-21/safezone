@@ -17,6 +17,10 @@ def get_jwks():
     Fetch and cache the JWKS (JSON Web Key Set) from Auth0.
     Cached to avoid repeated requests.
     """
+    if not settings.AUTH0_DOMAIN:
+        logger.debug("AUTH0_DOMAIN not configured, skipping JWKS fetch")
+        return None
+    
     jwks_url = f'https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json'
     try:
         response = requests.get(jwks_url, timeout=5)
@@ -32,6 +36,9 @@ def get_public_key(token):
     Extract the public key from JWKS based on the token's kid (key ID).
     """
     jwks = get_jwks()
+    
+    if jwks is None:
+        raise exceptions.AuthenticationFailed('Auth0 not configured')
     
     # Decode token header without verification to get kid
     try:
@@ -69,6 +76,11 @@ class Auth0Authentication(authentication.BaseAuthentication):
         Returns a tuple of (user, token) if authentication succeeds,
         or None if no authentication was attempted.
         """
+        # If Auth0 is not configured, skip authentication
+        if not settings.AUTH0_DOMAIN or not settings.AUTH0_AUDIENCE:
+            logger.debug("Auth0 not configured, skipping authentication")
+            return None
+        
         # Extract token from Authorization header
         auth_header = request.META.get('HTTP_AUTHORIZATION', '')
         
