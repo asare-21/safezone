@@ -13,6 +13,10 @@ pip install django==4.2.23 djangorestframework django-cors-headers
 # Run migrations
 python manage.py migrate
 
+# Populate initial data
+python manage.py populate_guides
+python manage.py populate_emergency_services
+
 # Start server
 python manage.py runserver 8000
 ```
