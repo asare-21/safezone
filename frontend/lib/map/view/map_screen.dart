@@ -59,7 +59,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
     super.initState();
     // Initialize API service with consistent baseUrl
     const baseUrl = 'http://127.0.0.1:8000';
-    
+
     _apiService = IncidentApiService(
       baseUrl: baseUrl,
     );
@@ -372,6 +372,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ),
               );
             } on Exception catch (e) {
+              print(e);
               // Show error message if API call fails
               Navigator.of(context).pop();
 

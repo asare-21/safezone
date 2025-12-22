@@ -12,8 +12,8 @@ part 'alerts_state.dart';
 class AlertsCubit extends Cubit<AlertsState> {
   AlertsCubit({
     required AlertApiService alertApiService,
-  })  : _alertApiService = alertApiService,
-        super(const AlertsInitial());
+  }) : _alertApiService = alertApiService,
+       super(const AlertsInitial());
 
   final AlertApiService _alertApiService;
   Timer? _refreshTimer;
@@ -38,7 +38,7 @@ class AlertsCubit extends Cubit<AlertsState> {
       );
 
       emit(AlertsLoaded(alerts: alerts, lastUpdated: DateTime.now()));
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error fetching alerts: $e');
       emit(AlertsError(message: e.toString()));
     }
@@ -89,19 +89,23 @@ class AlertsCubit extends Cubit<AlertsState> {
         radiusKm: radiusKm,
       );
 
-      emit(AlertsLoaded(
-        alerts: alerts,
-        lastUpdated: DateTime.now(),
-      ));
+      emit(
+        AlertsLoaded(
+          alerts: alerts,
+          lastUpdated: DateTime.now(),
+        ),
+      );
     } catch (e) {
       debugPrint('Error refreshing alerts: $e');
       // Keep previous data on refresh error
       if (state is AlertsLoaded) {
         final currentState = state as AlertsLoaded;
-        emit(currentState.copyWith(
-          isRefreshing: false,
-          errorMessage: 'Failed to refresh: $e',
-        ));
+        emit(
+          currentState.copyWith(
+            isRefreshing: false,
+            errorMessage: 'Failed to refresh: $e',
+          ),
+        );
       } else {
         emit(AlertsError(message: e.toString()));
       }

@@ -35,6 +35,7 @@ class IncidentApiService {
         );
       }
     } catch (e) {
+      print(e);
       throw Exception('Error fetching incidents: $e');
     }
   }
@@ -44,7 +45,8 @@ class IncidentApiService {
     required IncidentCategory category,
     required LatLng location,
     required String title,
-    required bool notifyNearby, String? description,
+    required bool notifyNearby,
+    String? description,
   }) async {
     try {
       final body = json.encode({
@@ -71,6 +73,7 @@ class IncidentApiService {
         );
       }
     } catch (e) {
+      print(e);
       throw Exception('Error creating incident: $e');
     }
   }
