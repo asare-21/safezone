@@ -6,12 +6,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Module-level geolocator instance for reuse across requests
+_geolocator = None
+
+def get_geolocator():
+    """Get or create the Nominatim geolocator instance."""
+    global _geolocator
+    if _geolocator is None:
+        _geolocator = Nominatim(user_agent="safezone_app", timeout=3)
+    return _geolocator
+
 
 class Alert(models.Model):
     """
     Model for proximity alerts generated when users approach incident locations.
     Alerts are created based on user location and incident proximity.
     """
+    
+    # Maximum number of address components to include in simplified addresses
+    MAX_ADDRESS_PARTS = 3
     
     SEVERITY_CHOICES = [
         ('high', 'High'),
@@ -78,8 +91,8 @@ class Alert(models.Model):
             Simplified street address or formatted coordinates if geocoding fails
         """
         try:
-            # Initialize geocoder with a user agent
-            geolocator = Nominatim(user_agent="safezone_app", timeout=3)
+            # Get the shared geolocator instance
+            geolocator = get_geolocator()
             
             # Reverse geocode the coordinates
             location = geolocator.reverse(f"{latitude}, {longitude}", language='en')
@@ -114,7 +127,7 @@ class Alert(models.Model):
                 
                 # Return simplified address if we have components
                 if address_parts:
-                    return ', '.join(address_parts[:3])  # Limit to 3 parts max
+                    return ', '.join(address_parts[:Alert.MAX_ADDRESS_PARTS])
             
             # Fallback to coordinates if address not found
             return f"{latitude:.6f}, {longitude:.6f}"

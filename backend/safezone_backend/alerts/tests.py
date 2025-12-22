@@ -134,10 +134,10 @@ class AlertModelTest(TestCase):
 
     def test_reverse_geocode_success(self):
         """Test successful reverse geocoding."""
-        with patch('alerts.models.Nominatim') as mock_nominatim:
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
             # Mock the geolocator and its response
             mock_geolocator = MagicMock()
-            mock_nominatim.return_value = mock_geolocator
+            mock_get_geolocator.return_value = mock_geolocator
             
             # Create a mock location with address data
             mock_location = MagicMock()
@@ -157,9 +157,9 @@ class AlertModelTest(TestCase):
 
     def test_reverse_geocode_fallback_on_error(self):
         """Test that reverse geocoding falls back to coordinates on error."""
-        with patch('alerts.models.Nominatim') as mock_nominatim:
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
             mock_geolocator = MagicMock()
-            mock_nominatim.return_value = mock_geolocator
+            mock_get_geolocator.return_value = mock_geolocator
             
             # Simulate a geocoding timeout
             from geopy.exc import GeocoderTimedOut
@@ -172,9 +172,9 @@ class AlertModelTest(TestCase):
 
     def test_reverse_geocode_partial_address(self):
         """Test reverse geocoding with partial address data."""
-        with patch('alerts.models.Nominatim') as mock_nominatim:
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
             mock_geolocator = MagicMock()
-            mock_nominatim.return_value = mock_geolocator
+            mock_get_geolocator.return_value = mock_geolocator
             
             # Mock location with only city
             mock_location = MagicMock()
@@ -191,9 +191,9 @@ class AlertModelTest(TestCase):
 
     def test_reverse_geocode_no_address(self):
         """Test reverse geocoding when no address is found."""
-        with patch('alerts.models.Nominatim') as mock_nominatim:
+        with patch('alerts.models.get_geolocator') as mock_get_geolocator:
             mock_geolocator = MagicMock()
-            mock_nominatim.return_value = mock_geolocator
+            mock_get_geolocator.return_value = mock_geolocator
             
             # Mock location with no address
             mock_location = MagicMock()
