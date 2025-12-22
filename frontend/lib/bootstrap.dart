@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:safe_zone/firebase_options.dart';
 import 'package:safe_zone/user_settings/services/device_api_service.dart';
 import 'package:safe_zone/user_settings/services/firebase_init_service.dart';
+import 'package:safe_zone/utils/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppBlocObserver extends BlocObserver {
@@ -43,7 +44,7 @@ Future<void> bootstrap(
     log('Firebase initialized successfully');
 
     // Initialize Firebase Messaging and register device
-    const baseUrl = 'http://127.0.0.1:8000';
+    final baseUrl = ApiConfig.getBaseUrl();
     final deviceApiService = DeviceApiService(baseUrl: baseUrl);
     final firebaseInitService = FirebaseInitService(
       deviceApiService: deviceApiService,

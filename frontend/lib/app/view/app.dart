@@ -15,6 +15,7 @@ import 'package:safe_zone/profile/repository/proximity_alerts_settings_repositor
 import 'package:safe_zone/profile/repository/safe_zone_repository.dart';
 import 'package:safe_zone/user_settings/services/safe_zone_api_service.dart';
 import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
+import 'package:safe_zone/utils/api_config.dart';
 import 'package:safe_zone/utils/router_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,19 +27,16 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const baseUrl = 'http://127.0.0.1:8000';
+    final baseUrl = ApiConfig.getBaseUrl();
 
     // Initialize user preferences API service
-    // Use Android emulator localhost address by default
     final userPreferencesApiService = UserPreferencesApiService(
-      // baseUrl: 'http://127.0.0.1:8000', // Android emulator
-      baseUrl: baseUrl, // iOS simulator / web
+      baseUrl: baseUrl,
     );
 
     // Initialize guide API service
     final guideApiService = GuideApiService(
-      // baseUrl: 'http://127.0.0.1:8000', // Android emulator
-      baseUrl: baseUrl, // iOS simulator / web
+      baseUrl: baseUrl,
     );
 
     // Initialize incident API service
@@ -64,8 +62,7 @@ class App extends StatelessWidget {
         BlocProvider(
           create: (_) => AlertsCubit(
             alertApiService: AlertApiService(
-              // baseUrl: 'http://127.0.0.1:8000', // Android emulator
-              baseUrl: baseUrl, // iOS simulator / web
+              baseUrl: baseUrl,
             ),
           ),
         ),
