@@ -28,6 +28,8 @@ class GuideListView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response({
             'count': len(serializer.data),
+            'next': None,
+            'previous': None,
             'results': serializer.data
         })
 
