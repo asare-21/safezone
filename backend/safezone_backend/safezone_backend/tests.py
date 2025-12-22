@@ -9,6 +9,13 @@ from unittest.mock import patch
 class FieldEncryptionKeyTestCase(unittest.TestCase):
     """Test cases for FIELD_ENCRYPTION_KEY validation and generation."""
 
+    def _reload_settings(self):
+        """Helper method to reload settings module."""
+        import importlib
+        from safezone_backend import settings
+        importlib.reload(settings)
+        return settings
+
     def test_valid_fernet_key_accepted(self):
         """Test that a valid Fernet key from environment is accepted."""
         from cryptography.fernet import Fernet
@@ -18,10 +25,7 @@ class FieldEncryptionKeyTestCase(unittest.TestCase):
         
         # Mock the environment variable
         with patch.dict(os.environ, {'FIELD_ENCRYPTION_KEY': valid_key}):
-            # Import settings module (this will call get_field_encryption_key)
-            import importlib
-            from safezone_backend import settings
-            importlib.reload(settings)
+            settings = self._reload_settings()
             
             # Verify the key is used
             self.assertEqual(settings.FIELD_ENCRYPTION_KEY, valid_key)
@@ -35,9 +39,7 @@ class FieldEncryptionKeyTestCase(unittest.TestCase):
         with patch.dict(os.environ, {'FIELD_ENCRYPTION_KEY': invalid_key}):
             # Importing should raise ValueError
             with self.assertRaises(ValueError) as context:
-                import importlib
-                from safezone_backend import settings
-                importlib.reload(settings)
+                self._reload_settings()
             
             # Verify error message is helpful
             self.assertIn("Invalid FIELD_ENCRYPTION_KEY", str(context.exception))
@@ -46,9 +48,7 @@ class FieldEncryptionKeyTestCase(unittest.TestCase):
     def test_empty_key_uses_fallback(self):
         """Test that an empty key triggers fallback generation."""
         with patch.dict(os.environ, {'FIELD_ENCRYPTION_KEY': ''}):
-            import importlib
-            from safezone_backend import settings
-            importlib.reload(settings)
+            settings = self._reload_settings()
             
             # Should generate a key from SECRET_KEY
             self.assertIsNotNone(settings.FIELD_ENCRYPTION_KEY)
@@ -61,9 +61,7 @@ class FieldEncryptionKeyTestCase(unittest.TestCase):
         env_copy.pop('FIELD_ENCRYPTION_KEY', None)
         
         with patch.dict(os.environ, env_copy, clear=True):
-            import importlib
-            from safezone_backend import settings
-            importlib.reload(settings)
+            settings = self._reload_settings()
             
             # Should generate a key from SECRET_KEY
             self.assertIsNotNone(settings.FIELD_ENCRYPTION_KEY)
@@ -74,19 +72,13 @@ class FieldEncryptionKeyTestCase(unittest.TestCase):
         from cryptography.fernet import Fernet
         
         with patch.dict(os.environ, {}, clear=True):
-            import importlib
-            from safezone_backend import settings
-            importlib.reload(settings)
+            settings = self._reload_settings()
             
             # Try to create a Fernet instance with the generated key
-            # This will raise an exception if the key is invalid
-            try:
-                Fernet(settings.FIELD_ENCRYPTION_KEY.encode())
-                key_is_valid = True
-            except Exception:
-                key_is_valid = False
-            
-            self.assertTrue(key_is_valid, "Auto-generated key should be a valid Fernet key")
+            # This will raise ValueError if the key is invalid
+            Fernet(settings.FIELD_ENCRYPTION_KEY.encode())
+            # If we get here without exception, the key is valid
+            self.assertEqual(len(settings.FIELD_ENCRYPTION_KEY), 44)
 
 
 if __name__ == '__main__':
