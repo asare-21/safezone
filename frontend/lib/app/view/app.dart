@@ -13,6 +13,7 @@ import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/repository/safe_zone_repository.dart';
+import 'package:safe_zone/user_settings/services/safe_zone_api_service.dart';
 import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
 import 'package:safe_zone/utils/router_config.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -42,6 +43,11 @@ class App extends StatelessWidget {
 
     // Initialize incident API service
     final incidentApiService = IncidentApiService(
+      baseUrl: baseUrl,
+    );
+
+    // Initialize safe zone API service
+    final safeZoneApiService = SafeZoneApiService(
       baseUrl: baseUrl,
     );
 
@@ -86,7 +92,10 @@ class App extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => SafeZoneCubit(
-            repository: SafeZoneRepository(sharedPreferences: prefs),
+            repository: SafeZoneRepository(
+              sharedPreferences: prefs,
+              apiService: safeZoneApiService,
+            ),
           ),
         ),
         BlocProvider(

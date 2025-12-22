@@ -5,6 +5,8 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:safe_zone/firebase_options.dart';
+import 'package:safe_zone/user_settings/services/device_api_service.dart';
+import 'package:safe_zone/user_settings/services/firebase_init_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppBlocObserver extends BlocObserver {
@@ -39,6 +41,19 @@ Future<void> bootstrap(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     log('Firebase initialized successfully');
+
+    // Initialize Firebase Messaging and register device
+    const baseUrl = 'http://127.0.0.1:8000';
+    final deviceApiService = DeviceApiService(baseUrl: baseUrl);
+    final firebaseInitService = FirebaseInitService(
+      deviceApiService: deviceApiService,
+    );
+    
+    // Initialize Firebase Messaging (non-blocking)
+    firebaseInitService.initialize().catchError((error) {
+      log('Firebase Messaging initialization failed: $error');
+      // Continue app initialization even if FCM setup fails
+    });
   } on FirebaseException catch (e) {
     log(
       'Firebase initialization failed: $e. App will continue without Firebase.',
