@@ -3,8 +3,10 @@ import 'package:safe_zone/emergency_services/models/emergency_service_model.dart
 import 'package:safe_zone/emergency_services/services/emergency_service_api_service.dart';
 
 class EmergencyServicesRepository {
-  EmergencyServicesRepository({EmergencyServiceApiService? apiService})
-      : _apiService = apiService ?? EmergencyServiceApiService();
+  EmergencyServicesRepository({
+    EmergencyServiceApiService? apiService,
+    String? baseUrl,
+  }) : _apiService = apiService ?? EmergencyServiceApiService(baseUrl: baseUrl);
   
   final EmergencyServiceApiService _apiService;
   

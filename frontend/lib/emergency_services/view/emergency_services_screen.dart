@@ -5,15 +5,27 @@ import 'package:safe_zone/emergency_services/cubit/emergency_services_state.dart
 import 'package:safe_zone/emergency_services/models/emergency_service_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class EmergencyServicesScreen extends StatelessWidget {
+class EmergencyServicesScreen extends StatefulWidget {
   const EmergencyServicesScreen({super.key});
 
   @override
+  State<EmergencyServicesScreen> createState() => 
+      _EmergencyServicesScreenState();
+}
+
+class _EmergencyServicesScreenState extends State<EmergencyServicesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load services when the screen is first shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EmergencyServicesCubit>().loadServices();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => EmergencyServicesCubit()..loadServices(),
-      child: const _EmergencyServicesView(),
-    );
+    return const _EmergencyServicesView();
   }
 }
 

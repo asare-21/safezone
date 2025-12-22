@@ -57,19 +57,16 @@ class _MapScreenViewState extends State<_MapScreenView> {
   @override
   void initState() {
     super.initState();
-    // Initialize API service
-    // TODO: Replace with your actual backend URL
-    // For Android emulator, use 127.0.0.1 instead of localhost
-    // For iOS simulator, use localhost or 127.0.0.1
+    // Initialize API service with consistent baseUrl
+    const baseUrl = 'http://127.0.0.1:8000';
+    
     _apiService = IncidentApiService(
-      baseUrl: 'http://127.0.0.1:8000', // Android emulator
-      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+      baseUrl: baseUrl,
     );
 
     // Initialize WebSocket service
     _webSocketService = IncidentWebSocketService(
-      baseUrl: 'http://127.0.0.1:8000', // Android emulator
-      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+      baseUrl: baseUrl,
     );
 
     _dataLoadingFuture = _initializeData();
