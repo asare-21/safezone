@@ -66,6 +66,8 @@ function useIncidents(accessToken?: string) {
 }
 ```
 
+For more complete examples, see `src/hooks/use-api.ts` which provides ready-to-use hooks for common API operations.
+
 ## Environment Setup
 
 1. Copy `.env.example` to `.env.local`:
@@ -156,3 +158,22 @@ See the Flutter app implementation at `frontend/lib/authentication/` for referen
 - Backend authentication: `backend/safezone_backend/authentication/auth0.py`
 - Backend settings: `backend/safezone_backend/safezone_backend/settings.py`
 - Flutter auth client: `frontend/lib/authentication/services/api_client.dart`
+
+## Example Hooks
+
+The repository includes example React hooks in `src/hooks/use-api.ts` that demonstrate:
+
+- **`useIncidents()`** - Fetch all incidents
+- **`useCreateIncident()`** - Create a new incident
+- **`useUpdateIncident()`** - Update an existing incident
+- **`useDeleteIncident()`** - Delete an incident
+- **`useAlerts()`** - Fetch user alerts
+- **`useGuides()`** - Fetch safety guides
+
+These hooks showcase:
+- Proper error handling
+- Query invalidation after mutations
+- Conditional query execution based on token availability
+- TypeScript types for safety
+
+You can use these as templates for your own API integration hooks.
