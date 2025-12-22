@@ -88,7 +88,7 @@ class _SafeZoneFormScreenState extends State<SafeZoneFormScreen> {
     } on Exception catch (e) {
       if (mounted) {
         ShadToaster.of(context).show(
-          ShadToast(
+          ShadToast.destructive(
             title: const Text('Error'),
             description: Text('Failed to get location: $e'),
           ),

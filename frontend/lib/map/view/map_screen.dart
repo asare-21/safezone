@@ -379,7 +379,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
               Navigator.of(context).pop();
 
               ShadToaster.of(context).show(
-                ShadToast(
+                ShadToast.destructive(
                   title: const Text('Error'),
                   description: Text('Failed to submit report: $e'),
                 ),
