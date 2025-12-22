@@ -58,6 +58,15 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         # Save the incident (user tracking is handled by Auth0 authentication layer)
         incident = serializer.save()
         
+        # Generate alert for the reported incident
+        try:
+            from alerts.models import Alert
+            Alert.generate_alert_from_incident(incident)
+            logger.info(f"Generated alert for incident {incident.id}")
+        except Exception as e:
+            # Don't fail the request if alert generation fails
+            logger.error(f"Failed to generate alert for incident {incident.id}: {e}")
+        
         # Trigger push notifications to users with matching safe zones
         try:
             from push_notifications.utils import send_incident_notifications
