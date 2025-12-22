@@ -24,14 +24,14 @@ class App extends StatelessWidget {
     // Initialize user preferences API service
     // Use Android emulator localhost address by default
     final userPreferencesApiService = UserPreferencesApiService(
-      baseUrl: 'http://10.0.2.2:8000', // Android emulator
-      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+      // baseUrl: 'http://127.0.0.1:8000', // Android emulator
+      baseUrl: 'http://127.0.0.1:8000', // iOS simulator / web
     );
 
     // Initialize guide API service
     final guideApiService = GuideApiService(
-      baseUrl: 'http://10.0.2.2:8000', // Android emulator
-      // baseUrl: 'http://localhost:8000', // iOS simulator / web
+      // baseUrl: 'http://127.0.0.1:8000', // Android emulator
+      baseUrl: 'http://127.0.0.1:8000', // iOS simulator / web
     );
 
     return MultiBlocProvider(

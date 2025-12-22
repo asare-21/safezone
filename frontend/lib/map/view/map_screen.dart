@@ -59,19 +59,19 @@ class _MapScreenViewState extends State<_MapScreenView> {
     super.initState();
     // Initialize API service
     // TODO: Replace with your actual backend URL
-    // For Android emulator, use 10.0.2.2 instead of localhost
+    // For Android emulator, use 127.0.0.1 instead of localhost
     // For iOS simulator, use localhost or 127.0.0.1
     _apiService = IncidentApiService(
-      baseUrl: 'http://10.0.2.2:8000', // Android emulator
+      baseUrl: 'http://127.0.0.1:8000', // Android emulator
       // baseUrl: 'http://localhost:8000', // iOS simulator / web
     );
-    
+
     // Initialize WebSocket service
     _webSocketService = IncidentWebSocketService(
-      baseUrl: 'http://10.0.2.2:8000', // Android emulator
+      baseUrl: 'http://127.0.0.1:8000', // Android emulator
       // baseUrl: 'http://localhost:8000', // iOS simulator / web
     );
-    
+
     _dataLoadingFuture = _initializeData();
   }
 
@@ -82,7 +82,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
       });
-      
+
       // Connect to WebSocket and listen for new incidents
       _webSocketService.connect();
       _incidentSubscription = _webSocketService.incidentStream.listen(
@@ -273,23 +273,27 @@ class _MapScreenViewState extends State<_MapScreenView> {
   /// Handle new incidents received via WebSocket
   void _handleNewIncident(Incident incident) {
     if (!mounted) return;
-    
+
     setState(() {
       // Check if incident already exists (by ID)
-      final existingIndex = _allIncidents.indexWhere((i) => i.id == incident.id);
-      
+      final existingIndex = _allIncidents.indexWhere(
+        (i) => i.id == incident.id,
+      );
+
       if (existingIndex == -1) {
         // New incident - add to the beginning of the list
         _allIncidents.insert(0, incident);
-        
+
         // Update the cubit with the new incidents list
         context.read<MapFilterCubit>().initializeIncidents(_allIncidents);
-        
+
         // Show a notification about the new incident
         ShadToaster.of(context).show(
           ShadToast(
             title: const Text('New Incident Reported'),
-            description: Text('${incident.category.displayName}: ${incident.title}'),
+            description: Text(
+              '${incident.category.displayName}: ${incident.title}',
+            ),
           ),
         );
       }

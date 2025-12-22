@@ -7,7 +7,7 @@ import 'package:safe_zone/emergency_services/models/emergency_service_model.dart
 class EmergencyServiceApiService {
   // Use the same base URL pattern as other services
   static const String baseUrl = kDebugMode
-      ? 'http://10.0.2.2:8000'  // Android emulator
+      ? 'http://127.0.0.1:8000' // Android emulator
       : 'https://your-production-url.com';
 
   Future<List<EmergencyService>> getEmergencyServices({
@@ -18,15 +18,15 @@ class EmergencyServiceApiService {
       final queryParams = <String, String>{
         'country_code': countryCode,
       };
-      
+
       if (serviceType != null) {
         queryParams['service_type'] = serviceType;
       }
-      
+
       final uri = Uri.parse('$baseUrl/api/emergency-services/').replace(
         queryParameters: queryParams,
       );
-      
+
       final response = await http.get(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -35,10 +35,10 @@ class EmergencyServiceApiService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         final results = data['results'] as List<dynamic>;
-        
+
         return results.map((json) {
           final serviceJson = json as Map<String, dynamic>;
-          
+
           // Map service_type from backend to frontend enum
           EmergencyServiceType type;
           switch (serviceJson['service_type'] as String) {
@@ -53,7 +53,7 @@ class EmergencyServiceApiService {
             default:
               type = EmergencyServiceType.police;
           }
-          
+
           return EmergencyService(
             id: serviceJson['id'].toString(),
             name: serviceJson['name'] as String,

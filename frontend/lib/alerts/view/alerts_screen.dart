@@ -18,8 +18,8 @@ class AlertsScreen extends StatelessWidget {
         // Initialize AlertApiService with the correct baseUrl
         final baseUrl = kDebugMode
             ? (defaultTargetPlatform == TargetPlatform.android
-                ? 'http://10.0.2.2:8000'
-                : 'http://localhost:8000')
+                  ? 'http://127.0.0.1:8000'
+                  : 'http://localhost:8000')
             : 'https://your-production-url.com';
 
         final apiService = AlertApiService(baseUrl: baseUrl);
@@ -69,10 +69,10 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
       // Fetch alerts with user location
       if (mounted) {
         context.read<AlertsCubit>().fetchAlerts(
-              hours: 24,
-              userLocation: _userLocation,
-              radiusKm: 10,
-            );
+          hours: 24,
+          userLocation: _userLocation,
+          radiusKm: 10,
+        );
       }
     } catch (e) {
       debugPrint('Error getting user location: $e');
@@ -134,10 +134,13 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
   ) {
     return alerts.where((alert) {
       // Apply filters based on filter state
-      final severityMatch =
-          filterState.selectedSeverities.contains(alert.severity);
+      final severityMatch = filterState.selectedSeverities.contains(
+        alert.severity,
+      );
       final typeMatch = filterState.selectedTypes.contains(alert.type);
-      final timeMatch = alert.isWithinTimeFilter(filterState.selectedTimeFilter);
+      final timeMatch = alert.isWithinTimeFilter(
+        filterState.selectedTimeFilter,
+      );
 
       return severityMatch && typeMatch && timeMatch;
     }).toList();
@@ -233,10 +236,10 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                   child: RefreshIndicator(
                     onRefresh: () async {
                       await context.read<AlertsCubit>().refreshAlerts(
-                            hours: 24,
-                            userLocation: _userLocation,
-                            radiusKm: 10,
-                          );
+                        hours: 24,
+                        userLocation: _userLocation,
+                        radiusKm: 10,
+                      );
                     },
                     child: Column(
                       children: [
@@ -410,14 +413,13 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                     color: errorMessage != null
                         ? Colors.orange
                         : (alertsState is AlertsLoaded
-                            ? const Color(0xFF34C759)
-                            : Colors.grey),
+                              ? const Color(0xFF34C759)
+                              : Colors.grey),
                     shape: BoxShape.circle,
                     boxShadow: [
                       if (errorMessage == null && alertsState is AlertsLoaded)
                         BoxShadow(
-                          color:
-                              const Color(0xFF34C759).withValues(alpha: 0.5),
+                          color: const Color(0xFF34C759).withValues(alpha: 0.5),
                           blurRadius: 4,
                           spreadRadius: 1,
                         ),
@@ -429,8 +431,8 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                   errorMessage != null
                       ? 'Connection Issue'
                       : (alertsState is AlertsLoaded
-                          ? 'System Status: Active'
-                          : 'Connecting...'),
+                            ? 'System Status: Active'
+                            : 'Connecting...'),
                   style: theme.textTheme.labelSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade700,
