@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/', include('user_settings.urls')),
     path('api/', include('guides.urls')),
     path('api/', include('emergency_services.urls')),
+    path('api/scoring/', include('scoring.urls')),
 ]

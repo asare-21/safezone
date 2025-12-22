@@ -23,6 +23,8 @@ class IncidentSerializer(serializers.ModelSerializer):
 
 class IncidentCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating incidents."""
+    
+    device_id = serializers.CharField(max_length=255, write_only=True, required=False)
 
     class Meta:
         model = Incident
@@ -33,6 +35,7 @@ class IncidentCreateSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'notify_nearby',
+            'device_id',
         ]
 
     def validate_latitude(self, value):
