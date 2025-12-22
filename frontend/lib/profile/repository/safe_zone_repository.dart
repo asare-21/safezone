@@ -38,11 +38,12 @@ class SafeZoneRepository {
   Future<List<SafeZone>> loadSafeZones() async {
     try {
       // Try to load from backend if API service is available and device is registered
-      if (_apiService != null) {
+      final apiService = _apiService;
+      if (apiService != null) {
         final deviceId = await _getDeviceId();
         if (deviceId != null) {
           try {
-            final zones = await _apiService.getSafeZones(deviceId);
+            final zones = await apiService.getSafeZones(deviceId);
             // Cache the zones locally
             await _saveSafeZonesLocally(zones);
             return zones;
@@ -105,11 +106,12 @@ class SafeZoneRepository {
   /// Add a new safe zone
   Future<void> addSafeZone(SafeZone safeZone) async {
     // Try to sync with backend if available
-    if (_apiService != null) {
+    final apiService = _apiService;
+    if (apiService != null) {
       final deviceId = await _getDeviceId();
       if (deviceId != null) {
         try {
-          final createdZone = await _apiService.createSafeZone(
+          final createdZone = await apiService.createSafeZone(
             deviceId: deviceId,
             safeZone: safeZone,
           );
@@ -136,11 +138,12 @@ class SafeZoneRepository {
   /// Update an existing safe zone
   Future<void> updateSafeZone(SafeZone safeZone) async {
     // Try to sync with backend if available
-    if (_apiService != null) {
+    final apiService = _apiService;
+    if (apiService != null) {
       final deviceId = await _getDeviceId();
       if (deviceId != null) {
         try {
-          final updatedZone = await _apiService.updateSafeZone(
+          final updatedZone = await apiService.updateSafeZone(
             deviceId: deviceId,
             safeZone: safeZone,
           );
@@ -173,11 +176,12 @@ class SafeZoneRepository {
   /// Delete a safe zone
   Future<void> deleteSafeZone(String id) async {
     // Try to sync with backend if available
-    if (_apiService != null) {
+    final apiService = _apiService;
+    if (apiService != null) {
       final deviceId = await _getDeviceId();
       if (deviceId != null) {
         try {
-          await _apiService.deleteSafeZone(id);
+          await apiService.deleteSafeZone(id);
           // Update local storage after successful backend deletion
           final zones = await _loadSafeZonesLocally();
           zones.removeWhere((zone) => zone.id == id);
