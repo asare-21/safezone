@@ -37,6 +37,7 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,7 +55,6 @@ INSTALLED_APPS = [
     'push_notifications',
     'user_settings',
     'emergency_services',
-    'daphne',
 ]
 
 MIDDLEWARE = [
@@ -203,6 +203,40 @@ DEVICE_TOKEN_INACTIVE_DAYS = int(os.environ.get('DEVICE_TOKEN_INACTIVE_DAYS', '1
 
 # Field Encryption Key (for encrypted model fields)
 # In production, use a separate key from SECRET_KEY stored in secure key management
-FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY', SECRET_KEY)
+def get_field_encryption_key():
+    """
+    Get or generate a valid Fernet encryption key.
+    
+    Fernet keys must be 32 url-safe base64-encoded bytes.
+    If FIELD_ENCRYPTION_KEY is not set in environment, we generate one from SECRET_KEY.
+    
+    WARNING: In production, always set FIELD_ENCRYPTION_KEY explicitly to a proper
+    Fernet key to ensure consistency across deployments and prevent data loss.
+    """
+    from cryptography.fernet import Fernet
+    import base64
+    import hashlib
+    
+    env_key = os.environ.get('FIELD_ENCRYPTION_KEY', '').strip()
+    
+    if env_key:
+        # Validate that the provided key is a valid Fernet key
+        try:
+            Fernet(env_key.encode() if isinstance(env_key, str) else env_key)
+            return env_key
+        except Exception as e:
+            raise ValueError(
+                f"Invalid FIELD_ENCRYPTION_KEY in environment: {e}\n"
+                f"Generate a valid key with: python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'"
+            )
+    
+    # Development fallback: derive a Fernet key from SECRET_KEY
+    # This ensures consistent encryption in development without requiring manual setup
+    # WARNING: This is NOT recommended for production use
+    key_material = hashlib.sha256(SECRET_KEY.encode()).digest()
+    fernet_key = base64.urlsafe_b64encode(key_material)
+    return fernet_key.decode()
+
+FIELD_ENCRYPTION_KEY = get_field_encryption_key()
 
 
