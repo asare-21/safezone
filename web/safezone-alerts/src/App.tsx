@@ -6,7 +6,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Configure React Query client with default options for authentication
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Retry failed requests (useful for auth token refresh scenarios)
+      retry: 1,
+      // Stale time for cached data
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

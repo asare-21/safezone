@@ -78,4 +78,36 @@ The production-ready files will be in the `dist` directory.
 
 - `src/components/` - React components including sections and UI elements
 - `src/pages/` - Page components
+- `src/lib/` - Utility functions including API client with authentication
 - `public/` - Static assets
+
+## API Integration & Authentication
+
+This application includes built-in support for making authenticated API requests to the SafeZone backend.
+
+### Quick Start
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Configure your API and Auth0 settings in `.env.local`
+
+3. Use the provided API client utilities:
+   ```typescript
+   import { apiGet, apiPost } from '@/lib/api-client';
+   
+   // Make authenticated API requests
+   const response = await apiGet('/api/endpoint', accessToken);
+   ```
+
+### Features
+
+- ✅ Automatic inclusion of credentials in requests (`credentials: 'include'`)
+- ✅ Bearer token authentication support
+- ✅ CORS-compliant request handling
+- ✅ TypeScript support with proper types
+- ✅ Helper functions for GET, POST, PUT, PATCH, DELETE
+
+For detailed authentication setup and usage, see [AUTH_SETUP.md](./AUTH_SETUP.md).
