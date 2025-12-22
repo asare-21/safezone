@@ -924,7 +924,7 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${alert.confirmedBy} confirmations',
+                                        '${alert.confirmedBy} ✅',
                                         style: theme.textTheme.labelSmall
                                             ?.copyWith(
                                               color: Colors.grey.shade600,
