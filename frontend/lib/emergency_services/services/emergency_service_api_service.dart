@@ -46,7 +46,7 @@ class EmergencyServiceApiService {
 
           // Map service_type from backend to frontend enum
           EmergencyServiceType type;
-          switch (serviceJson['service_type'] as String) {
+          switch (serviceJson['service_type'] as String? ?? 'police') {
             case 'police':
               type = EmergencyServiceType.police;
             case 'hospital':
@@ -60,14 +60,14 @@ class EmergencyServiceApiService {
           }
 
           return EmergencyService(
-            id: serviceJson['id'].toString(),
-            name: serviceJson['name'] as String,
+            id: serviceJson['id']?.toString() ?? '',
+            name: serviceJson['name'] as String? ?? '',
             type: type,
             location: LatLng(
-              (serviceJson['latitude'] as num).toDouble(),
-              (serviceJson['longitude'] as num).toDouble(),
+              (serviceJson['latitude'] as num?)?.toDouble() ?? 0.0,
+              (serviceJson['longitude'] as num?)?.toDouble() ?? 0.0,
             ),
-            phoneNumber: serviceJson['phone_number'] as String,
+            phoneNumber: serviceJson['phone_number'] as String? ?? '',
             address: serviceJson['address'] as String?,
             hours: serviceJson['hours'] as String?,
           );

@@ -35,15 +35,19 @@ class Guide extends Equatable {
   /// Create a Guide from JSON data
   factory Guide.fromJson(Map<String, dynamic> json) {
     return Guide(
-      id: json['id'] as int,
-      section: GuideSection.fromString(json['section'] as String),
-      title: json['title'] as String,
-      content: json['content'] as String,
+      id: json['id'] as int? ?? 0,
+      section: GuideSection.fromString(json['section'] as String? ?? 'how_it_works'),
+      title: json['title'] as String? ?? '',
+      content: json['content'] as String? ?? '',
       icon: json['icon'] as String?,
-      order: json['order'] as int,
-      isActive: json['is_active'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      order: json['order'] as int? ?? 0,
+      isActive: json['is_active'] as bool? ?? true,
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 
