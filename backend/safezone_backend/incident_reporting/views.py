@@ -1,6 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.conf import settings
@@ -25,7 +25,6 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         Use AllowAny in development without Auth0, otherwise require auth for writes.
         """
         if settings.DEBUG and not settings.AUTH0_DOMAIN:
-            from rest_framework.permissions import AllowAny
             return [AllowAny()]
         return [IsAuthenticatedOrReadOnly()]
     
@@ -78,7 +77,6 @@ class IncidentRetrieveView(generics.RetrieveAPIView):
         Use AllowAny in development without Auth0, otherwise require auth for writes.
         """
         if settings.DEBUG and not settings.AUTH0_DOMAIN:
-            from rest_framework.permissions import AllowAny
             return [AllowAny()]
         return [IsAuthenticatedOrReadOnly()]
 
