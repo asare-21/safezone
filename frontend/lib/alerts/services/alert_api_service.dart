@@ -25,23 +25,23 @@ class AlertApiService {
     try {
       // Build query parameters
       final queryParams = <String, String>{};
-      
+
       if (severity != null) {
         queryParams['severity'] = _severityToString(severity);
       }
-      
+
       if (alertType != null) {
         queryParams['alert_type'] = _alertTypeToString(alertType);
       }
-      
+
       if (hours != null) {
         queryParams['hours'] = hours.toString();
       }
-      
+
       if (userLocation != null) {
         queryParams['latitude'] = userLocation.latitude.toString();
         queryParams['longitude'] = userLocation.longitude.toString();
-        
+
         if (radiusKm != null) {
           queryParams['radius_km'] = radiusKm.toString();
         }

@@ -3,17 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/authentication/cubit/authentication_cubit.dart';
 import 'package:safe_zone/authentication/services/auth0_service.dart';
-import 'package:safe_zone/emergency_services/cubit/emergency_services_cubit.dart';
 import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/home/home.dart';
-import 'package:safe_zone/incident_report/services/incident_api_service.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/map.dart';
-import 'package:safe_zone/profile/cubit/proximity_alerts_settings_cubit.dart';
 import 'package:safe_zone/profile/profile.dart';
-import 'package:safe_zone/profile/repository/proximity_alerts_settings_repository.dart';
 import 'package:safe_zone/profile/repository/safe_zone_repository.dart';
-import 'package:safe_zone/user_settings/services/safe_zone_api_service.dart';
 import 'package:safe_zone/user_settings/services/user_preferences_api_service.dart';
 import 'package:safe_zone/utils/api_config.dart';
 import 'package:safe_zone/utils/router_config.dart';
@@ -36,16 +31,6 @@ class App extends StatelessWidget {
 
     // Initialize guide API service
     final guideApiService = GuideApiService(
-      baseUrl: baseUrl,
-    );
-
-    // Initialize incident API service
-    final incidentApiService = IncidentApiService(
-      baseUrl: baseUrl,
-    );
-
-    // Initialize safe zone API service
-    final safeZoneApiService = SafeZoneApiService(
       baseUrl: baseUrl,
     );
 
@@ -89,28 +74,13 @@ class App extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => SafeZoneCubit(
-            repository: SafeZoneRepository(
-              sharedPreferences: prefs,
-              apiService: safeZoneApiService,
-            ),
+            repository: SafeZoneRepository(sharedPreferences: prefs),
           ),
         ),
         BlocProvider(
           create: (_) => GuideCubit(
             apiService: guideApiService,
           )..loadGuides(),
-        ),
-        BlocProvider(
-          create: (_) => EmergencyServicesCubit(
-            baseUrl: baseUrl,
-          ),
-        ),
-        BlocProvider(
-          create: (_) => ProximityAlertsSettingsCubit(
-            repository: ProximityAlertsSettingsRepository(
-              sharedPreferences: prefs,
-            ),
-          ),
         ),
         BlocProvider(
           create: (_) => AuthenticationCubit(
