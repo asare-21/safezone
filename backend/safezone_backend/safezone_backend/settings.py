@@ -62,11 +62,17 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+]
+
+# Only enable CSRF in production or when Auth0 is configured
+if not DEBUG or AUTH0_DOMAIN:
+    MIDDLEWARE.append('django.middleware.csrf.CsrfViewMiddleware')
+
+MIDDLEWARE.extend([
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+])
 
 ROOT_URLCONF = 'safezone_backend.urls'
 
@@ -161,6 +167,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,
 }
 
+# In development mode without Auth0, allow unauthenticated access for testing
+if DEBUG and not AUTH0_DOMAIN:
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = [
+        'rest_framework.permissions.AllowAny',
+    ]
+
 # Auth0 Configuration
 AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN', '')
 AUTH0_AUDIENCE = os.environ.get('AUTH0_AUDIENCE', '')
@@ -171,6 +183,15 @@ AUTH0_AUDIENCE = os.environ.get('AUTH0_AUDIENCE', '')
 # CORS_ALLOWED_ORIGINS = ['https://yourdomain.com']
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all in debug mode
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings for API
+# In development, exempt API endpoints from CSRF as they use token auth
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost:*',
+        'http://127.0.0.1:*',
+        'http://10.0.2.2:*',  # Android emulator
+    ]
 
 # Security Settings for Production
 # These are configured with safe defaults; override in production with environment variables
