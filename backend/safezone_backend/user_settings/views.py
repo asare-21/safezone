@@ -1,6 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserDevice, SafeZone, UserPreferences
@@ -47,11 +48,18 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
     """
     List all safe zones for a device or create a new safe zone.
     
-    GET: Returns list of safe zones for the device (requires authentication)
-    POST: Creates a new safe zone (requires authentication)
+    GET: Returns list of safe zones for the device
+    POST: Creates a new safe zone
     """
     serializer_class = SafeZoneSerializer
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticated()]
     
     def get_queryset(self):
         """Filter safe zones by device_id from query params."""
@@ -83,14 +91,21 @@ class SafeZoneDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update, or delete a specific safe zone.
     
-    GET: Returns safe zone details (requires authentication)
-    PUT/PATCH: Updates safe zone (requires authentication)
-    DELETE: Deletes safe zone (requires authentication)
+    GET: Returns safe zone details
+    PUT/PATCH: Updates safe zone
+    DELETE: Deletes safe zone
     """
     queryset = SafeZone.objects.all()
     serializer_class = SafeZoneSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Use AllowAny in development without Auth0, otherwise require auth.
+        """
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 
 @method_decorator(csrf_exempt, name='dispatch')
