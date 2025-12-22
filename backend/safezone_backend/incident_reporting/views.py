@@ -95,6 +95,6 @@ class IncidentRetrieveView(generics.RetrieveAPIView):
         """
         if settings.DEBUG and not settings.AUTH0_DOMAIN:
             return [AllowAny()]
-        return [IsAuthenticatedOrReadOnly()]
+        return [AllowAny()] # TODO: Change to IsAuthenticatedOrReadOnly() after testing
 
 
