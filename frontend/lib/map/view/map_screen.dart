@@ -374,6 +374,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 ),
               );
             } catch (e) {
+              print(e);
               // Show error message if API call fails
               Navigator.of(context).pop();
 

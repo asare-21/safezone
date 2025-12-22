@@ -58,6 +58,8 @@ class IncidentApiService {
         'notify_nearby': notifyNearby,
       });
 
+      print(body);
+
       final response = await _httpClient.post(
         Uri.parse('$baseUrl/api/incidents/'),
         headers: {'Content-Type': 'application/json'},
@@ -65,6 +67,7 @@ class IncidentApiService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print(response.body);
         final data = json.decode(response.body) as Map<String, dynamic>;
         return _incidentFromJson(data);
       } else {
@@ -101,7 +104,7 @@ class IncidentApiService {
   /// Convert JSON to Incident model
   Incident _incidentFromJson(Map<String, dynamic> json) {
     return Incident(
-      id: json['id'].toString(),
+      id: json['id'].toString() ?? "",
       category: _categoryFromString(json['category'] as String),
       location: LatLng(
         json['latitude'] as double,
