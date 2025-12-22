@@ -33,6 +33,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2').split(',')
 
+# Auth0 Configuration
+# Must be defined early as it's used in other settings
+AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN', '')
+AUTH0_AUDIENCE = os.environ.get('AUTH0_AUDIENCE', '')
+
 
 # Application definition
 
@@ -172,10 +177,6 @@ if DEBUG and not AUTH0_DOMAIN:
     REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = [
         'rest_framework.permissions.AllowAny',
     ]
-
-# Auth0 Configuration
-AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN', '')
-AUTH0_AUDIENCE = os.environ.get('AUTH0_AUDIENCE', '')
 
 # CORS settings
 # WARNING: Allow all origins for DEVELOPMENT ONLY
