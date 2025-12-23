@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 from .models import UserDevice, SafeZone, UserPreferences
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
@@ -19,6 +20,46 @@ class UserDeviceRegisterView(generics.CreateAPIView):
     serializer_class = UserDeviceSerializer
     permission_classes = [IsAuthenticated]
     
+    def _get_or_create_user(self, request):
+        """
+        Get or create a Django User from the authenticated Auth0 user.
+        
+        Args:
+            request: The request object containing the authenticated user
+            
+        Returns:
+            User instance or None if user creation/retrieval fails
+        """
+        # Get the Auth0 user from the request
+        auth_user = request.user
+        
+        # Check if this is an Auth0User (from JWT authentication)
+        if hasattr(auth_user, 'sub'):
+            # Use Auth0 sub (subject) as the username
+            username = auth_user.sub
+            email = getattr(auth_user, 'email', None)
+            
+            # Get or create Django User
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    'email': email or '',
+                    'is_active': True,
+                }
+            )
+            
+            # Update email if it changed
+            if email and user.email != email:
+                user.email = email
+                user.save()
+            
+            return user
+        elif isinstance(auth_user, User):
+            # Already a Django User (e.g., from session authentication in tests)
+            return auth_user
+        
+        return None
+    
     def create(self, request, *args, **kwargs):
         """Create or update device registration."""
         device_id = request.data.get('device_id')
@@ -29,18 +70,29 @@ class UserDeviceRegisterView(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         
+        # Get or create the Django User from Auth0 info
+        user = self._get_or_create_user(request)
+        
         # Check if device already exists
-        device = UserDevice.objects.filter(device_id=device_id).first()
+        # Note: Due to encrypted fields, we need to iterate to find matching device
+        device = None
+        for d in UserDevice.objects.all():
+            if d.device_id == device_id:
+                device = d
+                break
         
         if device:
             # Update existing device
             serializer = self.get_serializer(device, data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(user=user)
             return Response(serializer.data)
         else:
             # Create new device
-            return super().create(request, *args, **kwargs)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
