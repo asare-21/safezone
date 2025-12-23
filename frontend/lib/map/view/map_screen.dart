@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -14,6 +12,7 @@ import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/api_config.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class MapScreen extends StatelessWidget {
@@ -80,21 +79,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
   
   Future<void> _initializeDeviceId() async {
-    try {
-      final deviceInfo = DeviceInfoPlugin();
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        _deviceId = androidInfo.id;
-      } else if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        _deviceId = iosInfo.identifierForVendor ?? 'unknown';
-      } else {
-        _deviceId = 'unknown';
-      }
-    } catch (e) {
-      debugPrint('Error getting device ID: $e');
-      _deviceId = 'unknown';
-    }
+    _deviceId = await DeviceIdUtils.getDeviceId();
   }
 
   Future<void> _initializeData() async {

@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:safe_zone/user_settings/services/device_api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 
 /// Service to initialize Firebase Cloud Messaging and register device with backend
 class FirebaseInitService {
@@ -16,6 +15,15 @@ class FirebaseInitService {
 
   /// Initialize Firebase Messaging and register device with backend
   Future<void> initialize() async {
+    // IMPORTANT: Get and save device ID FIRST (before any Firebase operations)
+    // This ensures the scoring system works even if:
+    // - User declines push notification permission
+    // - FCM token fails to be retrieved
+    // - Backend registration fails
+    // The device ID is saved to SharedPreferences by DeviceIdUtils.getDeviceId()
+    // which allows the profile screen to load scoring data.
+    final deviceId = await DeviceIdUtils.getDeviceId();
+    
     try {
       // Request notification permissions
       final messaging = FirebaseMessaging.instance;
@@ -40,8 +48,6 @@ class FirebaseInitService {
 
       debugPrint('FCM Token: $fcmToken');
 
-      // Get device ID
-      final deviceId = await _getDeviceId();
       final platform = _getPlatform();
 
       // Register device with backend
@@ -52,10 +58,6 @@ class FirebaseInitService {
           platform: platform,
         );
         debugPrint('Device registered with backend successfully');
-
-        // Save device ID for future use
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('device_id', deviceId);
       } catch (e) {
         debugPrint('Failed to register device with backend: $e');
         // Don't fail app initialization if backend registration fails
@@ -101,37 +103,6 @@ class FirebaseInitService {
     }
   }
 
-  /// Get unique device ID
-  Future<String> _getDeviceId() async {
-    final prefs = await SharedPreferences.getInstance();
-    var deviceId = prefs.getString('device_id');
-
-    if (deviceId != null) {
-      return deviceId;
-    }
-
-    // Generate device ID from device info
-    final deviceInfo = DeviceInfoPlugin();
-
-    try {
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        deviceId = androidInfo.id;
-      } else if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        deviceId = iosInfo.identifierForVendor ?? _generateRandomId();
-      } else {
-        deviceId = _generateRandomId();
-      }
-    } catch (e) {
-      debugPrint('Error getting device ID: $e');
-      deviceId = _generateRandomId();
-    }
-
-    await prefs.setString('device_id', deviceId);
-    return deviceId;
-  }
-
   /// Get platform name
   String _getPlatform() {
     if (Platform.isAndroid) {
@@ -141,12 +112,6 @@ class FirebaseInitService {
     } else {
       return 'web';
     }
-  }
-
-  /// Generate random ID as fallback
-  String _generateRandomId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'device_$timestamp';
   }
 }
 

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/view/safe_zones_screen.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 import 'package:safe_zone/utils/global.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
@@ -26,12 +26,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserScore() async {
-    final prefs = await SharedPreferences.getInstance();
-    final deviceId = prefs.getString('device_id');
+    final deviceId = await DeviceIdUtils.getDeviceId();
 
-    if (deviceId != null && mounted) {
-      context.read<ScoringCubit>().loadUserProfile(deviceId);
-    }
+    // Check if widget is still mounted after async operation
+    if (!mounted) return;
+    
+    context.read<ScoringCubit>().loadUserProfile(deviceId);
   }
 
   @override
