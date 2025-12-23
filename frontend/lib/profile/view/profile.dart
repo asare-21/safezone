@@ -447,7 +447,6 @@ class _ProfileView extends StatelessWidget {
                 // Progress Bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  // TODO(joasare019): Fix progress to next tier calculation in UserScore model. Current user scores are not being shown
                   child: LinearProgressIndicator(
                     value: userScore?.progressToNextTier ?? 0.0,
                     minHeight: 8,
@@ -457,6 +456,26 @@ class _ProfileView extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (userScore != null && userScore.currentTier < 7) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${userScore.pointsInCurrentTier} / ${userScore.pointsNeededInCurrentTier} pts to next tier',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ] else if (userScore != null && userScore.currentTier >= 7) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Max tier reached! 🌟',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 // Stats Row
                 Row(
