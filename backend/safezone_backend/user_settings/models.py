@@ -44,7 +44,7 @@ class UserDevice(models.Model):
     
     def save(self, *args, **kwargs):
         """Generate device_id_hash on save."""
-        if self.device_id and not self.device_id_hash:
+        if self.device_id:
             self.device_id_hash = hash_device_id(str(self.device_id))
         super().save(*args, **kwargs)
 
@@ -98,7 +98,7 @@ class SafeZone(models.Model):
     
     def save(self, *args, **kwargs):
         """Generate device_id_hash on save."""
-        if self.device_id and not self.device_id_hash:
+        if self.device_id:
             self.device_id_hash = hash_device_id(str(self.device_id))
         super().save(*args, **kwargs)
 
@@ -160,6 +160,6 @@ class UserPreferences(models.Model):
     
     def save(self, *args, **kwargs):
         """Generate device_id_hash on save."""
-        if self.device_id and not self.device_id_hash:
+        if self.device_id:
             self.device_id_hash = hash_device_id(str(self.device_id))
         super().save(*args, **kwargs)

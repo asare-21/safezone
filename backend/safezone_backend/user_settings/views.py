@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from .models import UserDevice, SafeZone, UserPreferences
+from .models import UserDevice, SafeZone, UserPreferences, hash_device_id
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
 
@@ -66,7 +66,6 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         device_id = self.request.query_params.get('device_id')
         if device_id:
             # Use hash-based lookup for efficient filtering
-            from user_settings.models import hash_device_id
             device_id_hash = hash_device_id(device_id)
             return SafeZone.objects.filter(device_id_hash=device_id_hash)
         return SafeZone.objects.all()
