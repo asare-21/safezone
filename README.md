@@ -3,7 +3,6 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Django](https://img.shields.io/badge/Django-4.2.23-092E20?logo=django)](https://www.djangoproject.com/)
 [![GitHub Actions](https://github.com/asare-21/safezone/workflows/CodeQL/badge.svg)](https://github.com/asare-21/safezone/actions)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Good First Issues](https://img.shields.io/github/issues/asare-21/safezone/good%20first%20issue?color=7057ff&label=good%20first%20issues)](https://github.com/asare-21/safezone/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
@@ -90,7 +89,7 @@ curl -X POST http://localhost:8000/api/incidents/ \
   -d '{"category": "theft", "latitude": 5.6037, "longitude": -0.1870, "title": "Test", "description": "Testing API"}'
 ```
 
-📖 **Full setup guide:** [docs/QUICK_START.md](docs/QUICK_START.md)
+📖 **Need more details?** See [docs/QUICK_START.md](docs/QUICK_START.md) for troubleshooting tips and advanced configuration.
 
 ---
 
