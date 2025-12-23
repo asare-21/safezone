@@ -2,8 +2,30 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Django](https://img.shields.io/badge/Django-4.2.23-092E20?logo=django)](https://www.djangoproject.com/)
+[![GitHub Actions](https://github.com/asare-21/safezone/workflows/CodeQL/badge.svg)](https://github.com/asare-21/safezone/actions)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Good First Issues](https://img.shields.io/github/issues/asare-21/safezone/good%20first%20issue?color=7057ff&label=good%20first%20issues)](https://github.com/asare-21/safezone/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 SafeZone is a **Waze-inspired, crowdsourced personal safety app** that alerts users when they are approaching areas with recent or frequent safety incidents. Built with **Flutter** for mobile and **Django** for the backend, it combines community reporting, real-time proximity alerts, and an interactive safety map to help users make safer, more informed decisions while moving through their environment.
+
+---
+
+## 📊 Project Status
+
+> ⚠️ **Early Development** - This project is under active development. Core features are functional, but some features are still being built.
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| 🗺️ Interactive Map | ✅ Working | View incidents on map with filters |
+| 📝 Incident Reporting | ✅ Working | Report incidents with 18 categories |
+| 🔔 Push Notifications | ✅ Working | Firebase Cloud Messaging integration |
+| 👤 User Authentication | ✅ Working | Auth0 integration with JWT tokens |
+| 🔧 Django Backend API | ✅ Working | REST API with incident CRUD |
+| ✅ Report Validation | ✅ Working | Confirmation prompts with scoring |
+| 📷 Media Upload | 🚧 Planned | Camera/gallery support for reports |
+| 🌡️ Heatmap View | 🚧 Planned | Density visualization |
+| 🌙 Dark Mode | 🚧 Planned | Theme support |
 
 ---
 
@@ -20,6 +42,55 @@ SafeZone is an **open-source community project** that aims to make neighborhoods
 - 📖 Documentation and tutorials
 - 🎨 UI/UX design
 - 🌍 Internationalization and localization
+
+---
+
+## ⚡ Quick Start (10 Minutes)
+
+Get SafeZone running locally in just a few steps:
+
+### Backend (Terminal 1)
+
+```bash
+# Clone and navigate to backend
+git clone https://github.com/asare-21/safezone.git
+cd safezone/backend/safezone_backend
+
+# Install dependencies
+pip install django==4.2.23 djangorestframework django-cors-headers
+
+# Setup database and start server
+python manage.py migrate
+python manage.py populate_guides
+python manage.py populate_emergency_services
+python manage.py runserver 8000
+```
+
+✅ API running at `http://localhost:8000/api/incidents/`
+
+### Frontend (Terminal 2)
+
+```bash
+cd safezone/frontend
+flutter pub get
+flutter run -t lib/main_development.dart
+```
+
+✅ App connects to backend and displays incidents!
+
+### Test the API
+
+```bash
+# List all incidents
+curl http://localhost:8000/api/incidents/
+
+# Create a test incident
+curl -X POST http://localhost:8000/api/incidents/ \
+  -H "Content-Type: application/json" \
+  -d '{"category": "theft", "latitude": 5.6037, "longitude": -0.1870, "title": "Test", "description": "Testing API"}'
+```
+
+📖 **Full setup guide:** [docs/QUICK_START.md](docs/QUICK_START.md)
 
 ---
 
@@ -97,6 +168,21 @@ SafeZone is an **open-source community project** that aims to make neighborhoods
 - User settings management
 - Safe zones configuration
 - Profile customization
+
+---
+
+## 📸 Screenshots
+
+> 🖼️ **Coming Soon!** We're working on adding app screenshots and demo GIFs.
+> 
+> **Want to help?** If you have the app running, consider contributing screenshots! See our [Contributing Guide](CONTRIBUTING.md).
+
+<!-- 
+Uncomment and add screenshots when available:
+| Map View | Report Incident | Alerts |
+|----------|-----------------|--------|
+| ![Map](screenshots/map.png) | ![Report](screenshots/report.png) | ![Alerts](screenshots/alerts.png) |
+-->
 
 ---
 
@@ -650,43 +736,30 @@ SafeZone is designed with privacy and ethical considerations at its core:
 
 **We welcome contributions from developers of all skill levels!** Whether you're fixing a bug, adding a feature, improving documentation, or suggesting ideas—your contributions are valuable and appreciated.
 
-### Development Workflow
+📖 **See our [Contributing Guide](CONTRIBUTING.md) for detailed instructions.**
 
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make your changes**
-   - Follow existing code style
-   - Add tests for new features
-   - Update documentation
-4. **Run tests and linting**
-   ```bash
-   # Frontend
-   flutter test
-   flutter analyze
-   
-   # Backend
-   python manage.py test
-   ```
-5. **Commit your changes**
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-6. **Push to your fork**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-7. **Open a Pull Request**
+### 🎯 Good First Issues
+
+New to the project? Start with these beginner-friendly issues:
+
+- **[Pull-to-refresh](https://github.com/asare-21/safezone/issues/154)** - Add swipe-to-refresh for lists
+- **[Multi-language support](https://github.com/asare-21/safezone/issues/147)** - Help with i18n
+- **[Analytics and insights](https://github.com/asare-21/safezone/issues/150)** - Basic analytics
+
+👉 **[View all good first issues](https://github.com/asare-21/safezone/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)**
+
+### Quick Start for Contributors
+
+```bash
+# Fork, clone, and setup
+git clone https://github.com/YOUR_USERNAME/safezone.git
+cd safezone/frontend && flutter pub get && flutter test
+```
 
 ### Code Style
 
 - **Frontend**: Follow [Effective Dart](https://dart.dev/guides/language/effective-dart) guidelines
 - **Backend**: Follow [PEP 8](https://pep8.org/) style guide
-- Use meaningful variable and function names
-- Add comments for complex logic
-- Write tests for new features
 
 ---
 
