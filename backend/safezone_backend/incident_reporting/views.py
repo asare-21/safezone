@@ -59,14 +59,19 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         # Extract device_id from serializer if provided
         device_id = serializer.validated_data.pop('device_id', None)
         
-        # Save the incident (user tracking is handled by Auth0 authentication layer)
-        incident = serializer.save()
+        # Calculate and save the reporter's device_id_hash
+        device_id_hash = None
+        if device_id:
+            from scoring.models import hash_device_id
+            device_id_hash = hash_device_id(device_id)
+        
+        # Save the incident with reporter tracking
+        incident = serializer.save(reporter_device_id_hash=device_id_hash)
         
         # Award scoring points if device_id provided
         if device_id:
             try:
-                from scoring.models import UserProfile, hash_device_id
-                device_id_hash = hash_device_id(device_id)
+                from scoring.models import UserProfile
                 profile, _ = UserProfile.objects.get_or_create(
                     device_id_hash=device_id_hash,
                     defaults={'device_id': device_id}

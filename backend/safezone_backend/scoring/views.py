@@ -237,6 +237,10 @@ class NearbyIncidentsView(views.APIView):
                 if incident.id in user_confirmations:
                     continue
                 
+                # Skip if the user is the creator of the incident
+                if incident.reporter_device_id_hash == device_id_hash:
+                    continue
+                
                 # Calculate distance
                 distance = haversine_distance(
                     lon, lat,

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -45,6 +47,9 @@ class _MapScreenViewState extends State<_MapScreenView> {
   bool _isLoadingLocation = true;
   bool _isRequestingLocation = false;
   String? _locationError;
+  
+  // Device ID for tracking incident creator
+  String? _deviceId;
 
   // Default fallback location (center of world, will prompt for location)
   static const LatLng _fallbackLocation = LatLng(0, 0);
@@ -71,6 +76,25 @@ class _MapScreenViewState extends State<_MapScreenView> {
     );
 
     _dataLoadingFuture = _initializeData();
+    _initializeDeviceId();
+  }
+  
+  Future<void> _initializeDeviceId() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        _deviceId = androidInfo.id;
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        _deviceId = iosInfo.identifierForVendor ?? 'unknown';
+      } else {
+        _deviceId = 'unknown';
+      }
+    } catch (e) {
+      debugPrint('Error getting device ID: $e');
+      _deviceId = 'unknown';
+    }
   }
 
   Future<void> _initializeData() async {
@@ -349,6 +373,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
                 title: title,
                 description: description,
                 notifyNearby: notifyNearby,
+                deviceId: _deviceId,
               );
 
               // Add to local list and update UI
