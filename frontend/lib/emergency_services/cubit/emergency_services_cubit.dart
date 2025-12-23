@@ -33,16 +33,8 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
         // Default to US if country code not found
         countryCode ??= 'US';
         
-        // Load services near user location with country code
-        services = await _repository.getServicesNearLocation(
-          userLocation,
-          countryCode: countryCode,
-        );
-        
-        // If no services found within radius, show all services for the country
-        if (services.isEmpty) {
-          services = await _repository.getServicesByCountry(countryCode);
-        }
+        // Load services near user location with fallback
+        services = await _getServicesWithFallback(userLocation, countryCode);
       } else {
         // Try to get user's current location
         try {
@@ -58,15 +50,8 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
           // Default to US if country code not found
           countryCode ??= 'US';
 
-          services = await _repository.getServicesNearLocation(
-            location,
-            countryCode: countryCode,
-          );
-          
-          // If no services found within radius, show all services for the country
-          if (services.isEmpty) {
-            services = await _repository.getServicesByCountry(countryCode);
-          }
+          // Load services near current location with fallback
+          services = await _getServicesWithFallback(location, countryCode);
         } on Exception catch (e) {
           // If location is not available, show services for default country (US)
           services = await _repository.getServicesByCountry('US');
@@ -133,6 +118,24 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
         filteredServices: filtered,
       ),
     );
+  }
+
+  Future<List<EmergencyService>> _getServicesWithFallback(
+    LatLng location,
+    String countryCode,
+  ) async {
+    // Try to get services near location
+    var services = await _repository.getServicesNearLocation(
+      location,
+      countryCode: countryCode,
+    );
+    
+    // If no services found within radius, show all services for the country
+    if (services.isEmpty) {
+      services = await _repository.getServicesByCountry(countryCode);
+    }
+    
+    return services;
   }
 
   Future<String?> _getCountryCode(double latitude, double longitude) async {
