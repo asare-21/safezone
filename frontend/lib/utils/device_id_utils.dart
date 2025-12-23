@@ -48,8 +48,9 @@ class DeviceIdUtils {
   /// Generate random ID as fallback
   static String _generateRandomId() {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    // Use secure random for better collision protection
-    final random = Random.secure().nextInt(999999);
+    // Use secure random with large range for collision protection
+    // Combined with timestamp, this provides unique identification
+    final random = Random.secure().nextInt(1000000000);
     return 'device_${timestamp}_$random';
   }
 }
