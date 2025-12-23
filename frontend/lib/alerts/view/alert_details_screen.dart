@@ -75,6 +75,8 @@ class AlertDetailsScreen extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               fontSize: 20,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Row(
@@ -271,16 +273,16 @@ class AlertDetailsScreen extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              // SizedBox(width: 16),
-              Align(
-                alignment: Alignment.centerRight,
+              const SizedBox(width: 16),
+              Flexible(
                 child: Text(
                   value,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w100,
-                    overflow: TextOverflow.ellipsis,
+                    fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
                 ),
               ),
             ],
