@@ -144,7 +144,6 @@ class IncidentProximityService {
         longitude: _lastPosition!.longitude,
         deviceId: deviceId,
         radiusKm: radiusKm,
-        hours: 24,
       );
 
       // Trigger callbacks for incidents we haven't prompted about yet

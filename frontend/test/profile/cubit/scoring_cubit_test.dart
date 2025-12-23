@@ -22,7 +22,7 @@ void main() {
     });
 
     group('loadUserProfile', () {
-      final testUserScore = UserScore(
+      const testUserScore = UserScore(
         id: 1,
         totalPoints: 125,
         reportsCount: 10,
@@ -32,7 +32,7 @@ void main() {
         tierIcon: '🛡️',
         tierReward: 'Bronze shield',
         verifiedReports: 9,
-        accuracyPercentage: 90.0,
+        accuracyPercentage: 90,
         badges: [],
       );
 
@@ -46,7 +46,7 @@ void main() {
         act: (cubit) => cubit.loadUserProfile(testDeviceId),
         expect: () => [
           ScoringLoading(),
-          ScoringLoaded(testUserScore),
+          const ScoringLoaded(testUserScore),
         ],
         verify: (_) {
           verify(() => repository.getUserProfile(testDeviceId)).called(1);
@@ -73,7 +73,7 @@ void main() {
 
     group('confirmIncident', () {
       const testIncidentId = 1;
-      final testUserScore = UserScore(
+      const testUserScore = UserScore(
         id: 1,
         totalPoints: 130,
         reportsCount: 10,
@@ -83,11 +83,11 @@ void main() {
         tierIcon: '🛡️',
         tierReward: 'Bronze shield',
         verifiedReports: 9,
-        accuracyPercentage: 90.0,
+        accuracyPercentage: 90,
         badges: [],
       );
 
-      final testConfirmationResponse = ConfirmationResponse(
+      const testConfirmationResponse = ConfirmationResponse(
         pointsEarned: 5,
         totalPoints: 130,
         tierChanged: false,
@@ -108,7 +108,7 @@ void main() {
         act: (cubit) => cubit.confirmIncident(testIncidentId, testDeviceId),
         expect: () => [
           ScoringLoading(),
-          ScoringLoaded(testUserScore),
+          const ScoringLoaded(testUserScore),
         ],
         verify: (_) {
           verify(
@@ -169,7 +169,7 @@ void main() {
     });
 
     group('refresh', () {
-      final testUserScore = UserScore(
+      const testUserScore = UserScore(
         id: 1,
         totalPoints: 125,
         reportsCount: 10,
@@ -179,7 +179,7 @@ void main() {
         tierIcon: '🛡️',
         tierReward: 'Bronze shield',
         verifiedReports: 9,
-        accuracyPercentage: 90.0,
+        accuracyPercentage: 90,
         badges: [],
       );
 
@@ -193,7 +193,7 @@ void main() {
         act: (cubit) => cubit.refresh(testDeviceId),
         expect: () => [
           ScoringLoading(),
-          ScoringLoaded(testUserScore),
+          const ScoringLoaded(testUserScore),
         ],
         verify: (_) {
           verify(() => repository.getUserProfile(testDeviceId)).called(1);
@@ -212,7 +212,7 @@ void main() {
     });
 
     test('ScoringLoaded supports value equality', () {
-      final userScore1 = UserScore(
+      const userScore1 = UserScore(
         id: 1,
         totalPoints: 100,
         reportsCount: 5,
@@ -222,11 +222,11 @@ void main() {
         tierIcon: '👁️',
         tierReward: 'New Watcher badge',
         verifiedReports: 5,
-        accuracyPercentage: 100.0,
+        accuracyPercentage: 100,
         badges: [],
       );
 
-      final userScore2 = UserScore(
+      const userScore2 = UserScore(
         id: 1,
         totalPoints: 100,
         reportsCount: 5,
@@ -236,11 +236,11 @@ void main() {
         tierIcon: '👁️',
         tierReward: 'New Watcher badge',
         verifiedReports: 5,
-        accuracyPercentage: 100.0,
+        accuracyPercentage: 100,
         badges: [],
       );
 
-      expect(ScoringLoaded(userScore1), equals(ScoringLoaded(userScore2)));
+      expect(const ScoringLoaded(userScore1), equals(const ScoringLoaded(userScore2)));
     });
 
     test('ScoringError supports value equality', () {

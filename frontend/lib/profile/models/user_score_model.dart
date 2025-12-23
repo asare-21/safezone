@@ -1,43 +1,5 @@
 /// Model for user scoring and tier information
 class UserScore {
-  /// Unique identifier
-  final int id;
-
-  /// Total points earned
-  final int totalPoints;
-
-  /// Number of reports submitted
-  final int reportsCount;
-
-  /// Number of confirmations made
-  final int confirmationsCount;
-
-  /// Current tier level (1-7)
-  final int currentTier;
-
-  /// Tier name (e.g., "Fresh Eye Scout", "Legendary Watchmaster")
-  final String tierName;
-
-  /// Tier icon emoji
-  final String tierIcon;
-
-  /// Tier reward description
-  final String tierReward;
-
-  /// Number of verified reports
-  final int verifiedReports;
-
-  /// Accuracy percentage
-  final double accuracyPercentage;
-
-  /// List of earned badges
-  final List<Badge>? badges;
-
-  /// Creation timestamp
-  final DateTime? createdAt;
-
-  /// Last update timestamp
-  final DateTime? updatedAt;
 
   const UserScore({
     required this.id,
@@ -81,6 +43,44 @@ class UserScore {
           : null,
     );
   }
+  /// Unique identifier
+  final int id;
+
+  /// Total points earned
+  final int totalPoints;
+
+  /// Number of reports submitted
+  final int reportsCount;
+
+  /// Number of confirmations made
+  final int confirmationsCount;
+
+  /// Current tier level (1-7)
+  final int currentTier;
+
+  /// Tier name (e.g., "Fresh Eye Scout", "Legendary Watchmaster")
+  final String tierName;
+
+  /// Tier icon emoji
+  final String tierIcon;
+
+  /// Tier reward description
+  final String tierReward;
+
+  /// Number of verified reports
+  final int verifiedReports;
+
+  /// Accuracy percentage
+  final double accuracyPercentage;
+
+  /// List of earned badges
+  final List<Badge>? badges;
+
+  /// Creation timestamp
+  final DateTime? createdAt;
+
+  /// Last update timestamp
+  final DateTime? updatedAt;
 
   /// Convert UserScore to JSON
   Map<String, dynamic> toJson() {
@@ -123,7 +123,7 @@ class UserScore {
 
   /// Get progress to next tier (0-1)
   double get progressToNextTier {
-    if (currentTier >= 7) return 1.0; // Max tier
+    if (currentTier >= 7) return 1; // Max tier
 
     final currentThreshold = _getCurrentTierThreshold();
     final nextThreshold = nextTierThreshold;
@@ -190,23 +190,6 @@ class UserScore {
 
 /// Model for user badges
 class Badge {
-  /// Badge ID
-  final int id;
-
-  /// Badge type (e.g., 'first_responder', 'truth_triangulator')
-  final String badgeType;
-
-  /// Badge display name
-  final String badgeDisplayName;
-
-  /// Badge icon
-  final String badgeIcon;
-
-  /// Badge description
-  final String badgeDescription;
-
-  /// When the badge was earned
-  final DateTime earnedAt;
 
   const Badge({
     required this.id,
@@ -228,6 +211,23 @@ class Badge {
       earnedAt: DateTime.parse(json['earned_at'] as String),
     );
   }
+  /// Badge ID
+  final int id;
+
+  /// Badge type (e.g., 'first_responder', 'truth_triangulator')
+  final String badgeType;
+
+  /// Badge display name
+  final String badgeDisplayName;
+
+  /// Badge icon
+  final String badgeIcon;
+
+  /// Badge description
+  final String badgeDescription;
+
+  /// When the badge was earned
+  final DateTime earnedAt;
 
   /// Convert Badge to JSON
   Map<String, dynamic> toJson() {
@@ -244,6 +244,30 @@ class Badge {
 
 /// Response model for confirmation actions
 class ConfirmationResponse {
+
+  const ConfirmationResponse({
+    required this.pointsEarned,
+    required this.totalPoints,
+    required this.tierChanged,
+    required this.message, this.newTier,
+    this.tierName,
+    this.tierIcon,
+    this.confirmationCount,
+  });
+
+  /// Create ConfirmationResponse from JSON
+  factory ConfirmationResponse.fromJson(Map<String, dynamic> json) {
+    return ConfirmationResponse(
+      pointsEarned: json['points_earned'] as int,
+      totalPoints: json['total_points'] as int,
+      tierChanged: json['tier_changed'] as bool,
+      newTier: json['new_tier'] as int?,
+      tierName: json['tier_name'] as String?,
+      tierIcon: json['tier_icon'] as String?,
+      message: json['message'] as String,
+      confirmationCount: json['confirmation_count'] as int?,
+    );
+  }
   /// Points earned from confirmation
   final int pointsEarned;
 
@@ -268,31 +292,6 @@ class ConfirmationResponse {
   /// Number of confirmations for this incident
   final int? confirmationCount;
 
-  const ConfirmationResponse({
-    required this.pointsEarned,
-    required this.totalPoints,
-    required this.tierChanged,
-    this.newTier,
-    this.tierName,
-    this.tierIcon,
-    required this.message,
-    this.confirmationCount,
-  });
-
-  /// Create ConfirmationResponse from JSON
-  factory ConfirmationResponse.fromJson(Map<String, dynamic> json) {
-    return ConfirmationResponse(
-      pointsEarned: json['points_earned'] as int,
-      totalPoints: json['total_points'] as int,
-      tierChanged: json['tier_changed'] as bool,
-      newTier: json['new_tier'] as int?,
-      tierName: json['tier_name'] as String?,
-      tierIcon: json['tier_icon'] as String?,
-      message: json['message'] as String,
-      confirmationCount: json['confirmation_count'] as int?,
-    );
-  }
-
   /// Convert ConfirmationResponse to JSON
   Map<String, dynamic> toJson() {
     return {
@@ -310,6 +309,28 @@ class ConfirmationResponse {
 
 /// Model for nearby incidents that can be confirmed
 class NearbyIncident {
+
+  const NearbyIncident({
+    required this.id,
+    required this.category,
+    required this.title,
+    required this.latitude, required this.longitude, required this.timestamp, required this.confirmedBy, required this.distanceMeters, this.description,
+  });
+
+  /// Create NearbyIncident from JSON
+  factory NearbyIncident.fromJson(Map<String, dynamic> json) {
+    return NearbyIncident(
+      id: json['id'] as int,
+      category: json['category'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String?,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      confirmedBy: json['confirmed_by'] as int,
+      distanceMeters: (json['distance_meters'] as num).toDouble(),
+    );
+  }
   /// Incident ID
   final int id;
 
@@ -336,33 +357,6 @@ class NearbyIncident {
 
   /// Distance from user in meters
   final double distanceMeters;
-
-  const NearbyIncident({
-    required this.id,
-    required this.category,
-    required this.title,
-    this.description,
-    required this.latitude,
-    required this.longitude,
-    required this.timestamp,
-    required this.confirmedBy,
-    required this.distanceMeters,
-  });
-
-  /// Create NearbyIncident from JSON
-  factory NearbyIncident.fromJson(Map<String, dynamic> json) {
-    return NearbyIncident(
-      id: json['id'] as int,
-      category: json['category'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      confirmedBy: json['confirmed_by'] as int,
-      distanceMeters: (json['distance_meters'] as num).toDouble(),
-    );
-  }
 
   /// Convert NearbyIncident to JSON
   Map<String, dynamic> toJson() {

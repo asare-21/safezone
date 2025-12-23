@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:safe_zone/profile/models/user_score_model.dart';
-import 'package:safe_zone/utils/global.dart';
 
 /// Repository for managing user scoring and achievements
 class ScoringRepository {
+
+  ScoringRepository({required this.baseUrl, http.Client? httpClient})
+    : _httpClient = httpClient ?? http.Client();
   final http.Client _httpClient;
   final String baseUrl;
-
-  ScoringRepository({http.Client? httpClient, required this.baseUrl})
-    : _httpClient = httpClient ?? http.Client();
 
   /// Get user profile and scoring information
   Future<UserScore> getUserProfile(String deviceId) async {

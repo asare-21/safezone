@@ -413,7 +413,7 @@ class _ProfileView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${userScore?.accuracyPercentage?.toStringAsFixed(0) ?? '0'}% accuracy',
+                          '${userScore?.accuracyPercentage.toStringAsFixed(0) ?? '0'}% accuracy',
                           style: TextStyle(
                             fontSize: 12,
                             color: theme.colorScheme.onSurface.withValues(

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
@@ -5,15 +8,11 @@ import 'package:safe_zone/alerts/alerts.dart';
 import 'package:safe_zone/guide/guide.dart';
 import 'package:safe_zone/home/home.dart';
 import 'package:safe_zone/map/map.dart';
-import 'package:safe_zone/profile/models/user_score_model.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/repository/incident_proximity_service.dart';
-import 'package:safe_zone/profile/repository/scoring_repository.dart';
 import 'package:safe_zone/profile/view/confirmation_result_dialog.dart';
 import 'package:safe_zone/profile/view/incident_confirmation_dialog.dart';
 import 'package:safe_zone/utils/api_config.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'dart:io';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -69,7 +68,6 @@ class _HomeViewState extends State<_HomeView> {
       await _proximityService!.startMonitoring(
         repository: _scoringRepository!,
         deviceId: _deviceId!,
-        radiusKm: 0.5, // 500 meters
       );
     } catch (e) {
       debugPrint('Error initializing proximity monitoring: $e');
@@ -94,7 +92,7 @@ class _HomeViewState extends State<_HomeView> {
     // Show confirmation dialog
     final confirmed = await IncidentConfirmationDialog.show(context, incident);
     
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       // User confirmed the incident
       try {
         final response = await _scoringRepository!.confirmIncident(

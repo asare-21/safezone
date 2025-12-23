@@ -178,12 +178,12 @@ class IncidentConfirmationDialog extends StatelessWidget {
                 Expanded(
                   child: ShadButton(
                     onPressed: onConfirm,
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.check, size: 18),
-                        const SizedBox(width: 8),
-                        const Text('Yes, Confirm'),
+                        Icon(Icons.check, size: 18),
+                        SizedBox(width: 8),
+                        Text('Yes, Confirm'),
                       ],
                     ),
                   ),

@@ -48,7 +48,7 @@ class App extends StatelessWidget {
       baseUrl: baseUrl,
     );
 
-    final ScoringRepository scoringRepository = ScoringRepository(
+    final scoringRepository = ScoringRepository(
       baseUrl: baseUrl,
     );
 
