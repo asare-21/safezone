@@ -28,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserScore() async {
     final prefs = await SharedPreferences.getInstance();
     final deviceId = prefs.getString('device_id');
-    
+
     if (deviceId != null && mounted) {
       context.read<ScoringCubit>().loadUserProfile(deviceId);
     }
@@ -456,6 +456,26 @@ class _ProfileView extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (userScore != null && userScore.currentTier < 7) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${userScore.pointsInCurrentTier} / ${userScore.pointsNeededInCurrentTier} pts to next tier',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ] else if (userScore != null && userScore.currentTier >= 7) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Max tier reached! 🌟',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 // Stats Row
                 Row(

@@ -121,16 +121,50 @@ class UserScore {
     }
   }
 
-  /// Get progress to next tier (0-1)
+  /// Get progress to next tier (0.0-1.0)
+  /// 
+  /// Returns a value between 0.0 and 1.0 representing progress toward the next tier.
+  /// - 0.0 means just entered current tier
+  /// - 1.0 means ready to advance to next tier (or at max tier)
+  /// 
+  /// For tier 7 (max tier), always returns 1.0.
   double get progressToNextTier {
-    if (currentTier >= 7) return 1; // Max tier
+    // Max tier reached - no next tier
+    if (currentTier >= 7) return 1.0;
 
     final currentThreshold = _getCurrentTierThreshold();
     final nextThreshold = nextTierThreshold;
     final pointsInCurrentTier = totalPoints - currentThreshold;
     final pointsNeededForNextTier = nextThreshold - currentThreshold;
 
+    // Safety check: avoid division by zero (should never happen with valid tiers)
+    if (pointsNeededForNextTier <= 0) return 1.0;
+
     return (pointsInCurrentTier / pointsNeededForNextTier).clamp(0.0, 1.0);
+  }
+
+  /// Get points needed to reach the next tier
+  int get pointsToNextTier {
+    if (currentTier >= 7) return 0; // Max tier reached
+    
+    final nextThreshold = nextTierThreshold;
+    final pointsNeeded = nextThreshold - totalPoints;
+    return pointsNeeded > 0 ? pointsNeeded : 0;
+  }
+
+  /// Get points earned in current tier
+  int get pointsInCurrentTier {
+    final currentThreshold = _getCurrentTierThreshold();
+    return (totalPoints - currentThreshold).clamp(0, totalPoints);
+  }
+
+  /// Get total points needed in current tier to advance
+  int get pointsNeededInCurrentTier {
+    if (currentTier >= 7) return 0; // Max tier
+    
+    final currentThreshold = _getCurrentTierThreshold();
+    final nextThreshold = nextTierThreshold;
+    return nextThreshold - currentThreshold;
   }
 
   int _getCurrentTierThreshold() {
