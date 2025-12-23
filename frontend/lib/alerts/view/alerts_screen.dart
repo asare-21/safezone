@@ -682,6 +682,8 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                 fontSize: 14,
                 color: selected ? Colors.white : Colors.grey.shade800,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
             if (count != null) ...[
               const SizedBox(width: 6),
@@ -763,6 +765,8 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                       fontSize: 18,
                       color: const Color(0xFF1A7F3A),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -771,6 +775,8 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                       color: const Color(0xFF1A7F3A).withValues(alpha: 0.8),
                       height: 1.4,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -897,6 +903,8 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                                         ? Colors.black
                                         : Colors.grey.shade800,
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
@@ -907,13 +915,16 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                                       color: Colors.grey.shade500,
                                     ),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      alert.timeAgo,
-                                      style: theme.textTheme.labelSmall
-                                          ?.copyWith(
-                                            color: Colors.grey.shade600,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                    Flexible(
+                                      child: Text(
+                                        alert.timeAgo,
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                              color: Colors.grey.shade600,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     if (alert.confirmedBy != null) ...[
                                       const SizedBox(width: 12),
@@ -923,13 +934,16 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                                         color: Colors.grey.shade500,
                                       ),
                                       const SizedBox(width: 4),
-                                      Text(
-                                        '${alert.confirmedBy} ✅',
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                              color: Colors.grey.shade600,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                      Flexible(
+                                        child: Text(
+                                          '${alert.confirmedBy} ✅',
+                                          style: theme.textTheme.labelSmall
+                                              ?.copyWith(
+                                                color: Colors.grey.shade600,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ],
                                   ],
@@ -1290,6 +1304,8 @@ class _FilterChip extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
       ),
