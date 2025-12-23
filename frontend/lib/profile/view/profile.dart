@@ -28,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserScore() async {
     final prefs = await SharedPreferences.getInstance();
     final deviceId = prefs.getString('device_id');
-    
+
     if (deviceId != null && mounted) {
       context.read<ScoringCubit>().loadUserProfile(deviceId);
     }
@@ -447,6 +447,7 @@ class _ProfileView extends StatelessWidget {
                 // Progress Bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
+                  // TODO(joasare019): Fix progress to next tier calculation in UserScore model. Current user scores are not being shown
                   child: LinearProgressIndicator(
                     value: userScore?.progressToNextTier ?? 0.0,
                     minHeight: 8,
