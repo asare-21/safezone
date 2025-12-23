@@ -16,6 +16,10 @@ class FirebaseInitService {
 
   /// Initialize Firebase Messaging and register device with backend
   Future<void> initialize() async {
+    // Get and save device ID first (before any Firebase operations that might fail)
+    // This ensures the scoring system works even if push notifications are declined
+    final deviceId = await _getDeviceId();
+    
     try {
       // Request notification permissions
       final messaging = FirebaseMessaging.instance;
@@ -40,8 +44,6 @@ class FirebaseInitService {
 
       debugPrint('FCM Token: $fcmToken');
 
-      // Get device ID
-      final deviceId = await _getDeviceId();
       final platform = _getPlatform();
 
       // Register device with backend
@@ -52,10 +54,6 @@ class FirebaseInitService {
           platform: platform,
         );
         debugPrint('Device registered with backend successfully');
-
-        // Save device ID for future use
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('device_id', deviceId);
       } catch (e) {
         debugPrint('Failed to register device with backend: $e');
         // Don't fail app initialization if backend registration fails

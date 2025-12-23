@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
@@ -27,10 +29,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserScore() async {
     final prefs = await SharedPreferences.getInstance();
-    final deviceId = prefs.getString('device_id');
+    var deviceId = prefs.getString('device_id');
+
+    // Fall back to generating device_id if not stored
+    if (deviceId == null) {
+      deviceId = await _getAndSaveDeviceId(prefs);
+    }
 
     if (deviceId != null && mounted) {
       context.read<ScoringCubit>().loadUserProfile(deviceId);
+    }
+  }
+
+  /// Get device ID and save to SharedPreferences if not already stored
+  Future<String?> _getAndSaveDeviceId(SharedPreferences prefs) async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      String? deviceId;
+      
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        deviceId = androidInfo.id;
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        deviceId = iosInfo.identifierForVendor;
+      }
+      
+      if (deviceId != null) {
+        await prefs.setString('device_id', deviceId);
+      }
+      
+      return deviceId;
+    } catch (e) {
+      debugPrint('Error getting device ID: $e');
+      return null;
     }
   }
 
