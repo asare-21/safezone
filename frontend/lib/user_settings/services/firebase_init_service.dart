@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:safe_zone/user_settings/services/device_api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 
 /// Service to initialize Firebase Cloud Messaging and register device with backend
 class FirebaseInitService {
@@ -18,7 +17,7 @@ class FirebaseInitService {
   Future<void> initialize() async {
     // Get and save device ID first (before any Firebase operations that might fail)
     // This ensures the scoring system works even if push notifications are declined
-    final deviceId = await _getDeviceId();
+    final deviceId = await DeviceIdUtils.getDeviceId();
     
     try {
       // Request notification permissions
@@ -99,37 +98,6 @@ class FirebaseInitService {
     }
   }
 
-  /// Get unique device ID
-  Future<String> _getDeviceId() async {
-    final prefs = await SharedPreferences.getInstance();
-    var deviceId = prefs.getString('device_id');
-
-    if (deviceId != null) {
-      return deviceId;
-    }
-
-    // Generate device ID from device info
-    final deviceInfo = DeviceInfoPlugin();
-
-    try {
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        deviceId = androidInfo.id;
-      } else if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        deviceId = iosInfo.identifierForVendor ?? _generateRandomId();
-      } else {
-        deviceId = _generateRandomId();
-      }
-    } catch (e) {
-      debugPrint('Error getting device ID: $e');
-      deviceId = _generateRandomId();
-    }
-
-    await prefs.setString('device_id', deviceId);
-    return deviceId;
-  }
-
   /// Get platform name
   String _getPlatform() {
     if (Platform.isAndroid) {
@@ -139,12 +107,6 @@ class FirebaseInitService {
     } else {
       return 'web';
     }
-  }
-
-  /// Generate random ID as fallback
-  String _generateRandomId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'device_$timestamp';
   }
 }
 

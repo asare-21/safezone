@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -14,8 +12,8 @@ import 'package:safe_zone/map/models/incident_model.dart';
 import 'package:safe_zone/map/utils/debouncer.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/utils/api_config.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
@@ -81,36 +79,7 @@ class _MapScreenViewState extends State<_MapScreenView> {
   }
   
   Future<void> _initializeDeviceId() async {
-    try {
-      // First, try to get device ID from SharedPreferences (set during Firebase init)
-      final prefs = await SharedPreferences.getInstance();
-      var storedDeviceId = prefs.getString('device_id');
-      
-      if (storedDeviceId != null) {
-        _deviceId = storedDeviceId;
-        return;
-      }
-      
-      // Fall back to getting device ID from device info
-      final deviceInfo = DeviceInfoPlugin();
-      String? deviceId;
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        deviceId = androidInfo.id;
-      } else if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        deviceId = iosInfo.identifierForVendor ?? 'unknown';
-      } else {
-        deviceId = 'unknown';
-      }
-      
-      // Save to SharedPreferences for consistency with profile screen
-      await prefs.setString('device_id', deviceId);
-      _deviceId = deviceId;
-    } catch (e) {
-      debugPrint('Error getting device ID: $e');
-      _deviceId = 'unknown';
-    }
+    _deviceId = await DeviceIdUtils.getDeviceId();
   }
 
   Future<void> _initializeData() async {

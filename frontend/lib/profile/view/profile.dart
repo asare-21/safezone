@@ -1,12 +1,10 @@
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/view/safe_zones_screen.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 import 'package:safe_zone/utils/global.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
@@ -28,41 +26,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserScore() async {
-    final prefs = await SharedPreferences.getInstance();
-    var deviceId = prefs.getString('device_id');
+    final deviceId = await DeviceIdUtils.getDeviceId();
 
-    // Fall back to generating device_id if not stored
-    if (deviceId == null) {
-      deviceId = await _getAndSaveDeviceId(prefs);
-    }
-
-    if (deviceId != null && mounted) {
+    if (mounted) {
       context.read<ScoringCubit>().loadUserProfile(deviceId);
-    }
-  }
-
-  /// Get device ID and save to SharedPreferences if not already stored
-  Future<String?> _getAndSaveDeviceId(SharedPreferences prefs) async {
-    try {
-      final deviceInfo = DeviceInfoPlugin();
-      String? deviceId;
-      
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        deviceId = androidInfo.id;
-      } else if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        deviceId = iosInfo.identifierForVendor;
-      }
-      
-      if (deviceId != null) {
-        await prefs.setString('device_id', deviceId);
-      }
-      
-      return deviceId;
-    } catch (e) {
-      debugPrint('Error getting device ID: $e');
-      return null;
     }
   }
 
