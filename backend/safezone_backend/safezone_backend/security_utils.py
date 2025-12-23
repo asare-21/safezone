@@ -119,20 +119,26 @@ def delete_user_data(device_id):
         'incidents': 0,
     }
     
-    # Delete user devices
-    devices = UserDevice.objects.filter(device_id=device_id)
-    deleted['devices'] = devices.count()
-    devices.delete()
+    # Delete user devices (encrypted field - filter in Python)
+    all_devices = UserDevice.objects.all()
+    devices_to_delete = [d for d in all_devices if d.device_id == device_id]
+    deleted['devices'] = len(devices_to_delete)
+    for device in devices_to_delete:
+        device.delete()
     
-    # Delete user preferences
-    prefs = UserPreferences.objects.filter(device_id=device_id)
-    deleted['preferences'] = prefs.count()
-    prefs.delete()
+    # Delete user preferences (encrypted field - filter in Python)
+    all_prefs = UserPreferences.objects.all()
+    prefs_to_delete = [p for p in all_prefs if p.device_id == device_id]
+    deleted['preferences'] = len(prefs_to_delete)
+    for pref in prefs_to_delete:
+        pref.delete()
     
-    # Delete safe zones
-    zones = SafeZone.objects.filter(device_id=device_id)
-    deleted['safe_zones'] = zones.count()
-    zones.delete()
+    # Delete safe zones (encrypted field - filter in Python)
+    all_zones = SafeZone.objects.all()
+    zones_to_delete = [z for z in all_zones if z.device_id == device_id]
+    deleted['safe_zones'] = len(zones_to_delete)
+    for zone in zones_to_delete:
+        zone.delete()
     
     # Note: Incidents are typically kept for community safety
     # but can be anonymized or deleted based on policy
@@ -163,8 +169,9 @@ def export_user_data(device_id):
         'incidents': [],
     }
     
-    # Export devices
-    devices = UserDevice.objects.filter(device_id=device_id)
+    # Export devices (encrypted field - filter in Python)
+    all_devices = UserDevice.objects.all()
+    devices = [d for d in all_devices if d.device_id == device_id]
     for device in devices:
         data['devices'].append({
             'platform': device.platform,
@@ -173,9 +180,11 @@ def export_user_data(device_id):
             'is_active': device.is_active,
         })
     
-    # Export preferences
-    try:
-        prefs = UserPreferences.objects.get(device_id=device_id)
+    # Export preferences (encrypted field - filter in Python)
+    all_prefs = UserPreferences.objects.all()
+    prefs_list = [p for p in all_prefs if p.device_id == device_id]
+    if prefs_list:
+        prefs = prefs_list[0]
         data['preferences'] = {
             'alert_radius': prefs.alert_radius,
             'default_zoom': prefs.default_zoom,
@@ -186,11 +195,10 @@ def export_user_data(device_id):
             'created_at': prefs.created_at.isoformat(),
             'updated_at': prefs.updated_at.isoformat(),
         }
-    except UserPreferences.DoesNotExist:
-        pass
     
-    # Export safe zones
-    zones = SafeZone.objects.filter(device_id=device_id)
+    # Export safe zones (encrypted field - filter in Python)
+    all_zones = SafeZone.objects.all()
+    zones = [z for z in all_zones if z.device_id == device_id]
     for zone in zones:
         data['safe_zones'].append({
             'name': zone.name,

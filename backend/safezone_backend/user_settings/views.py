@@ -65,7 +65,13 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         """Filter safe zones by device_id from query params."""
         device_id = self.request.query_params.get('device_id')
         if device_id:
-            return SafeZone.objects.filter(device_id=device_id)
+            # Since device_id is encrypted, we need to filter in Python
+            # Get all safe zones and filter by comparing decrypted values
+            all_zones = SafeZone.objects.all()
+            filtered_zones = [zone for zone in all_zones if zone.device_id == device_id]
+            # Return filtered IDs to maintain queryset behavior
+            zone_ids = [zone.id for zone in filtered_zones]
+            return SafeZone.objects.filter(id__in=zone_ids)
         return SafeZone.objects.all()
     
     def list(self, request, *args, **kwargs):
