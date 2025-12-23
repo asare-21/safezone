@@ -204,7 +204,7 @@ class NearbyIncidentsView(views.APIView):
             try:
                 radius_km = float(request.data.get('radius_km', 0.5))
             except (ValueError, TypeError):
-                radius_km = 0.5  # Default to 500m if invalid
+                radius_km = 0.5  # Default to 0.5km (500 meters) if invalid
             
             # Parse and validate hours
             try:

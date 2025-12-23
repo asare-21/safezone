@@ -175,7 +175,13 @@ class IncidentProximityService {
       final prefs = await SharedPreferences.getInstance();
       final promptedList = prefs.getStringList(_promptedIncidentsKey) ?? [];
       _promptedIncidents.clear();
-      _promptedIncidents.addAll(promptedList.map(int.parse));
+      // Use tryParse for safer parsing
+      for (final idStr in promptedList) {
+        final id = int.tryParse(idStr);
+        if (id != null) {
+          _promptedIncidents.add(id);
+        }
+      }
     } on Exception catch (e) {
       if (kDebugMode) {
         print('Error loading prompted incidents: $e');

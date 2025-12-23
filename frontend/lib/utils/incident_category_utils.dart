@@ -18,6 +18,11 @@ class IncidentCategoryUtils {
 
   /// Format category string to readable format
   static String _formatCategoryString(String category) {
+    // Handle empty or invalid categories
+    if (category.isEmpty) {
+      return 'Unknown';
+    }
+    
     switch (category) {
       case 'accident':
         return 'Accident';
