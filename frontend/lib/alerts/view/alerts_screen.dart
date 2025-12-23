@@ -907,18 +907,36 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
-                                Flexible(
-                                  child: Row(
-                                    children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.schedule_outlined,
+                                      size: 12,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        alert.timeAgo,
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                              color: Colors.grey.shade600,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (alert.confirmedBy != null) ...[
+                                      const SizedBox(width: 12),
                                       Icon(
-                                        Icons.schedule_outlined,
+                                        Icons.people_outline,
                                         size: 12,
                                         color: Colors.grey.shade500,
                                       ),
                                       const SizedBox(width: 4),
                                       Flexible(
                                         child: Text(
-                                          alert.timeAgo,
+                                          '${alert.confirmedBy} ✅',
                                           style: theme.textTheme.labelSmall
                                               ?.copyWith(
                                                 color: Colors.grey.shade600,
@@ -927,28 +945,8 @@ class _AlertsScreenViewState extends State<_AlertsScreenView> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      if (alert.confirmedBy != null) ...[
-                                        const SizedBox(width: 12),
-                                        Icon(
-                                          Icons.people_outline,
-                                          size: 12,
-                                          color: Colors.grey.shade500,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Flexible(
-                                          child: Text(
-                                            '${alert.confirmedBy} ✅',
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(
-                                                  color: Colors.grey.shade600,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
                                     ],
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),

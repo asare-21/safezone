@@ -264,7 +264,6 @@ class AlertDetailsScreen extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 label,
@@ -273,7 +272,7 @@ class AlertDetailsScreen extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              const SizedBox(width: 16),
+              const Spacer(),
               Flexible(
                 child: Text(
                   value,
