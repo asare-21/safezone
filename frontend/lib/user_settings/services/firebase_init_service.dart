@@ -17,8 +17,8 @@ class FirebaseInitService {
   Future<void> initialize() async {
     // IMPORTANT: Get and save device ID FIRST (before any Firebase operations)
     // This ensures the scoring system works even if:
-    // - User declines push notification permission (early return at line 34)
-    // - FCM token fails to be retrieved (early return at line 41)
+    // - User declines push notification permission
+    // - FCM token fails to be retrieved
     // - Backend registration fails
     // The device ID is saved to SharedPreferences by DeviceIdUtils.getDeviceId()
     // which allows the profile screen to load scoring data.
