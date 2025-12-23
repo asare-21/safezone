@@ -4,6 +4,7 @@ export 'cubit/profile_settings_cubit.dart';
 export 'cubit/proximity_alerts_settings_cubit.dart';
 export 'cubit/safe_zone_cubit.dart';
 export 'cubit/safe_zone_state.dart';
+export 'cubit/scoring_cubit.dart';
 export 'models/user_incident_model.dart';
 export 'models/user_score_model.dart';
 export 'repository/profile_settings_repository.dart';

@@ -4,18 +4,35 @@ import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/profile/profile.dart';
 import 'package:safe_zone/profile/view/safe_zones_screen.dart';
 import 'package:safe_zone/utils/global.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Color constants for profile screen
 const Color _lightBlueBackground = Color(0xFFEFF6FF);
 const Color _avatarBackground = Color(0xFFFFE4CC);
 const Color _avatarIconColor = Color(0xFF8B7355);
 
-// Trust score constants
-const int _currentTrustScore = 450;
-const int _maxTrustScore = 600;
-
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserScore();
+  }
+
+  Future<void> _loadUserScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    final deviceId = prefs.getString('device_id');
+    
+    if (deviceId != null && mounted) {
+      context.read<ScoringCubit>().loadUserProfile(deviceId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -245,137 +262,259 @@ class _ProfileView extends StatelessWidget {
   }
 
   Widget _buildUserProfileCard(ThemeData theme, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.dividerColor.withValues(alpha: 0.1),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+    return BlocBuilder<ScoringCubit, ScoringState>(
+      builder: (context, state) {
+        if (state is ScoringLoading) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.dividerColor.withValues(alpha: 0.1),
+                ),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Profile Avatar
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _avatarBackground,
-                    border: Border.all(
-                      color: theme.dividerColor.withValues(alpha: 0.2),
-                      width: 2,
+          );
+        }
+
+        if (state is ScoringError) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.dividerColor.withValues(alpha: 0.1),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const Icon(
+                    LineIcons.exclamationCircle,
+                    size: 48,
+                    color: Colors.orange,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Unable to load scoring data',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
-                  child: const Icon(
-                    LineIcons.user,
-                    size: 32,
-                    color: _avatarIconColor,
+                  const SizedBox(height: 4),
+                  Text(
+                    state.message,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(width: 16),
-                // User Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Sarah Jenkins',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Member since 2021',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.6,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Get user score from state or use default values
+        final userScore = state is ScoringLoaded ? state.userScore : null;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: theme.dividerColor.withValues(alpha: 0.1),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            // Trust Score
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    const Text(
-                      'Trust Score: Guardian',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    // Profile Avatar
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _avatarBackground,
+                        border: Border.all(
+                          color: theme.dividerColor.withValues(alpha: 0.2),
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        LineIcons.user,
+                        size: 32,
+                        color: _avatarIconColor,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'High reputation contributor',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.6,
+                    const SizedBox(width: 16),
+                    // User Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'SafeZone User',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Truth Hunter',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Trust Score
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${userScore?.tierIcon ?? '👁️'} ${userScore?.tierName ?? 'Fresh Eye Scout'}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${userScore?.accuracyPercentage.toStringAsFixed(0) ?? '0'}% accuracy',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _lightBlueBackground,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${userScore?.totalPoints ?? 0} pts',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _lightBlueBackground,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '$_currentTrustScore/$_maxTrustScore',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.primary,
+                const SizedBox(height: 12),
+                // Progress Bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: userScore?.progressToNextTier ?? 0.0,
+                    minHeight: 8,
+                    backgroundColor: theme.dividerColor.withValues(alpha: 0.1),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
+                // Stats Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(
+                      icon: LineIcons.flag,
+                      label: 'Reports',
+                      value: (userScore?.reportsCount ?? 0).toString(),
+                      theme: theme,
+                    ),
+                    _buildStatItem(
+                      icon: LineIcons.checkCircle,
+                      label: 'Confirms',
+                      value: (userScore?.confirmationsCount ?? 0).toString(),
+                      theme: theme,
+                    ),
+                    _buildStatItem(
+                      icon: LineIcons.award,
+                      label: 'Badges',
+                      value: (userScore?.badges?.length ?? 0).toString(),
+                      theme: theme,
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 12),
-            // Progress Bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: _currentTrustScore / _maxTrustScore,
-                minHeight: 8,
-                backgroundColor: theme.dividerColor.withValues(alpha: 0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-          ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required ThemeData theme,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: theme.colorScheme.primary,
+          ),
         ),
-      ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+      ],
     );
   }
 
