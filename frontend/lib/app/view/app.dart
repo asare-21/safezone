@@ -120,6 +120,9 @@ class App extends StatelessWidget {
         BlocProvider(
           create: (_) => ScoringCubit(scoringRepository),
         ),
+        BlocProvider(
+          create: (_) => IncidentHistoryCubit(scoringRepository),
+        ),
       ],
       child: Builder(
         builder: (context) {

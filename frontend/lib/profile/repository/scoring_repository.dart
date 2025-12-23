@@ -154,6 +154,30 @@ class ScoringRepository {
     }
   }
 
+  /// Get incidents reported by the user
+  Future<List<ReportedIncident>> getUserIncidents(String deviceId) async {
+    final url = Uri.parse('$baseUrl/api/scoring/profile/$deviceId/incidents/');
+
+    final response = await _httpClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as Map<String, dynamic>;
+      final incidents = data['incidents'] as List;
+      return incidents
+          .map((incident) => ReportedIncident.fromJson(incident as Map<String, dynamic>))
+          .toList();
+    } else {
+      throw Exception(
+        'Failed to get user incidents: ${response.statusCode} ${response.body}',
+      );
+    }
+  }
+
   void dispose() {
     _httpClient.close();
   }

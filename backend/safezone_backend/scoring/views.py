@@ -20,6 +20,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Scoring constants
+INCIDENT_REPORT_BASE_POINTS = 10
+INCIDENT_CONFIRMATION_BONUS_MULTIPLIER = 2
+MAX_CONFIRMATION_BONUS_COUNT = 10
+VERIFIED_STATUS_THRESHOLD = 5
+
 
 class UserProfileView(generics.RetrieveAPIView):
     """
@@ -172,6 +178,66 @@ class UserBadgesView(generics.ListAPIView):
             return Badge.objects.filter(profile=profile)
         except UserProfile.DoesNotExist:
             return Badge.objects.none()
+
+
+class UserIncidentsView(views.APIView):
+    """
+    Get incidents reported by a specific user.
+    
+    GET: Returns list of incidents reported by the user (identified by device_id).
+    """
+    
+    def get_permissions(self):
+        """Allow unauthenticated access in development."""
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [AllowAny()]
+    
+    def get(self, request, device_id):
+        """Get incidents reported by the user."""
+        device_id_hash = hash_device_id(device_id)
+        
+        # Get incidents reported by this user
+        incidents = Incident.objects.filter(
+            reporter_device_id_hash=device_id_hash
+        ).order_by('-timestamp')
+        
+        # Get confirmation counts for each incident
+        incident_data = []
+        for incident in incidents:
+            confirmation_count = IncidentConfirmation.objects.filter(
+                incident=incident
+            ).count()
+            
+            # Calculate impact score using constants
+            confirmation_bonus = min(
+                confirmation_count, MAX_CONFIRMATION_BONUS_COUNT
+            ) * INCIDENT_CONFIRMATION_BONUS_MULTIPLIER
+            impact_score = INCIDENT_REPORT_BASE_POINTS + confirmation_bonus
+            
+            # Determine incident status based on confirmation count
+            if confirmation_count >= VERIFIED_STATUS_THRESHOLD:
+                incident_status = 'verified'
+            else:
+                incident_status = 'pending'
+            
+            incident_data.append({
+                'id': incident.id,
+                'category': incident.category,
+                'title': incident.title,
+                'description': incident.description,
+                'latitude': incident.latitude,
+                'longitude': incident.longitude,
+                'timestamp': incident.timestamp.isoformat(),
+                'confirmed_by': confirmation_count,
+                'status': incident_status,
+                'impact_score': impact_score,
+            })
+        
+        return Response({
+            'count': len(incident_data),
+            'incidents': incident_data,
+        }, status=status.HTTP_200_OK)
 
 
 class NearbyIncidentsView(views.APIView):

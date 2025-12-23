@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
+import 'package:safe_zone/profile/cubit/incident_history_cubit.dart';
 import 'package:safe_zone/profile/models/user_incident_model.dart';
+import 'package:safe_zone/profile/models/user_score_model.dart';
+import 'package:safe_zone/utils/device_id_utils.dart';
 
 class IncidentHistoryScreen extends StatefulWidget {
   const IncidentHistoryScreen({super.key});
@@ -16,100 +20,64 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
   IncidentStatus? _selectedStatus;
   final String _sortBy = 'Recent'; // Recent, Oldest, Most Confirmed
 
-  // Mock data for demonstration
-  late List<UserIncident> _mockIncidents;
-
   @override
   void initState() {
     super.initState();
-    _initializeMockData();
+    _loadUserIncidents();
   }
 
-  void _initializeMockData() {
-    _mockIncidents = [
-      UserIncident(
-        id: '1',
-        category: IncidentCategory.theft,
-        locationName: 'Market St & 5th Ave, Downtown',
-        location: const LatLng(40.7580, -73.9855),
-        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
-        title: 'Bike theft at shopping district',
-        description:
-            'Witnessed a bike being stolen from the rack outside the mall. Suspect fled on foot towards the subway station.',
-        status: IncidentStatus.verified,
-        confirmedBy: 8,
-        impactScore: 25,
-      ),
-      UserIncident(
-        id: '2',
-        category: IncidentCategory.suspicious,
-        locationName: 'Central Park, North Entrance',
-        location: const LatLng(40.7614, -73.9776),
-        timestamp: DateTime.now().subtract(const Duration(days: 2)),
-        title: 'Suspicious activity near parking lot',
-        description:
-            'Group of individuals acting suspiciously around parked vehicles. Appeared to be checking car doors.',
-        status: IncidentStatus.pending,
-        confirmedBy: 2,
-        impactScore: 10,
-      ),
-      UserIncident(
-        id: '3',
-        category: IncidentCategory.lighting,
-        locationName: 'Oak Street Underpass',
-        location: const LatLng(40.7489, -73.9680),
-        timestamp: DateTime.now().subtract(const Duration(days: 5)),
-        title: 'Broken street lights in tunnel',
-        description:
-            'Multiple street lights are out in the tunnel creating very dark conditions at night.',
-        status: IncidentStatus.resolved,
-        confirmedBy: 15,
-        impactScore: 40,
-      ),
-      UserIncident(
-        id: '4',
-        category: IncidentCategory.assault,
-        locationName: 'University Campus, Building C',
-        location: const LatLng(40.7282, -74.0776),
-        timestamp: DateTime.now().subtract(const Duration(days: 7)),
-        title: 'Harassment incident reported',
-        description:
-            'Verbal harassment incident near the campus library. Campus security was notified.',
-        status: IncidentStatus.verified,
-        confirmedBy: 5,
-        impactScore: 20,
-      ),
-      UserIncident(
-        id: '5',
-        category: IncidentCategory.theft,
-        locationName: 'Transit Station, Platform 3',
-        location: const LatLng(40.7589, -73.9851),
-        timestamp: DateTime.now().subtract(const Duration(days: 14)),
-        title: 'Pickpocketing at subway station',
-        description:
-            'Wallet was stolen from bag on crowded platform during rush hour.',
-        status: IncidentStatus.verified,
-        confirmedBy: 12,
-        impactScore: 35,
-      ),
-      UserIncident(
-        id: '6',
-        category: IncidentCategory.suspicious,
-        locationName: 'West End Shopping Mall',
-        location: const LatLng(40.7128, -74.0060),
-        timestamp: DateTime.now().subtract(const Duration(days: 21)),
-        title: 'Suspicious vehicle in parking lot',
-        description:
-            'Vehicle with no plates circling the parking lot repeatedly.',
-        status: IncidentStatus.disputed,
-        confirmedBy: 1,
-        impactScore: 5,
-      ),
-    ];
+  Future<void> _loadUserIncidents() async {
+    final deviceId = await DeviceIdUtils.getDeviceId();
+    if (!mounted) return;
+    context.read<IncidentHistoryCubit>().loadUserIncidents(deviceId);
   }
 
-  List<UserIncident> get _filteredIncidents {
-    var filtered = _mockIncidents;
+  List<UserIncident> _convertToUserIncidents(List<ReportedIncident> incidents) {
+    return incidents.map((incident) {
+      final category = _getCategoryFromString(incident.category);
+      final status = _getStatusFromString(incident.status);
+      
+      return UserIncident(
+        id: incident.id.toString(),
+        category: category,
+        locationName: 'Lat: ${incident.latitude.toStringAsFixed(4)}, '
+            'Lng: ${incident.longitude.toStringAsFixed(4)}',
+        location: LatLng(incident.latitude, incident.longitude),
+        timestamp: incident.timestamp,
+        title: incident.title,
+        description: incident.description,
+        status: status,
+        confirmedBy: incident.confirmedBy,
+        impactScore: incident.impactScore,
+      );
+    }).toList();
+  }
+
+  IncidentCategory _getCategoryFromString(String category) {
+    try {
+      return IncidentCategory.values.firstWhere(
+        (e) => e.name == category,
+      );
+    } catch (e) {
+      return IncidentCategory.suspicious;
+    }
+  }
+
+  IncidentStatus _getStatusFromString(String status) {
+    switch (status.toLowerCase()) {
+      case 'verified':
+        return IncidentStatus.verified;
+      case 'resolved':
+        return IncidentStatus.resolved;
+      case 'disputed':
+        return IncidentStatus.disputed;
+      default:
+        return IncidentStatus.pending;
+    }
+  }
+
+  List<UserIncident> _filterAndSortIncidents(List<UserIncident> incidents) {
+    var filtered = incidents;
 
     // Filter by category
     if (_selectedCategory != null) {
@@ -137,24 +105,22 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
     return filtered;
   }
 
-  Map<String, int> get _statistics {
+  Map<String, int> _calculateStatistics(List<UserIncident> incidents) {
     return {
-      'total': _mockIncidents.length,
-      'verified': _mockIncidents
+      'total': incidents.length,
+      'verified': incidents
           .where((i) => i.status == IncidentStatus.verified)
           .length,
-      'pending': _mockIncidents
+      'pending': incidents
           .where((i) => i.status == IncidentStatus.pending)
           .length,
-      'totalImpact': _mockIncidents.fold(0, (sum, i) => sum + i.impactScore),
+      'totalImpact': incidents.fold(0, (sum, i) => sum + i.impactScore),
     };
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final filteredIncidents = _filteredIncidents;
-    final stats = _statistics;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -173,20 +139,62 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
             fontSize: 20,
           ),
         ),
-        // actions: [
-        //   IconButton(
-        //     onPressed: _showFilterDialog,
-        //     icon: const Icon(
-        //       LineIcons.horizontalSliders,
-        //       color: Colors.black,
-        //     ),
-        //   ),
-        // ],
       ),
-      body: SafeArea(
-        child: filteredIncidents.isEmpty
-            ? _buildEmptyState(theme)
-            : SingleChildScrollView(
+      body: BlocBuilder<IncidentHistoryCubit, IncidentHistoryState>(
+        builder: (context, state) {
+          if (state is IncidentHistoryLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is IncidentHistoryError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    LineIcons.exclamationCircle,
+                    size: 48,
+                    color: theme.colorScheme.error,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to load incidents',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _loadUserIncidents,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (state is IncidentHistoryLoaded) {
+            final userIncidents = _convertToUserIncidents(state.incidents);
+            final filteredIncidents = _filterAndSortIncidents(userIncidents);
+            final stats = _calculateStatistics(userIncidents);
+
+            if (filteredIncidents.isEmpty) {
+              return _buildEmptyState(theme);
+            }
+
+            return SafeArea(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,6 +244,12 @@ class _IncidentHistoryScreenState extends State<IncidentHistoryScreen> {
                   ],
                 ),
               ),
+            );
+          }
+
+          // Initial state
+          return _buildEmptyState(theme);
+        },
       ),
     );
   }
