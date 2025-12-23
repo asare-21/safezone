@@ -47,16 +47,24 @@ class IncidentApiService {
     required String title,
     required bool notifyNearby,
     String? description,
+    String? deviceId,
   }) async {
     try {
-      final body = json.encode({
+      final bodyData = {
         'category': _categoryToString(category),
         'latitude': location.latitude,
         'longitude': location.longitude,
         'title': title,
         'description': description ?? '',
         'notify_nearby': notifyNearby,
-      });
+      };
+      
+      // Add device_id if provided
+      if (deviceId != null) {
+        bodyData['device_id'] = deviceId;
+      }
+      
+      final body = json.encode(bodyData);
 
       print(body);
 

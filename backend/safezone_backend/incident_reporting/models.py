@@ -34,6 +34,7 @@ class Incident(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     confirmed_by = models.IntegerField(default=1)
     notify_nearby = models.BooleanField(default=False)
+    reporter_device_id_hash = models.CharField(max_length=64, null=True, blank=True, db_index=True)
 
     class Meta:
         ordering = ['-timestamp']

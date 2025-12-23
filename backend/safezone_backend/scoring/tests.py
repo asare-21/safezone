@@ -258,3 +258,99 @@ class ScoringSystemTestCase(TestCase):
         # Check that incident has correct confirmation count
         incident.refresh_from_db()
         self.assertEqual(incident.confirmed_by, 11)
+    
+    def test_nearby_incidents_excludes_creator(self):
+        """Test that nearby incidents endpoint excludes incidents created by the requesting user."""
+        creator_device_id = 'creator_device'
+        other_device_id = 'other_device'
+        
+        # Create an incident by creator_device_id
+        creator_incident = Incident.objects.create(
+            category='theft',
+            latitude=37.7749,
+            longitude=-122.4194,
+            title='Created by creator',
+            reporter_device_id_hash=hash_device_id(creator_device_id)
+        )
+        
+        # Create an incident by other_device_id
+        other_incident = Incident.objects.create(
+            category='fire',
+            latitude=37.7750,
+            longitude=-122.4195,
+            title='Created by other user',
+            reporter_device_id_hash=hash_device_id(other_device_id)
+        )
+        
+        # Create an incident without reporter tracking (legacy)
+        legacy_incident = Incident.objects.create(
+            category='suspicious',
+            latitude=37.7751,
+            longitude=-122.4196,
+            title='Legacy incident',
+            reporter_device_id_hash=None
+        )
+        
+        # Request nearby incidents as creator
+        response = self.client.post(
+            '/api/scoring/incidents/nearby/',
+            {
+                'latitude': 37.7749,
+                'longitude': -122.4194,
+                'device_id': creator_device_id,
+                'radius_km': 1.0
+            },
+            format='json'
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        incidents = response.data['incidents']
+        incident_ids = [inc['id'] for inc in incidents]
+        
+        # Creator should NOT see their own incident
+        self.assertNotIn(creator_incident.id, incident_ids)
+        
+        # Creator SHOULD see other user's incident
+        self.assertIn(other_incident.id, incident_ids)
+        
+        # Creator SHOULD see legacy incident (no reporter tracking)
+        self.assertIn(legacy_incident.id, incident_ids)
+        
+        # Verify count
+        self.assertEqual(response.data['count'], 2)
+    
+    def test_nearby_incidents_excludes_already_confirmed(self):
+        """Test that nearby incidents endpoint excludes already confirmed incidents."""
+        # Create an incident
+        incident = Incident.objects.create(
+            category='theft',
+            latitude=37.7749,
+            longitude=-122.4194,
+            title='Test Theft'
+        )
+        
+        # Confirm the incident as this device
+        IncidentConfirmation.objects.create(
+            incident=incident,
+            device_id=self.device_id,
+            device_id_hash=self.device_id_hash
+        )
+        
+        # Request nearby incidents
+        response = self.client.post(
+            '/api/scoring/incidents/nearby/',
+            {
+                'latitude': 37.7749,
+                'longitude': -122.4194,
+                'device_id': self.device_id,
+                'radius_km': 1.0
+            },
+            format='json'
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        incidents = response.data['incidents']
+        incident_ids = [inc['id'] for inc in incidents]
+        
+        # Should not include already confirmed incident
+        self.assertNotIn(incident.id, incident_ids)
