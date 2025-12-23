@@ -289,7 +289,69 @@ flutterfire configure
 
 See `frontend/NOTIFICATION_SETTINGS.md` for detailed Firebase setup instructions.
 
-### 4. Run the App
+### 4. Auth0 Configuration
+
+SafeZone uses Auth0 for user authentication. You can pass Auth0 credentials to the frontend application using one of the following methods:
+
+#### Option A: Environment Variables at Build Time (Recommended for CI/CD)
+
+Pass Auth0 credentials using `--dart-define` flags when building or running the app:
+
+```bash
+flutter run --dart-define=AUTH0_DOMAIN=your-tenant.auth0.com \
+            --dart-define=AUTH0_CLIENT_ID=your-client-id \
+            --dart-define=AUTH0_AUDIENCE=https://safezone-api
+```
+
+For production builds:
+
+```bash
+flutter build apk --dart-define=AUTH0_DOMAIN=your-tenant.auth0.com \
+                  --dart-define=AUTH0_CLIENT_ID=your-client-id \
+                  --dart-define=AUTH0_AUDIENCE=https://safezone-api
+
+flutter build ios --dart-define=AUTH0_DOMAIN=your-tenant.auth0.com \
+                  --dart-define=AUTH0_CLIENT_ID=your-client-id \
+                  --dart-define=AUTH0_AUDIENCE=https://safezone-api
+```
+
+#### Option B: Direct Configuration (Development Only)
+
+For local development, you can update the configuration file directly:
+
+Edit `frontend/lib/authentication/config/auth0_config.dart`:
+
+```dart
+class Auth0Config {
+  const Auth0Config._();
+
+  static const String domain = 'your-tenant.auth0.com';
+  static const String clientId = 'your-client-id-from-auth0';
+  static const String audience = 'https://safezone-api';
+
+  static const List<String> scopes = [
+    'openid',
+    'profile',
+    'email',
+    'offline_access',
+  ];
+}
+```
+
+> ⚠️ **Security Note**: Never commit actual Auth0 credentials to version control. Use environment variables or secrets management for production deployments.
+
+#### Auth0 Setup Requirements
+
+1. Create an Auth0 account at [auth0.com](https://auth0.com)
+2. Create a **Native** application in the Auth0 dashboard
+3. Configure callback URLs:
+   - `com.safezone.app://YOUR_AUTH0_DOMAIN/ios/com.safezone.app/callback`
+   - `com.safezone.app://YOUR_AUTH0_DOMAIN/android/com.safezone.app/callback`
+4. Create an API in Auth0 for the backend
+
+See `AUTH0_INTEGRATION.md` for complete Auth0 setup instructions.
+
+### 5. Run the App
 
 ```bash
 # Development build
@@ -551,22 +613,23 @@ SafeZone is designed with privacy and ethical considerations at its core:
 
 ### Current Status ✅
 - [x] Interactive map with incident markers
-- [x] Incident reporting with media upload
+- [x] Incident reporting (18 categories)
 - [x] Firebase push notifications
 - [x] Proximity-based alerts
-- [x] **Incident confirmation prompts with scoring**
-- [x] **Automatic proximity detection for nearby incidents**
-- [x] **Points-based reward system with tier progression**
+- [x] Incident confirmation prompts with scoring
+- [x] Automatic proximity detection for nearby incidents
+- [x] Points-based reward system with tier progression
 - [x] User profile and settings
 - [x] Emergency services directory
 - [x] Notification preferences
 - [x] Time-based filtering
 - [x] Search functionality
 - [x] Safe zones management
+- [x] Auth0 user authentication system
+- [x] Django REST backend API integration
+- [x] Secure JWT token-based authentication
 
 ### Planned Features 🚧
-- [ ] User authentication system
-- [ ] Backend API integration
 - [ ] Media upload for incident reports (camera/gallery)
 - [ ] Push notifications for incident proximity
 - [ ] Route safety scoring
@@ -630,6 +693,12 @@ This is a portfolio project, but contributions, suggestions, and feedback are we
 
 Additional documentation is available in the repository:
 
+### Authentication & Integration
+- **[AUTH0_INTEGRATION.md](AUTH0_INTEGRATION.md)** - Complete Auth0 setup guide for backend and frontend
+- **[AUTH0_IMPLEMENTATION_SUMMARY.md](AUTH0_IMPLEMENTATION_SUMMARY.md)** - Auth0 integration implementation details
+- **[BACKEND_INTEGRATION.md](BACKEND_INTEGRATION.md)** - Backend API integration guide
+- **[QUICK_START.md](QUICK_START.md)** - Quick start guide for backend/frontend setup
+
 ### Security & Privacy
 - **[PRIVACY_POLICY.md](PRIVACY_POLICY.md)** - Complete privacy policy with GDPR/CCPA compliance
 - **[DATA_ENCRYPTION.md](DATA_ENCRYPTION.md)** - Detailed encryption and security measures
@@ -637,7 +706,7 @@ Additional documentation is available in the repository:
 - **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Security and privacy implementation summary
 
 ### Feature Documentation
-- **[INCIDENT_CONFIRMATION_FEATURE.md](INCIDENT_CONFIRMATION_FEATURE.md)** - **NEW!** Incident confirmation prompts and scoring system
+- **[INCIDENT_CONFIRMATION_FEATURE.md](INCIDENT_CONFIRMATION_FEATURE.md)** - Incident confirmation prompts and scoring system
 - **[SCORING_SYSTEM_GUIDE.md](SCORING_SYSTEM_GUIDE.md)** - Truth Hunter scoring system implementation guide
 - **[IMPLEMENTATION_SUMMARY.md](frontend/IMPLEMENTATION_SUMMARY.md)** - Notification settings implementation
 - **[NOTIFICATION_SETTINGS.md](frontend/NOTIFICATION_SETTINGS.md)** - Firebase configuration guide
