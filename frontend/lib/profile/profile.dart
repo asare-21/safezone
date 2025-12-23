@@ -1,3 +1,4 @@
+export 'cubit/incident_history_cubit.dart';
 export 'cubit/notification_settings_cubit.dart';
 export 'cubit/profile_cubit.dart';
 export 'cubit/profile_settings_cubit.dart';

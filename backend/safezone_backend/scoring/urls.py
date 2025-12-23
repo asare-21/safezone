@@ -5,12 +5,14 @@ from .views import (
     ConfirmIncidentView,
     UserBadgesView,
     NearbyIncidentsView,
+    UserIncidentsView,
 )
 
 urlpatterns = [
     # User profile endpoints
     path('profile/<str:device_id>/', UserProfileView.as_view(), name='user-profile'),
     path('profile/<str:device_id>/badges/', UserBadgesView.as_view(), name='user-badges'),
+    path('profile/<str:device_id>/incidents/', UserIncidentsView.as_view(), name='user-incidents'),
     
     # Leaderboard
     path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
