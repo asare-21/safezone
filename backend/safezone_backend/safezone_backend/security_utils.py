@@ -109,7 +109,7 @@ def delete_user_data(device_id):
     Returns:
         dict: Summary of deleted items
     """
-    from user_settings.models import UserDevice, UserPreferences, SafeZone
+    from user_settings.models import UserDevice, UserPreferences, SafeZone, hash_device_id
     from incident_reporting.models import Incident
     
     deleted = {
@@ -119,26 +119,23 @@ def delete_user_data(device_id):
         'incidents': 0,
     }
     
-    # Delete user devices (encrypted field - filter in Python)
-    all_devices = UserDevice.objects.all()
-    devices_to_delete = [d for d in all_devices if d.device_id == device_id]
-    deleted['devices'] = len(devices_to_delete)
-    for device in devices_to_delete:
-        device.delete()
+    # Use hash-based lookup for efficient filtering
+    device_id_hash = hash_device_id(device_id)
     
-    # Delete user preferences (encrypted field - filter in Python)
-    all_prefs = UserPreferences.objects.all()
-    prefs_to_delete = [p for p in all_prefs if p.device_id == device_id]
-    deleted['preferences'] = len(prefs_to_delete)
-    for pref in prefs_to_delete:
-        pref.delete()
+    # Delete user devices
+    devices = UserDevice.objects.filter(device_id_hash=device_id_hash)
+    deleted['devices'] = devices.count()
+    devices.delete()
     
-    # Delete safe zones (encrypted field - filter in Python)
-    all_zones = SafeZone.objects.all()
-    zones_to_delete = [z for z in all_zones if z.device_id == device_id]
-    deleted['safe_zones'] = len(zones_to_delete)
-    for zone in zones_to_delete:
-        zone.delete()
+    # Delete user preferences
+    prefs = UserPreferences.objects.filter(device_id_hash=device_id_hash)
+    deleted['preferences'] = prefs.count()
+    prefs.delete()
+    
+    # Delete safe zones
+    zones = SafeZone.objects.filter(device_id_hash=device_id_hash)
+    deleted['safe_zones'] = zones.count()
+    zones.delete()
     
     # Note: Incidents are typically kept for community safety
     # but can be anonymized or deleted based on policy
@@ -157,7 +154,7 @@ def export_user_data(device_id):
     Returns:
         dict: All user data in a portable format
     """
-    from user_settings.models import UserDevice, UserPreferences, SafeZone
+    from user_settings.models import UserDevice, UserPreferences, SafeZone, hash_device_id
     from incident_reporting.models import Incident
     
     data = {
@@ -169,9 +166,11 @@ def export_user_data(device_id):
         'incidents': [],
     }
     
-    # Export devices (encrypted field - filter in Python)
-    all_devices = UserDevice.objects.all()
-    devices = [d for d in all_devices if d.device_id == device_id]
+    # Use hash-based lookup for efficient filtering
+    device_id_hash = hash_device_id(device_id)
+    
+    # Export devices
+    devices = UserDevice.objects.filter(device_id_hash=device_id_hash)
     for device in devices:
         data['devices'].append({
             'platform': device.platform,
@@ -180,11 +179,9 @@ def export_user_data(device_id):
             'is_active': device.is_active,
         })
     
-    # Export preferences (encrypted field - filter in Python)
-    all_prefs = UserPreferences.objects.all()
-    prefs_list = [p for p in all_prefs if p.device_id == device_id]
-    if prefs_list:
-        prefs = prefs_list[0]
+    # Export preferences
+    try:
+        prefs = UserPreferences.objects.get(device_id_hash=device_id_hash)
         data['preferences'] = {
             'alert_radius': prefs.alert_radius,
             'default_zoom': prefs.default_zoom,
@@ -195,10 +192,11 @@ def export_user_data(device_id):
             'created_at': prefs.created_at.isoformat(),
             'updated_at': prefs.updated_at.isoformat(),
         }
+    except UserPreferences.DoesNotExist:
+        pass
     
-    # Export safe zones (encrypted field - filter in Python)
-    all_zones = SafeZone.objects.all()
-    zones = [z for z in all_zones if z.device_id == device_id]
+    # Export safe zones
+    zones = SafeZone.objects.filter(device_id_hash=device_id_hash)
     for zone in zones:
         data['safe_zones'].append({
             'name': zone.name,
