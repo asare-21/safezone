@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from .models import UserDevice, SafeZone, UserPreferences, hash_device_id
 from django.contrib.auth.models import User
-from .models import UserDevice, SafeZone, UserPreferences
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
 
 
@@ -125,13 +125,9 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         """Filter safe zones by device_id from query params."""
         device_id = self.request.query_params.get('device_id')
         if device_id:
-            # NOTE: Due to encrypted fields not supporting efficient database-level filtering,
-            # we filter in Python. For production with large datasets, consider:
-            # 1. Adding a hash field for device_id to enable indexed lookups
-            # 2. Implementing pagination at the application level
-            # 3. Using a separate non-encrypted lookup field
-            all_zones = SafeZone.objects.all()
-            return [zone for zone in all_zones if zone.device_id == device_id]
+            # Use hash-based lookup for efficient filtering
+            device_id_hash = hash_device_id(device_id)
+            return SafeZone.objects.filter(device_id_hash=device_id_hash)
         return SafeZone.objects.all()
     
     def list(self, request, *args, **kwargs):

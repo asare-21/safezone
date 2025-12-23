@@ -109,7 +109,7 @@ def delete_user_data(device_id):
     Returns:
         dict: Summary of deleted items
     """
-    from user_settings.models import UserDevice, UserPreferences, SafeZone
+    from user_settings.models import UserDevice, UserPreferences, SafeZone, hash_device_id
     from incident_reporting.models import Incident
     
     deleted = {
@@ -119,18 +119,21 @@ def delete_user_data(device_id):
         'incidents': 0,
     }
     
+    # Use hash-based lookup for efficient filtering
+    device_id_hash = hash_device_id(device_id)
+    
     # Delete user devices
-    devices = UserDevice.objects.filter(device_id=device_id)
+    devices = UserDevice.objects.filter(device_id_hash=device_id_hash)
     deleted['devices'] = devices.count()
     devices.delete()
     
     # Delete user preferences
-    prefs = UserPreferences.objects.filter(device_id=device_id)
+    prefs = UserPreferences.objects.filter(device_id_hash=device_id_hash)
     deleted['preferences'] = prefs.count()
     prefs.delete()
     
     # Delete safe zones
-    zones = SafeZone.objects.filter(device_id=device_id)
+    zones = SafeZone.objects.filter(device_id_hash=device_id_hash)
     deleted['safe_zones'] = zones.count()
     zones.delete()
     
@@ -151,7 +154,7 @@ def export_user_data(device_id):
     Returns:
         dict: All user data in a portable format
     """
-    from user_settings.models import UserDevice, UserPreferences, SafeZone
+    from user_settings.models import UserDevice, UserPreferences, SafeZone, hash_device_id
     from incident_reporting.models import Incident
     
     data = {
@@ -163,8 +166,11 @@ def export_user_data(device_id):
         'incidents': [],
     }
     
+    # Use hash-based lookup for efficient filtering
+    device_id_hash = hash_device_id(device_id)
+    
     # Export devices
-    devices = UserDevice.objects.filter(device_id=device_id)
+    devices = UserDevice.objects.filter(device_id_hash=device_id_hash)
     for device in devices:
         data['devices'].append({
             'platform': device.platform,
@@ -175,7 +181,7 @@ def export_user_data(device_id):
     
     # Export preferences
     try:
-        prefs = UserPreferences.objects.get(device_id=device_id)
+        prefs = UserPreferences.objects.get(device_id_hash=device_id_hash)
         data['preferences'] = {
             'alert_radius': prefs.alert_radius,
             'default_zoom': prefs.default_zoom,
@@ -190,7 +196,7 @@ def export_user_data(device_id):
         pass
     
     # Export safe zones
-    zones = SafeZone.objects.filter(device_id=device_id)
+    zones = SafeZone.objects.filter(device_id_hash=device_id_hash)
     for zone in zones:
         data['safe_zones'].append({
             'name': zone.name,
