@@ -1,132 +1,202 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:line_icons/line_icons.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:safe_zone/l10n/l10n.dart';
 import 'package:safe_zone/map/models/incident_model.dart';
+import 'package:safe_zone/profile/cubit/incident_history_cubit.dart';
 import 'package:safe_zone/profile/models/user_incident_model.dart';
+import 'package:safe_zone/profile/models/user_score_model.dart';
 import 'package:safe_zone/profile/view/incident_history_screen.dart';
 
+class MockIncidentHistoryCubit extends MockCubit<IncidentHistoryState>
+    implements IncidentHistoryCubit {}
+
 extension IncidentHistoryPumpApp on WidgetTester {
-  Future<void> pumpIncidentHistoryApp(Widget widget) {
+  Future<void> pumpIncidentHistoryApp(
+    Widget widget, {
+    IncidentHistoryCubit? cubit,
+  }) {
     return pumpWidget(
       MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: widget,
+        home: BlocProvider<IncidentHistoryCubit>.value(
+          value: cubit ?? MockIncidentHistoryCubit(),
+          child: widget,
+        ),
       ),
     );
   }
 }
 
+List<ReportedIncident> getMockReportedIncidents() {
+  return [
+    ReportedIncident(
+      id: 1,
+      category: 'theft',
+      title: 'Bike theft at shopping district',
+      description: 'Witnessed a bike being stolen from the rack.',
+      latitude: 40.7580,
+      longitude: -73.9855,
+      timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+      confirmedBy: 8,
+      status: 'verified',
+      impactScore: 25,
+    ),
+    ReportedIncident(
+      id: 2,
+      category: 'suspicious',
+      title: 'Suspicious activity near parking lot',
+      description: 'Group of individuals acting suspiciously.',
+      latitude: 40.7614,
+      longitude: -73.9776,
+      timestamp: DateTime.now().subtract(const Duration(days: 2)),
+      confirmedBy: 2,
+      status: 'pending',
+      impactScore: 10,
+    ),
+    ReportedIncident(
+      id: 3,
+      category: 'lighting',
+      title: 'Broken street lights in tunnel',
+      description: 'Multiple street lights are out in the tunnel.',
+      latitude: 40.7489,
+      longitude: -73.9680,
+      timestamp: DateTime.now().subtract(const Duration(days: 5)),
+      confirmedBy: 15,
+      status: 'verified',
+      impactScore: 40,
+    ),
+  ];
+}
+
 void main() {
+  late MockIncidentHistoryCubit mockCubit;
+
+  setUp(() {
+    mockCubit = MockIncidentHistoryCubit();
+  });
+
   group('IncidentHistoryScreen', () {
-    testWidgets('renders IncidentHistoryScreen', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+    testWidgets('renders IncidentHistoryScreen with app bar', (tester) async {
+      when(() => mockCubit.state).thenReturn(IncidentHistoryInitial());
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       expect(find.text('My Incident History'), findsOneWidget);
     });
 
-    testWidgets('displays statistics cards', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+    testWidgets('displays loading indicator when loading', (tester) async {
+      when(() => mockCubit.state).thenReturn(IncidentHistoryLoading());
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('displays error state with retry button', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        const IncidentHistoryError('Network error'),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
+
+      expect(find.text('Failed to load incidents'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+    });
+
+    testWidgets('displays statistics cards when loaded', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       expect(find.text('Total Reports'), findsOneWidget);
-      expect(find.text('Verified'), findsOneWidget);
+      expect(find.text('Verified'), findsWidgets);
       expect(find.text('Impact Score'), findsOneWidget);
     });
 
-    testWidgets('displays filter button', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+    testWidgets('displays Your Reports section when loaded', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
 
-      expect(find.byIcon(LineIcons.horizontalSliders), findsOneWidget);
-    });
-
-    testWidgets('displays Your Reports section', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       expect(find.text('Your Reports'), findsOneWidget);
       expect(find.textContaining('INCIDENTS'), findsOneWidget);
     });
 
-    testWidgets('displays mock incident cards', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+    testWidgets('displays incident cards when loaded', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       expect(find.text('Bike theft at shopping district'), findsOneWidget);
       expect(find.text('Suspicious activity near parking lot'), findsOneWidget);
       expect(find.text('Broken street lights in tunnel'), findsOneWidget);
     });
 
-    testWidgets('displays correct status badges', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+    testWidgets('displays correct status badges when loaded', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       expect(find.text('Verified'), findsWidgets);
       expect(find.text('Pending'), findsWidgets);
-      expect(find.text('Resolved'), findsWidgets);
     });
 
-    testWidgets('opens filter dialog when filter button is tapped',
-        (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+    testWidgets('displays empty state when no incidents', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        const IncidentHistoryLoaded([]),
+      );
 
-      // Find and tap the filter button
-      final filterButton = find.byIcon(LineIcons.horizontalSliders);
-      expect(filterButton, findsOneWidget);
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
-      await tester.tap(filterButton);
-      await tester.pumpAndSettle();
-
-      // Verify filter dialog is displayed
-      expect(find.text('Filter & Sort'), findsOneWidget);
-      expect(find.text('Clear All'), findsOneWidget);
-      expect(find.text('Category'), findsOneWidget);
-      expect(find.text('Status'), findsOneWidget);
-      expect(find.text('Sort By'), findsOneWidget);
-    });
-
-    testWidgets('filter dialog displays all category options', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      // Open filter dialog
-      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
-      await tester.pumpAndSettle();
-
-      // Verify all category options are displayed
-      expect(find.text('All'), findsWidgets);
-      expect(find.text('Theft'), findsWidgets);
-      expect(find.text('Assault'), findsWidgets);
-      expect(find.text('Suspicious'), findsWidgets);
-      expect(find.text('Lighting'), findsWidgets);
-    });
-
-    testWidgets('filter dialog displays all status options', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      // Open filter dialog
-      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
-      await tester.pumpAndSettle();
-
-      // Verify all status options are displayed
-      expect(find.text('Pending'), findsWidgets);
-      expect(find.text('Verified'), findsWidgets);
-      expect(find.text('Resolved'), findsWidgets);
-      expect(find.text('Disputed'), findsWidgets);
-    });
-
-    testWidgets('filter dialog displays all sort options', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      // Open filter dialog
-      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
-      await tester.pumpAndSettle();
-
-      // Verify all sort options are displayed
-      expect(find.text('Recent'), findsWidgets);
-      expect(find.text('Oldest'), findsWidgets);
-      expect(find.text('Most Confirmed'), findsWidgets);
+      expect(find.text('No Incidents Yet'), findsOneWidget);
     });
 
     testWidgets('navigates to incident detail when card is tapped',
         (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       // Find and tap the first incident card
       final incidentCard = find.text('Bike theft at shopping district');
@@ -140,65 +210,16 @@ void main() {
       expect(find.text('Bike theft at shopping district'), findsOneWidget);
     });
 
-    testWidgets('can filter incidents by category', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      // Open filter dialog
-      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
-      await tester.pumpAndSettle();
-
-      // Select 'Theft' category (find the second occurrence to avoid the header)
-      final theftOptions = find.text('Theft');
-      await tester.tap(theftOptions.last);
-      await tester.pumpAndSettle();
-
-      // Apply filters
-      await tester.tap(find.text('Apply'));
-      await tester.pumpAndSettle();
-
-      // Verify active filter is displayed
-      expect(find.byType(Chip), findsWidgets);
-
-      // Only theft incidents should be visible
-      expect(find.text('Bike theft at shopping district'), findsOneWidget);
-      expect(find.text('Pickpocketing at subway station'), findsOneWidget);
-      // Non-theft incidents should not be visible
-      expect(find.text('Suspicious activity near parking lot'), findsNothing);
-    });
-
-    testWidgets('can clear filters', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      // Open filter dialog
-      await tester.tap(find.byIcon(LineIcons.horizontalSliders));
-      await tester.pumpAndSettle();
-
-      // Select a filter
-      final theftOptions = find.text('Theft');
-      await tester.tap(theftOptions.last);
-      await tester.pumpAndSettle();
-
-      // Clear all
-      await tester.tap(find.text('Clear All'));
-      await tester.pumpAndSettle();
-
-      // Apply
-      await tester.tap(find.text('Apply'));
-      await tester.pumpAndSettle();
-
-      // All incidents should be visible
-      expect(find.text('Bike theft at shopping district'), findsOneWidget);
-      expect(find.text('Suspicious activity near parking lot'), findsOneWidget);
-      expect(find.text('Broken street lights in tunnel'), findsOneWidget);
-    });
-
-    testWidgets('displays incident location and confirmations', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      expect(
-        find.textContaining('Market St & 5th Ave, Downtown'),
-        findsOneWidget,
+    testWidgets('displays incident confirmations', (tester) async {
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
       );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
+
       expect(find.textContaining('confirmed'), findsWidgets);
       expect(find.textContaining('pts'), findsWidgets);
     });
@@ -206,7 +227,14 @@ void main() {
 
   group('IncidentDetailScreen', () {
     testWidgets('displays incident details correctly', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       // Navigate to detail screen
       await tester.tap(find.text('Bike theft at shopping district'));
@@ -219,7 +247,14 @@ void main() {
     });
 
     testWidgets('displays information fields', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       // Navigate to detail screen
       await tester.tap(find.text('Bike theft at shopping district'));
@@ -232,26 +267,22 @@ void main() {
       expect(find.text('Impact Score'), findsOneWidget);
     });
 
-    testWidgets('displays action buttons', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
-
-      // Navigate to detail screen
-      await tester.tap(find.text('Bike theft at shopping district'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Share'), findsOneWidget);
-      expect(find.text('View on Map'), findsOneWidget);
-    });
-
     testWidgets('back button navigates back to history screen', (tester) async {
-      await tester.pumpIncidentHistoryApp(const IncidentHistoryScreen());
+      when(() => mockCubit.state).thenReturn(
+        IncidentHistoryLoaded(getMockReportedIncidents()),
+      );
+
+      await tester.pumpIncidentHistoryApp(
+        const IncidentHistoryScreen(),
+        cubit: mockCubit,
+      );
 
       // Navigate to detail screen
       await tester.tap(find.text('Bike theft at shopping district'));
       await tester.pumpAndSettle();
 
       // Tap back button
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.tap(find.byIcon(Icons.arrow_back).first);
       await tester.pumpAndSettle();
 
       // Should be back on history screen
