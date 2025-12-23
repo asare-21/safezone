@@ -26,8 +26,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserScore() async {
+    // Check mounted before async operation
+    if (!mounted) return;
+    
     final deviceId = await DeviceIdUtils.getDeviceId();
 
+    // Check mounted again after async operation
     if (mounted) {
       context.read<ScoringCubit>().loadUserProfile(deviceId);
     }

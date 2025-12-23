@@ -46,10 +46,11 @@ class DeviceIdUtils {
 
   /// Generate random ID as fallback
   static String _generateRandomId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    // Add random component to avoid collisions if multiple devices
-    // generate IDs at the same millisecond
-    final random = DateTime.now().microsecondsSinceEpoch % 1000;
+    final now = DateTime.now();
+    final timestamp = now.millisecondsSinceEpoch;
+    // Add random component using microseconds from the same timestamp
+    // to avoid collisions if multiple devices generate IDs at the same millisecond
+    final random = now.microsecondsSinceEpoch % 1000;
     return 'device_${timestamp}_$random';
   }
 }
