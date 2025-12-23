@@ -117,6 +117,9 @@ class App extends StatelessWidget {
             ),
           )..checkAuthentication(),
         ),
+        BlocProvider(
+          create: (_) => ScoringCubit(scoringRepository),
+        ),
       ],
       child: Builder(
         builder: (context) {
