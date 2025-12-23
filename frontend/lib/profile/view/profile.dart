@@ -432,12 +432,26 @@ class _ProfileView extends StatelessWidget {
                         color: _lightBlueBackground,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
-                        '${userScore?.totalPoints ?? 0} pts',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).colorScheme.primary,
+                      child: Semantics(
+                        label: 'User points: ${userScore?.totalPoints ?? 0} points',
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              LineIcons.award,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${userScore?.totalPoints ?? 0} pts',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
