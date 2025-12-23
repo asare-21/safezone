@@ -50,7 +50,7 @@ class IncidentHistoryCubit extends Cubit<IncidentHistoryState> {
       final incidents = await _repository.getUserIncidents(deviceId);
       emit(IncidentHistoryLoaded(incidents));
     } catch (e) {
-      emit(IncidentHistoryError(e.toString()));
+      emit(const IncidentHistoryError('Failed to load incidents. Please try again.'));
     }
   }
 

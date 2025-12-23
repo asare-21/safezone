@@ -20,6 +20,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Scoring constants
+INCIDENT_REPORT_BASE_POINTS = 10
+INCIDENT_CONFIRMATION_BONUS_MULTIPLIER = 2
+MAX_CONFIRMATION_BONUS_COUNT = 10
+VERIFIED_STATUS_THRESHOLD = 5
+
 
 class UserProfileView(generics.RetrieveAPIView):
     """
@@ -203,16 +209,15 @@ class UserIncidentsView(views.APIView):
                 incident=incident
             ).count()
             
-            # Calculate impact score (base points + confirmation bonus)
-            base_points = 10  # Base points for reporting
-            confirmation_bonus = min(confirmation_count, 10) * 2  # Up to 20 bonus points
-            impact_score = base_points + confirmation_bonus
+            # Calculate impact score using constants
+            confirmation_bonus = min(
+                confirmation_count, MAX_CONFIRMATION_BONUS_COUNT
+            ) * INCIDENT_CONFIRMATION_BONUS_MULTIPLIER
+            impact_score = INCIDENT_REPORT_BASE_POINTS + confirmation_bonus
             
             # Determine incident status based on confirmation count
-            if confirmation_count >= 5:
+            if confirmation_count >= VERIFIED_STATUS_THRESHOLD:
                 incident_status = 'verified'
-            elif confirmation_count >= 1:
-                incident_status = 'pending'
             else:
                 incident_status = 'pending'
             
