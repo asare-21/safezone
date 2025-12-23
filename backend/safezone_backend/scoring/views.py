@@ -4,6 +4,8 @@ from rest_framework.permissions import AllowAny
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
+from django.utils import timezone
+from datetime import timedelta
 from .models import UserProfile, Badge, IncidentConfirmation, hash_device_id
 from .serializers import (
     UserProfileSerializer,
@@ -13,6 +15,7 @@ from .serializers import (
     ScoringResponseSerializer,
 )
 from incident_reporting.models import Incident
+from alerts.utils import haversine_distance
 import logging
 
 logger = logging.getLogger(__name__)
@@ -169,3 +172,101 @@ class UserBadgesView(generics.ListAPIView):
             return Badge.objects.filter(profile=profile)
         except UserProfile.DoesNotExist:
             return Badge.objects.none()
+
+
+class NearbyIncidentsView(views.APIView):
+    """
+    Check for nearby unconfirmed incidents.
+    
+    POST: Returns incidents within radius that user hasn't confirmed yet.
+    """
+    
+    def get_permissions(self):
+        """Allow unauthenticated access in development."""
+        if settings.DEBUG and not settings.AUTH0_DOMAIN:
+            return [AllowAny()]
+        return [AllowAny()]
+    
+    def post(self, request):
+        """Get nearby unconfirmed incidents for the user."""
+        latitude = request.data.get('latitude')
+        longitude = request.data.get('longitude')
+        device_id = request.data.get('device_id')
+        
+        if not latitude or not longitude or not device_id:
+            return Response(
+                {'error': 'latitude, longitude, and device_id are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Parse and validate radius_km
+            try:
+                radius_km = float(request.data.get('radius_km', 0.5))
+            except (ValueError, TypeError):
+                radius_km = 0.5  # Default to 0.5km (500 meters) if invalid
+            
+            # Parse and validate hours
+            try:
+                hours = int(request.data.get('hours', 24))
+            except (ValueError, TypeError):
+                hours = 24  # Default to 24 hours if invalid
+            
+            lat = float(latitude)
+            lon = float(longitude)
+            radius = min(radius_km, 10)  # Max 10km
+            
+            # Get device_id hash
+            device_id_hash = hash_device_id(device_id)
+            
+            # Get recent incidents
+            time_threshold = timezone.now() - timedelta(hours=hours)
+            recent_incidents = Incident.objects.filter(
+                timestamp__gte=time_threshold
+            )
+            
+            # Get user's confirmations to filter out already confirmed incidents
+            user_confirmations = IncidentConfirmation.objects.filter(
+                device_id_hash=device_id_hash
+            ).values_list('incident_id', flat=True)
+            
+            # Find nearby unconfirmed incidents
+            nearby_unconfirmed = []
+            for incident in recent_incidents:
+                # Skip if already confirmed by user
+                if incident.id in user_confirmations:
+                    continue
+                
+                # Calculate distance
+                distance = haversine_distance(
+                    lon, lat,
+                    incident.longitude,
+                    incident.latitude
+                )
+                
+                if distance <= radius:
+                    nearby_unconfirmed.append({
+                        'id': incident.id,
+                        'category': incident.category,
+                        'title': incident.title,
+                        'description': incident.description,
+                        'latitude': incident.latitude,
+                        'longitude': incident.longitude,
+                        'timestamp': incident.timestamp,
+                        'confirmed_by': incident.confirmed_by,
+                        'distance_meters': round(distance * 1000, 2),
+                    })
+            
+            # Sort by distance
+            nearby_unconfirmed.sort(key=lambda x: x['distance_meters'])
+            
+            return Response({
+                'count': len(nearby_unconfirmed),
+                'incidents': nearby_unconfirmed,
+            }, status=status.HTTP_200_OK)
+            
+        except (ValueError, TypeError) as e:
+            return Response(
+                {'error': f'Invalid parameters: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
