@@ -1,7 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.db import IntegrityError
 from datetime import timedelta
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
+from rest_framework import status
 from user_settings.models import UserDevice, SafeZone, UserPreferences
 from django.contrib.auth.models import User
 from incident_reporting.models import Incident
@@ -11,6 +13,8 @@ from safezone_backend.security_utils import (
     export_user_data,
     delete_user_data
 )
+from authentication.auth0 import Auth0User
+from user_settings.views import UserDeviceRegisterView
 
 
 class EncryptedFieldsTestCase(TestCase):
@@ -270,4 +274,185 @@ class SecuritySettingsTestCase(TestCase):
             'django.contrib.auth.password_validation.MinimumLengthValidator',
             validator_names
         )
+
+
+class UserDeviceRegistrationTestCase(TestCase):
+    """Test user device registration with Auth0 user association."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.factory = APIRequestFactory()
+        self.view = UserDeviceRegisterView.as_view()
+        
+        # Create a mock Auth0 user
+        self.auth0_sub = 'auth0|123456789'
+        self.auth0_email = 'test@example.com'
+        
+    def test_device_registration_creates_django_user(self):
+        """Test that device registration creates a Django User from Auth0 info."""
+        # Create a mock Auth0 user
+        auth0_user = Auth0User({
+            'sub': self.auth0_sub,
+            'email': self.auth0_email,
+        })
+        
+        # Prepare device registration data
+        device_data = {
+            'device_id': 'test-device-123',
+            'fcm_token': 'test-fcm-token',
+            'platform': 'android',
+            'is_active': True,
+        }
+        
+        # Create a POST request
+        request = self.factory.post(
+            '/api/devices/register/',
+            device_data,
+            format='json'
+        )
+        # Force authenticate with the Auth0 user
+        force_authenticate(request, user=auth0_user)
+        
+        # Call the view
+        response = self.view(request)
+        
+        # Verify response is successful
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Verify Django User was created
+        django_user = User.objects.filter(username=self.auth0_sub).first()
+        self.assertIsNotNone(django_user, "Django User should be created from Auth0 info")
+        self.assertEqual(django_user.email, self.auth0_email)
+        self.assertTrue(django_user.is_active)
+        
+        # Verify device was created and associated with user
+        # Note: Due to encrypted fields, we need to iterate to find the device
+        all_devices = UserDevice.objects.all()
+        device = None
+        for d in all_devices:
+            if d.device_id == 'test-device-123':
+                device = d
+                break
+        
+        self.assertIsNotNone(device, "Device should be registered")
+        self.assertIsNotNone(device.user, "Device should be associated with a user")
+        self.assertEqual(device.user.username, self.auth0_sub)
+        self.assertEqual(device.user.email, self.auth0_email)
+    
+    def test_device_update_associates_existing_user(self):
+        """Test that updating a device associates it with the authenticated user."""
+        # Create a device without user association
+        device = UserDevice.objects.create(
+            device_id='test-device-456',
+            fcm_token='old-token',
+            platform='ios',
+        )
+        self.assertIsNone(device.user, "Device should initially have no user")
+        
+        # Create a mock Auth0 user
+        auth0_user = Auth0User({
+            'sub': self.auth0_sub,
+            'email': self.auth0_email,
+        })
+        
+        # Update device with new token
+        device_data = {
+            'device_id': 'test-device-456',
+            'fcm_token': 'new-token',
+            'platform': 'ios',
+            'is_active': True,
+        }
+        
+        # Create a POST request
+        request = self.factory.post(
+            '/api/devices/register/',
+            device_data,
+            format='json'
+        )
+        force_authenticate(request, user=auth0_user)
+        
+        # Call the view
+        response = self.view(request)
+        
+        # Verify response is successful
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Verify device was updated and associated with user
+        device.refresh_from_db()
+        self.assertEqual(device.fcm_token, 'new-token')
+        self.assertIsNotNone(device.user, "Device should now be associated with a user")
+        self.assertEqual(device.user.username, self.auth0_sub)
+    
+    def test_multiple_devices_for_same_user(self):
+        """Test that a user can have multiple devices registered."""
+        # Create a mock Auth0 user
+        auth0_user = Auth0User({
+            'sub': self.auth0_sub,
+            'email': self.auth0_email,
+        })
+        
+        # Register first device
+        device1_data = {
+            'device_id': 'device-1',
+            'fcm_token': 'token-1',
+            'platform': 'android',
+            'is_active': True,
+        }
+        request1 = self.factory.post('/api/devices/register/', device1_data, format='json')
+        force_authenticate(request1, user=auth0_user)
+        response1 = self.view(request1)
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        
+        # Register second device
+        device2_data = {
+            'device_id': 'device-2',
+            'fcm_token': 'token-2',
+            'platform': 'ios',
+            'is_active': True,
+        }
+        request2 = self.factory.post('/api/devices/register/', device2_data, format='json')
+        force_authenticate(request2, user=auth0_user)
+        response2 = self.view(request2)
+        self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
+        
+        # Verify both devices are associated with the same user
+        user = User.objects.get(username=self.auth0_sub)
+        user_devices = UserDevice.objects.filter(user=user)
+        self.assertEqual(user_devices.count(), 2)
+        
+        device_ids = set(d.device_id for d in user_devices)
+        self.assertEqual(device_ids, {'device-1', 'device-2'})
+    
+    def test_user_email_update(self):
+        """Test that user email is updated if it changes in Auth0."""
+        # Create initial user
+        User.objects.create(
+            username=self.auth0_sub,
+            email='old@example.com',
+            is_active=True,
+        )
+        
+        # Create Auth0 user with new email
+        auth0_user = Auth0User({
+            'sub': self.auth0_sub,
+            'email': 'new@example.com',
+        })
+        
+        # Register device
+        device_data = {
+            'device_id': 'test-device',
+            'fcm_token': 'test-token',
+            'platform': 'android',
+            'is_active': True,
+        }
+        request = self.factory.post('/api/devices/register/', device_data, format='json')
+        force_authenticate(request, user=auth0_user)
+        response = self.view(request)
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Verify email was updated
+        user = User.objects.get(username=self.auth0_sub)
+        self.assertEqual(user.email, 'new@example.com')
+
 

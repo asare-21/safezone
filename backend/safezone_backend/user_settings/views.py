@@ -4,8 +4,53 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 from .models import UserDevice, SafeZone, UserPreferences
 from .serializers import UserDeviceSerializer, SafeZoneSerializer, UserPreferencesSerializer
+
+
+def get_or_create_user_from_auth(request):
+    """
+    Get or create a Django User from the authenticated Auth0 user.
+    
+    This helper function extracts user information from Auth0 JWT tokens
+    and creates/updates a corresponding Django User record.
+    
+    Args:
+        request: The request object containing the authenticated user
+        
+    Returns:
+        User instance or None if user creation/retrieval fails
+    """
+    # Get the Auth0 user from the request
+    auth_user = request.user
+    
+    # Check if this is an Auth0User (from JWT authentication)
+    if hasattr(auth_user, 'sub'):
+        # Use Auth0 sub (subject) as the username
+        username = auth_user.sub
+        email = getattr(auth_user, 'email', None)
+        
+        # Get or create Django User
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'email': email or '',
+                'is_active': True,
+            }
+        )
+        
+        # Update email if it changed
+        if email and user.email != email:
+            user.email = email
+            user.save()
+        
+        return user
+    elif isinstance(auth_user, User):
+        # Already a Django User (e.g., from session authentication in tests)
+        return auth_user
+    
+    return None
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -29,18 +74,33 @@ class UserDeviceRegisterView(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         
+        # Get or create the Django User from Auth0 info
+        user = get_or_create_user_from_auth(request)
+        
         # Check if device already exists
-        device = UserDevice.objects.filter(device_id=device_id).first()
+        # NOTE: Due to encrypted fields not supporting efficient database-level filtering,
+        # we iterate through devices. For production with large datasets, consider:
+        # 1. Adding a hash field for device_id to enable indexed lookups
+        # 2. Implementing a caching layer for device lookups
+        # 3. Using a separate non-encrypted lookup field
+        device = None
+        for d in UserDevice.objects.all():
+            if d.device_id == device_id:
+                device = d
+                break
         
         if device:
             # Update existing device
             serializer = self.get_serializer(device, data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(user=user)
             return Response(serializer.data)
         else:
             # Create new device
-            return super().create(request, *args, **kwargs)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -65,13 +125,31 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
         """Filter safe zones by device_id from query params."""
         device_id = self.request.query_params.get('device_id')
         if device_id:
-            return SafeZone.objects.filter(device_id=device_id)
+            # NOTE: Due to encrypted fields not supporting efficient database-level filtering,
+            # we filter in Python. For production with large datasets, consider:
+            # 1. Adding a hash field for device_id to enable indexed lookups
+            # 2. Implementing pagination at the application level
+            # 3. Using a separate non-encrypted lookup field
+            all_zones = SafeZone.objects.all()
+            return [zone for zone in all_zones if zone.device_id == device_id]
         return SafeZone.objects.all()
     
     def list(self, request, *args, **kwargs):
         """Override list to ensure paginated response format."""
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         
+        # Handle list from get_queryset which may return a list due to encrypted field filtering
+        if isinstance(queryset, list):
+            serializer = self.get_serializer(queryset, many=True)
+            return Response({
+                'count': len(serializer.data),
+                'next': None,
+                'previous': None,
+                'results': serializer.data
+            })
+        
+        # Standard queryset pagination
+        queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -84,6 +162,12 @@ class SafeZoneListCreateView(generics.ListCreateAPIView):
             'previous': None,
             'results': serializer.data
         })
+    
+    def perform_create(self, serializer):
+        """Associate the safe zone with the authenticated user when creating."""
+        # Get or create the Django User from Auth0 info
+        user = get_or_create_user_from_auth(self.request)
+        serializer.save(user=user)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
