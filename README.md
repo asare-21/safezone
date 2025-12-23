@@ -349,7 +349,7 @@ class Auth0Config {
    - `com.safezone.app://YOUR_AUTH0_DOMAIN/android/com.safezone.app/callback`
 4. Create an API in Auth0 for the backend
 
-See `AUTH0_INTEGRATION.md` for complete Auth0 setup instructions.
+See `docs/AUTH0_INTEGRATION.md` for complete Auth0 setup instructions.
 
 ### 5. Run the App
 
@@ -694,20 +694,20 @@ This is a portfolio project, but contributions, suggestions, and feedback are we
 Additional documentation is available in the repository:
 
 ### Authentication & Integration
-- **[AUTH0_INTEGRATION.md](AUTH0_INTEGRATION.md)** - Complete Auth0 setup guide for backend and frontend
-- **[AUTH0_IMPLEMENTATION_SUMMARY.md](AUTH0_IMPLEMENTATION_SUMMARY.md)** - Auth0 integration implementation details
-- **[BACKEND_INTEGRATION.md](BACKEND_INTEGRATION.md)** - Backend API integration guide
-- **[QUICK_START.md](QUICK_START.md)** - Quick start guide for backend/frontend setup
+- **[AUTH0_INTEGRATION.md](docs/AUTH0_INTEGRATION.md)** - Complete Auth0 setup guide for backend and frontend
+- **[AUTH0_IMPLEMENTATION_SUMMARY.md](docs/AUTH0_IMPLEMENTATION_SUMMARY.md)** - Auth0 integration implementation details
+- **[BACKEND_INTEGRATION.md](docs/BACKEND_INTEGRATION.md)** - Backend API integration guide
+- **[QUICK_START.md](docs/QUICK_START.md)** - Quick start guide for backend/frontend setup
 
 ### Security & Privacy
-- **[PRIVACY_POLICY.md](PRIVACY_POLICY.md)** - Complete privacy policy with GDPR/CCPA compliance
-- **[DATA_ENCRYPTION.md](DATA_ENCRYPTION.md)** - Detailed encryption and security measures
-- **[SECURITY_GUIDE.md](SECURITY_GUIDE.md)** - Developer guide for security implementation
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Security and privacy implementation summary
+- **[PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md)** - Complete privacy policy with GDPR/CCPA compliance
+- **[DATA_ENCRYPTION.md](docs/DATA_ENCRYPTION.md)** - Detailed encryption and security measures
+- **[SECURITY_GUIDE.md](docs/SECURITY_GUIDE.md)** - Developer guide for security implementation
+- **[IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Security and privacy implementation summary
 
 ### Feature Documentation
-- **[INCIDENT_CONFIRMATION_FEATURE.md](INCIDENT_CONFIRMATION_FEATURE.md)** - Incident confirmation prompts and scoring system
-- **[SCORING_SYSTEM_GUIDE.md](SCORING_SYSTEM_GUIDE.md)** - Truth Hunter scoring system implementation guide
+- **[INCIDENT_CONFIRMATION_FEATURE.md](docs/INCIDENT_CONFIRMATION_FEATURE.md)** - Incident confirmation prompts and scoring system
+- **[SCORING_SYSTEM_GUIDE.md](docs/SCORING_SYSTEM_GUIDE.md)** - Truth Hunter scoring system implementation guide
 - **[IMPLEMENTATION_SUMMARY.md](frontend/IMPLEMENTATION_SUMMARY.md)** - Notification settings implementation
 - **[NOTIFICATION_SETTINGS.md](frontend/NOTIFICATION_SETTINGS.md)** - Firebase configuration guide
 - **[MAP_UI_FINAL_SUMMARY.md](frontend/MAP_UI_FINAL_SUMMARY.md)** - Map UI improvements

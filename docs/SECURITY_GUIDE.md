@@ -309,8 +309,8 @@ LOGGING = {
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [GDPR Compliance Guide](https://gdpr.eu/)
 - [CCPA Compliance Guide](https://oag.ca.gov/privacy/ccpa)
-- [SafeZone Privacy Policy](../PRIVACY_POLICY.md)
-- [SafeZone Data Encryption](../DATA_ENCRYPTION.md)
+- [SafeZone Privacy Policy](PRIVACY_POLICY.md)
+- [SafeZone Data Encryption](DATA_ENCRYPTION.md)
 
 ## Support
 

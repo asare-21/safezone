@@ -13,8 +13,8 @@ const Footer = () => {
     ],
     resources: [
       { label: "Documentation", href: "https://github.com/asare-21/safezone#readme" },
-      { label: "Quick Start", href: "https://github.com/asare-21/safezone/blob/main/QUICK_START.md" },
-      { label: "Backend Integration", href: "https://github.com/asare-21/safezone/blob/main/BACKEND_INTEGRATION.md" },
+      { label: "Quick Start", href: "https://github.com/asare-21/safezone/blob/main/docs/QUICK_START.md" },
+      { label: "Backend Integration", href: "https://github.com/asare-21/safezone/blob/main/docs/BACKEND_INTEGRATION.md" },
       { label: "Changelog", href: "https://github.com/asare-21/safezone/commits/main" },
     ],
     social: [
