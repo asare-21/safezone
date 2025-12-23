@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,11 +47,9 @@ class DeviceIdUtils {
 
   /// Generate random ID as fallback
   static String _generateRandomId() {
-    final now = DateTime.now();
-    final timestamp = now.millisecondsSinceEpoch;
-    // Add random component using microseconds from the same timestamp
-    // to avoid collisions if multiple devices generate IDs at the same millisecond
-    final random = now.microsecondsSinceEpoch % 1000;
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    // Use true random number for better collision protection
+    final random = Random().nextInt(999999);
     return 'device_${timestamp}_$random';
   }
 }
