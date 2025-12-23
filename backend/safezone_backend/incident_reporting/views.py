@@ -62,7 +62,7 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         # Calculate and save the reporter's device_id_hash
         device_id_hash = None
         if device_id:
-            from scoring.models import hash_device_id
+            from scoring.models import hash_device_id, UserProfile
             device_id_hash = hash_device_id(device_id)
         
         # Save the incident with reporter tracking
@@ -71,7 +71,6 @@ class IncidentListCreateView(generics.ListCreateAPIView):
         # Award scoring points if device_id provided
         if device_id:
             try:
-                from scoring.models import UserProfile
                 profile, _ = UserProfile.objects.get_or_create(
                     device_id_hash=device_id_hash,
                     defaults={'device_id': device_id}
