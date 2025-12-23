@@ -68,10 +68,14 @@ This project demonstrates practical engineering skills in mobile development, ge
 - Empty state handling with filter clearing
 
 ### ✅ Report Validation & Trust System
-- Incident confirmation system ("Confirm" action)
-- Share incidents with others
-- User reputation tracking
-- Multiple reports increase incident confidence
+- **Incident confirmation prompts**: Automatically prompts users when they approach reported incidents to confirm if still present
+- **Smart proximity detection**: Monitors user location and detects nearby incidents within 500m
+- **Points-based scoring**: Earn 5 points for each incident confirmation
+- **Duplicate prevention**: Only prompted once per incident per user
+- **User reputation tracking**: Build trust score through accurate confirmations
+- **Tier progression**: Advance through 7 tier levels (Fresh Eye Scout → Legendary Watchmaster)
+- **Achievement badges**: Earn special badges (Truth Triangulator, First Responder, etc.)
+- Multiple confirmations increase incident confidence
 
 ### 🔔 Notification Settings
 - Granular notification controls
@@ -550,6 +554,9 @@ SafeZone is designed with privacy and ethical considerations at its core:
 - [x] Incident reporting with media upload
 - [x] Firebase push notifications
 - [x] Proximity-based alerts
+- [x] **Incident confirmation prompts with scoring**
+- [x] **Automatic proximity detection for nearby incidents**
+- [x] **Points-based reward system with tier progression**
 - [x] User profile and settings
 - [x] Emergency services directory
 - [x] Notification preferences
@@ -561,7 +568,7 @@ SafeZone is designed with privacy and ethical considerations at its core:
 - [ ] User authentication system
 - [ ] Backend API integration
 - [ ] Media upload for incident reports (camera/gallery)
-- [ ] Advanced reputation scoring
+- [ ] Push notifications for incident proximity
 - [ ] Route safety scoring
 - [ ] Offline incident caching
 - [ ] Admin moderation dashboard
@@ -630,6 +637,8 @@ Additional documentation is available in the repository:
 - **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Security and privacy implementation summary
 
 ### Feature Documentation
+- **[INCIDENT_CONFIRMATION_FEATURE.md](INCIDENT_CONFIRMATION_FEATURE.md)** - **NEW!** Incident confirmation prompts and scoring system
+- **[SCORING_SYSTEM_GUIDE.md](SCORING_SYSTEM_GUIDE.md)** - Truth Hunter scoring system implementation guide
 - **[IMPLEMENTATION_SUMMARY.md](frontend/IMPLEMENTATION_SUMMARY.md)** - Notification settings implementation
 - **[NOTIFICATION_SETTINGS.md](frontend/NOTIFICATION_SETTINGS.md)** - Firebase configuration guide
 - **[MAP_UI_FINAL_SUMMARY.md](frontend/MAP_UI_FINAL_SUMMARY.md)** - Map UI improvements
