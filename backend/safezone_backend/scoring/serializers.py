@@ -35,7 +35,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             'id',
-            'device_id',
             'total_points',
             'reports_count',
             'confirmations_count',
@@ -95,7 +94,6 @@ class IncidentConfirmationSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'incident',
-            'device_id',
             'confirmed_at',
         ]
         read_only_fields = ['id', 'confirmed_at']
