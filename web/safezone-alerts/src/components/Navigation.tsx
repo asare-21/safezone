@@ -58,7 +58,7 @@ const Navigation = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             <Button variant="outline" size="sm" asChild>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/asare-21/safezone" target="_blank" rel="noopener noreferrer">
                 View on GitHub
               </a>
             </Button>
