@@ -277,7 +277,7 @@ class AlertDetailsScreen extends StatelessWidget {
                 child: Text(
                   value,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w100,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
