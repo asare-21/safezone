@@ -112,9 +112,13 @@ class ConfirmationResultDialog extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      '🎉',
-                      style: const TextStyle(fontSize: 24),
+                    Semantics(
+                      label: 'Celebration',
+                      child: Icon(
+                        Icons.celebration,
+                        color: theme.colorScheme.primary,
+                        size: 24,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Flexible(

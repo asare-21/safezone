@@ -192,8 +192,6 @@ class NearbyIncidentsView(views.APIView):
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
         device_id = request.data.get('device_id')
-        radius_km = float(request.data.get('radius_km', 0.5))  # Default 500m
-        hours = int(request.data.get('hours', 24))  # Default last 24 hours
         
         if not latitude or not longitude or not device_id:
             return Response(
@@ -202,6 +200,18 @@ class NearbyIncidentsView(views.APIView):
             )
         
         try:
+            # Parse and validate radius_km
+            try:
+                radius_km = float(request.data.get('radius_km', 0.5))
+            except (ValueError, TypeError):
+                radius_km = 0.5  # Default to 500m if invalid
+            
+            # Parse and validate hours
+            try:
+                hours = int(request.data.get('hours', 24))
+            except (ValueError, TypeError):
+                hours = 24  # Default to 24 hours if invalid
+            
             lat = float(latitude)
             lon = float(longitude)
             radius = min(radius_km, 10)  # Max 10km

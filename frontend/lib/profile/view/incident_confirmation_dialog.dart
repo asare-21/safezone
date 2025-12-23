@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_zone/profile/models/user_score_model.dart';
+import 'package:safe_zone/utils/incident_category_utils.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 /// Dialog to prompt user to confirm if an incident is still present
@@ -94,7 +95,7 @@ class IncidentConfirmationDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          _formatCategory(incident.category),
+                          IncidentCategoryUtils.getDisplayName(incident.category),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSecondary,
                             fontWeight: FontWeight.w600,
@@ -203,49 +204,6 @@ class IncidentConfirmationDialog extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatCategory(String category) {
-    switch (category) {
-      case 'accident':
-        return 'Accident';
-      case 'fire':
-        return 'Fire';
-      case 'theft':
-        return 'Theft';
-      case 'suspicious':
-        return 'Suspicious Activity';
-      case 'lighting':
-        return 'Lighting Issue';
-      case 'assault':
-        return 'Assault';
-      case 'vandalism':
-        return 'Vandalism';
-      case 'harassment':
-        return 'Harassment';
-      case 'roadHazard':
-        return 'Road Hazard';
-      case 'animalDanger':
-        return 'Animal Danger';
-      case 'medicalEmergency':
-        return 'Medical Emergency';
-      case 'naturalDisaster':
-        return 'Natural Disaster';
-      case 'powerOutage':
-        return 'Power Outage';
-      case 'waterIssue':
-        return 'Water Issue';
-      case 'noise':
-        return 'Noise Complaint';
-      case 'trespassing':
-        return 'Trespassing';
-      case 'drugActivity':
-        return 'Drug Activity';
-      case 'weaponSighting':
-        return 'Weapon Sighting';
-      default:
-        return category;
-    }
   }
 
   String _formatTimeAgo(DateTime timestamp) {
