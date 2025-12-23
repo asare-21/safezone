@@ -26,10 +26,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserScore() async {
-    if (!mounted) return;
-    
     final deviceId = await DeviceIdUtils.getDeviceId();
 
+    // Check if widget is still mounted after async operation
     if (!mounted) return;
     
     context.read<ScoringCubit>().loadUserProfile(deviceId);
