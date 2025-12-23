@@ -68,6 +68,33 @@ void main() {
     );
 
     blocTest<EmergencyServicesCubit, EmergencyServicesState>(
+      'falls back to all country services when no services found in radius',
+      setUp: () {
+        when(
+          () => mockRepository.getServicesNearLocation(
+            any(),
+            countryCode: any(named: 'countryCode'),
+          ),
+        ).thenReturn([]);
+        when(
+          () => mockRepository.getServicesByCountry(any()),
+        ).thenReturn(mockServices);
+      },
+      build: () => EmergencyServicesCubit(repository: mockRepository),
+      act: (cubit) => cubit.loadServices(
+        userLocation: const LatLng(40.7128, -74.0060),
+      ),
+      expect: () => [
+        const EmergencyServicesState(status: EmergencyServicesStatus.loading),
+        EmergencyServicesState(
+          status: EmergencyServicesStatus.success,
+          services: mockServices,
+          filteredServices: mockServices,
+        ),
+      ],
+    );
+
+    blocTest<EmergencyServicesCubit, EmergencyServicesState>(
       'toggleServiceType adds type to selectedTypes',
       seed: () => EmergencyServicesState(
         status: EmergencyServicesStatus.success,

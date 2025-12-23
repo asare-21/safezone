@@ -38,6 +38,11 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
           userLocation,
           countryCode: countryCode,
         );
+        
+        // If no services found within radius, show all services for the country
+        if (services.isEmpty) {
+          services = await _repository.getServicesByCountry(countryCode);
+        }
       } else {
         // Try to get user's current location
         try {
@@ -57,6 +62,11 @@ class EmergencyServicesCubit extends Cubit<EmergencyServicesState> {
             location,
             countryCode: countryCode,
           );
+          
+          // If no services found within radius, show all services for the country
+          if (services.isEmpty) {
+            services = await _repository.getServicesByCountry(countryCode);
+          }
         } on Exception catch (e) {
           // If location is not available, show services for default country (US)
           services = await _repository.getServicesByCountry('US');
