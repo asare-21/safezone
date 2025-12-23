@@ -432,6 +432,7 @@ class _ProfileView extends StatelessWidget {
                         color: _lightBlueBackground,
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      // TODO(joasare019): Add trophy icon. Current user points fails to show. Shows zero but this is wrong
                       child: Text(
                         '${userScore?.totalPoints ?? 0} pts',
                         style: TextStyle(
