@@ -307,3 +307,75 @@ class ConfirmationResponse {
     };
   }
 }
+
+/// Model for nearby incidents that can be confirmed
+class NearbyIncident {
+  /// Incident ID
+  final int id;
+
+  /// Incident category
+  final String category;
+
+  /// Incident title
+  final String title;
+
+  /// Incident description
+  final String? description;
+
+  /// Latitude
+  final double latitude;
+
+  /// Longitude
+  final double longitude;
+
+  /// Timestamp when incident was reported
+  final DateTime timestamp;
+
+  /// Number of confirmations
+  final int confirmedBy;
+
+  /// Distance from user in meters
+  final double distanceMeters;
+
+  const NearbyIncident({
+    required this.id,
+    required this.category,
+    required this.title,
+    this.description,
+    required this.latitude,
+    required this.longitude,
+    required this.timestamp,
+    required this.confirmedBy,
+    required this.distanceMeters,
+  });
+
+  /// Create NearbyIncident from JSON
+  factory NearbyIncident.fromJson(Map<String, dynamic> json) {
+    return NearbyIncident(
+      id: json['id'] as int,
+      category: json['category'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String?,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      confirmedBy: json['confirmed_by'] as int,
+      distanceMeters: (json['distance_meters'] as num).toDouble(),
+    );
+  }
+
+  /// Convert NearbyIncident to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'category': category,
+      'title': title,
+      'description': description,
+      'latitude': latitude,
+      'longitude': longitude,
+      'timestamp': timestamp.toIso8601String(),
+      'confirmed_by': confirmedBy,
+      'distance_meters': distanceMeters,
+    };
+  }
+}

@@ -118,6 +118,43 @@ class ScoringRepository {
     }
   }
 
+  /// Check for nearby unconfirmed incidents
+  Future<List<NearbyIncident>> getNearbyIncidents({
+    required double latitude,
+    required double longitude,
+    required String deviceId,
+    double radiusKm = 0.5,
+    int hours = 24,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/scoring/incidents/nearby/');
+
+    final response = await _httpClient.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'latitude': latitude,
+        'longitude': longitude,
+        'device_id': deviceId,
+        'radius_km': radiusKm,
+        'hours': hours,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as Map<String, dynamic>;
+      final incidents = data['incidents'] as List;
+      return incidents
+          .map((incident) => NearbyIncident.fromJson(incident as Map<String, dynamic>))
+          .toList();
+    } else {
+      throw Exception(
+        'Failed to get nearby incidents: ${response.statusCode} ${response.body}',
+      );
+    }
+  }
+
   void dispose() {
     _httpClient.close();
   }

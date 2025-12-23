@@ -4,6 +4,7 @@ from .views import (
     LeaderboardView,
     ConfirmIncidentView,
     UserBadgesView,
+    NearbyIncidentsView,
 )
 
 urlpatterns = [
@@ -16,4 +17,7 @@ urlpatterns = [
     
     # Confirmation endpoint
     path('incidents/<int:incident_id>/confirm/', ConfirmIncidentView.as_view(), name='confirm-incident'),
+    
+    # Nearby incidents check
+    path('incidents/nearby/', NearbyIncidentsView.as_view(), name='nearby-incidents'),
 ]
